@@ -1,12 +1,12 @@
+import { Card } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { MyAccountsDetails } from '../MyAccountsDetails';
+
 import MyDefinedRules from '../MyDefinedRules';
 import AlertingDetails from '../AlertingDetails';
 import UserBalanceCard from '../UserBalanceCard';
-import { MyAccountsDetails } from '../MyAccountsDetails';
 import OrderEntryComponent from '../OrderEntryComponent';
-import TradingviewChartAndData from 'src/layouts/dashboard/TradingViewChartCard';
-import { Card } from '@mui/material';
+import { MyAccountsDetails } from '../MyAccountsDetails';
+import TradingviewChartAndData from '../../../layouts/dashboard/TradingViewChartCard';
 
 export function OverviewAnalyticsView() {
   return (

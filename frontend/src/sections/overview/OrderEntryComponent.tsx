@@ -2,8 +2,8 @@ import type {SelectChangeEvent} from '@mui/material';
 
 import React, { useState } from 'react';
 
-import {
-    Box,
+import { Box ,
+    Card,
     Button,
     Select,
     Slider,
@@ -15,6 +15,7 @@ import {
     ButtonGroup,
     FormControl
 } from '@mui/material';
+
 
 const StyledButtonGroup = styled(ButtonGroup)({
     width: '100%',
