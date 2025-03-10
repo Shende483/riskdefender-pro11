@@ -1,5 +1,5 @@
 /**
- *  @type {import('eslint').ESLint.ConfigData}
+ *  @type {import('eslint').ESLint.ConfigData}
  */
 module.exports = {
   root: true,
@@ -10,12 +10,13 @@ module.exports = {
     sourceType: 'module',
     ecmaVersion: 'latest',
     ecmaFeatures: { jsx: true },
-    project: './tsconfig.json',
+    project: './tsconfig.app.json', // Change this line
+    tsconfigRootDir: __dirname,
   },
   settings: {
     'import/resolver': {
       typescript: {
-        project: './tsconfig.json',
+        project: './tsconfig.app.json',
       },
     },
   },
@@ -62,7 +63,9 @@ module.exports = {
       0,
       { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
     ],
+
     // perfectionist
+
     'perfectionist/sort-exports': [1, { order: 'asc', type: 'line-length' }],
     'perfectionist/sort-named-imports': [1, { order: 'asc', type: 'line-length' }],
     'perfectionist/sort-named-exports': [1, { order: 'asc', type: 'line-length' }],

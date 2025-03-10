@@ -1,8 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 
-import { CONFIG } from 'src/config-global';
-
-import { OverviewAnalyticsView } from 'src/sections/overview/view';
+import { CONFIG } from '../config-global';
+import { OverviewAnalyticsView } from '../sections/overview/view';
 
 // ----------------------------------------------------------------------
 

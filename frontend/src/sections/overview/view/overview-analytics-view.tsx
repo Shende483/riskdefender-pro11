@@ -1,10 +1,11 @@
 import Grid from '@mui/material/Grid';
-import { DashboardContent } from 'src/layouts/dashboard';
-import { MyAccountsDetails } from '../MyAccountsDetails';
+
 import MyDefinedRules from '../MyDefinedRules';
 import AlertingDetails from '../AlertingDetails';
 import UserBalanceCard from '../UserBalanceCard';
+import { MyAccountsDetails } from '../MyAccountsDetails';
 import OrderEntryComponent from '../OrderEntryComponent';
+import { DashboardContent } from '../../../layouts/dashboard';
 
 export function OverviewAnalyticsView() {
   return (

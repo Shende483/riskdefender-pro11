@@ -1,6 +1,7 @@
 import type { Theme } from '@mui/material/styles';
 
-import { varAlpha } from 'src/theme/styles';
+import { varAlpha } from '../theme/styles';
+
 
 // ----------------------------------------------------------------------
 

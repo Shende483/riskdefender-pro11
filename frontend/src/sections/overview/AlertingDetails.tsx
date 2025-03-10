@@ -1,5 +1,5 @@
-import { Card, Box, Typography } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
+import { Box, Card, Typography } from "@mui/material";
 
 const CardWrapper = (({ theme }: { theme: any }) => ({
     overflow: 'hidden',

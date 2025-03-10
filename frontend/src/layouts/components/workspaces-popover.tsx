@@ -8,10 +8,10 @@ import MenuList from '@mui/material/MenuList';
 import ButtonBase from '@mui/material/ButtonBase';
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
-import { varAlpha } from 'src/theme/styles';
+import { varAlpha } from '../../theme/styles';
+import { Label } from '../../components/label';
+import { Iconify } from '../../components/iconify';
 
-import { Label } from 'src/components/label';
-import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 

@@ -4,7 +4,7 @@ import { forwardRef } from 'react';
 
 import Box from '@mui/material/Box';
 
-import { varAlpha } from 'src/theme/styles';
+import { varAlpha } from '../../theme/styles';
 
 import type { ColorPreviewProps } from './types';
 

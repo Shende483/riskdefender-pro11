@@ -7,9 +7,9 @@ import Popover from '@mui/material/Popover';
 import MenuList from '@mui/material/MenuList';
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
-import { varAlpha } from 'src/theme/styles';
+import { varAlpha } from '../../theme/styles';
+import { Iconify } from '../../components/iconify';
 
-import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
