@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-import {
-    Box,
-    TextField,
-    Button,
-    Typography,
-    Checkbox,
-    FormControlLabel,
-    InputAdornment,
-    IconButton,
-    Paper,
-    Container,
-    Grid,
-} from '@mui/material';
+import { Link } from 'react-router-dom';
+
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { Link } from 'react-router-dom';
+import {
+    Box,
+    Grid,
+    Paper,
+    Button,
+    Checkbox,
+    TextField,
+    Container,
+    Typography,
+    IconButton,
+    InputAdornment,
+    FormControlLabel,
+} from '@mui/material';
 
 const ForgetPassword: React.FC = () => {
     const [emailOrMobile, setEmailOrMobile] = useState('');

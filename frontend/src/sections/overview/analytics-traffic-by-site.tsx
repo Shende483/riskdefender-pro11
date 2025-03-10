@@ -5,12 +5,9 @@ import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 
-import { fShortenNumber } from 'src/utils/format-number';
-
-import { varAlpha } from 'src/theme/styles';
-
-import { Iconify } from 'src/components/iconify';
-
+import { varAlpha } from '../../theme/styles';
+import { Iconify } from '../../components/iconify';
+import { fShortenNumber } from '../../utils/format-number';
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {

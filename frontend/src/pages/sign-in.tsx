@@ -1,26 +1,27 @@
-import { Helmet } from 'react-helmet-async';
-import { CONFIG } from 'src/config-global';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Box,
+  Grid,
+  Paper,
   Button,
   Checkbox,
   Container,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  Grid,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  Paper,
   TextField,
+  IconButton,
+  InputLabel,
   Typography,
+  FormControl,
+  OutlinedInput,
+  FormHelperText,
+  InputAdornment,
+  FormControlLabel,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { MAX_EMAIL_LENGTH, MOBILE_LENGTH, OTP_LENGTH } from 'src/layouts/Constant';
+
+import { OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
+
 
 interface UserCredentials {
   identifier: string; // Common field for email or mobile
@@ -164,8 +165,7 @@ export default function Page() {
     }
   };
   return (
-    <>
-      <Container component="main" maxWidth="sm">
+    <Container component="main" maxWidth="sm">
         <Paper
           elevation={3}
           sx={{
@@ -304,6 +304,5 @@ export default function Page() {
           </Box>
         </Paper>
       </Container>
-    </>
   );
 }

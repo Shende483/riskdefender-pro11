@@ -1,20 +1,21 @@
+import type {SelectChangeEvent} from '@mui/material';
+
 import React, { useState } from 'react';
-import {
+
+import { Box ,
     Card,
-    CardContent,
     Button,
-    TextField,
-    ButtonGroup,
-    FormControl,
     Select,
-    MenuItem,
-    Box,
     Slider,
-    Typography,
     styled,
-    SelectChangeEvent,
-    SliderChangeEvent,
+    MenuItem,
+    TextField,
+    Typography,
+    CardContent,
+    ButtonGroup,
+    FormControl
 } from '@mui/material';
+
 
 const StyledButtonGroup = styled(ButtonGroup)({
     width: '100%',
@@ -81,17 +82,17 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
         setTargetPrice(event.target.value);
     };
 
-    const handleLeverageChange = (event: SliderChangeEvent, newValue: number | number[]) => {
-        if (typeof newValue === 'number') {
-            setLeverage(newValue);
+    const handleLeverageChange = (event: Event, value: number | number[]) => {
+        if (typeof value === 'number') {
+            setLeverage(value);
         }
     };
 
-    const handleRiskChange = (event: SliderChangeEvent, newValue: number | number[]) => {
-        if (typeof newValue === 'number') {
-            setRisk(newValue);
+    const handleRiskChange = (event: Event, value: number | number[]) => {
+        if (typeof value === 'number') {
+          setRisk(value);
         }
-    };
+      };
 
     return (
         <Card sx={{ m: 2, top: 4, bgcolor: '#ede7f6' }}>

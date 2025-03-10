@@ -7,19 +7,17 @@ import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@mui/material/TablePagination'
 
-import { _users } from 'src/_mock';
-import { DashboardContent } from 'src/layouts/dashboard';
-
-import { Iconify } from 'src/components/iconify';
-import { Scrollbar } from 'src/components/scrollbar';
-
+import { _users } from '../../../_mock';
 import { TableNoData } from '../table-no-data';
 import { UserTableRow } from '../user-table-row';
 import { UserTableHead } from '../user-table-head';
 import { TableEmptyRows } from '../table-empty-rows';
+import { Iconify } from '../../../components/iconify';
 import { UserTableToolbar } from '../user-table-toolbar';
+import { Scrollbar } from '../../../components/scrollbar';
+import { DashboardContent } from '../../../layouts/dashboard';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 import type { UserProps } from '../user-table-row';
