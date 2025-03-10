@@ -43,19 +43,21 @@ export function LayoutSection({
     <>
       {inputGlobalStyles}
 
-      <Box id="root__layout" className={layoutClasses.root} sx={sx}>
-        {sidebarSection}
-        <Box
-          display="flex"
-          flex="1 1 auto"
-          flexDirection="column"
-          className={layoutClasses.hasSidebar}
-        >
-          {headerSection}
+      {/* <Box id="root__layout" className={layoutClasses.root} sx={sx}> */}
+      {sidebarSection}
+      <Box
+        display="flex"
+        flex="1 1 auto"
+        flexDirection="column"
+        className={layoutClasses.hasSidebar}
+      >
+        {headerSection}
+        <Box mx={5}>
           {children}
-          {footerSection}
         </Box>
+        {footerSection}
       </Box>
+      {/* </Box> */}
     </>
   );
 }
