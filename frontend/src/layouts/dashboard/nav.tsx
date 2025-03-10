@@ -1,24 +1,15 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
-
 import { useEffect } from 'react';
-
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
-
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
-
 import { varAlpha } from 'src/theme/styles';
-
-import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
-
-import { NavUpgrade } from '../components/nav-upgrade';
 import { WorkspacesPopover } from '../components/workspaces-popover';
-
 import type { WorkspacesPopoverProps } from '../components/workspaces-popover';
 
 // ----------------------------------------------------------------------
@@ -50,11 +41,10 @@ export function NavDesktop({
   return (
     <Box
       sx={{
-        pt: 2.5,
         px: 2.5,
-        top: 0,
+        top: 60,
         left: 0,
-        height: 1,
+        height: "100vh",
         display: 'none',
         position: 'fixed',
         flexDirection: 'column',
@@ -118,9 +108,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
   const pathname = usePathname();
 
   return (
-    <>
-      <Logo />
-
+    <Box bgcolor="white" height="100vh">
       {slots?.topArea}
 
       <WorkspacesPopover data={workspaces} sx={{ my: 2 }} />
@@ -177,6 +165,6 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
       {slots?.bottomArea}
 
 
-    </>
+    </Box>
   );
 }
