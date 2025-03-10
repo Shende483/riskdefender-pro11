@@ -21,20 +21,42 @@ let LoginController = class LoginController {
     constructor(loginService) {
         this.loginService = loginService;
     }
-    async sendOtp(email) {
-        return this.loginService.sendOtp(email);
+    async sendOtpEmail(email) {
+        console.log("enndjd", email);
+        return this.loginService.sendOtpEmail(email);
     }
-    async verifyOtp(email, otp) {
-        return this.loginService.verifyOtp(email, otp);
+    async sendOtpMobile(mobile) {
+        return this.loginService.sendOtpMobile(mobile);
+    }
+    async verifyOtpEmail(email, otp) {
+        return this.loginService.verifyOtpEmail(email, otp);
+    }
+    async verifyOtpMobile(mobile, otp) {
+        return this.loginService.verifyOtpMobile(mobile, otp);
     }
     async login(loginUserDto) {
-        const { email } = loginUserDto;
-        if (!(await this.loginService.isEmailVerified(email))) {
-            throw new common_1.UnauthorizedException('Email is not verified. Please verify OTP.');
+        console.log("🔍 Received login request:", loginUserDto);
+        const { email, mobile } = loginUserDto;
+        console.log("eenen", email, mobile);
+        if (email) {
+            const isVerified = await this.loginService.isEmailVerified(email);
+            if (!isVerified) {
+                throw new common_1.UnauthorizedException('Email OTP is not verified. Please verify OTP.');
+            }
+            const response = await this.loginService.login(loginUserDto);
+            await this.loginService.clearVerifiedEmail(email);
+            return response;
         }
-        const response = await this.loginService.login(loginUserDto);
-        await this.loginService.clearVerifiedEmail(email);
-        return response;
+        if (mobile) {
+            const isVerified = await this.loginService.isMobileVerified(mobile);
+            if (!isVerified) {
+                throw new common_1.UnauthorizedException('Mobile OTP is not verified. Please verify OTP.');
+            }
+            const response = await this.loginService.login(loginUserDto);
+            await this.loginService.clearVerifiedMobile(mobile);
+            return response;
+        }
+        throw new common_1.UnauthorizedException('Either email or mobile is required for login.');
     }
 };
 exports.LoginController = LoginController;
@@ -44,15 +66,30 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], LoginController.prototype, "sendOtp", null);
+], LoginController.prototype, "sendOtpEmail", null);
 __decorate([
-    (0, common_1.Post)('login/verify-otp'),
+    (0, common_1.Post)('login/verify-mobile'),
+    __param(0, (0, common_1.Body)('mobile')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], LoginController.prototype, "sendOtpMobile", null);
+__decorate([
+    (0, common_1.Post)('login/verify-otp-email'),
     __param(0, (0, common_1.Body)('email')),
     __param(1, (0, common_1.Body)('otp')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
-], LoginController.prototype, "verifyOtp", null);
+], LoginController.prototype, "verifyOtpEmail", null);
+__decorate([
+    (0, common_1.Post)('login/verify-otp-mobile'),
+    __param(0, (0, common_1.Body)('mobile')),
+    __param(1, (0, common_1.Body)('otp')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], LoginController.prototype, "verifyOtpMobile", null);
 __decorate([
     (0, common_1.Post)('login'),
     __param(0, (0, common_1.Body)()),

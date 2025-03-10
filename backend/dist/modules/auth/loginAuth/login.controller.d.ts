@@ -3,10 +3,16 @@ import { LoginUserDto } from './dto/login.dto';
 export declare class LoginController {
     private loginService;
     constructor(loginService: LoginService);
-    sendOtp(email: string): Promise<{
+    sendOtpEmail(email: string): Promise<{
         message: string;
     }>;
-    verifyOtp(email: string, otp: string): Promise<{
+    sendOtpMobile(mobile: string): Promise<{
+        message: string;
+    }>;
+    verifyOtpEmail(email: string, otp: string): Promise<{
+        message: string;
+    }>;
+    verifyOtpMobile(mobile: string, otp: string): Promise<{
         message: string;
     }>;
     login(loginUserDto: LoginUserDto): Promise<{

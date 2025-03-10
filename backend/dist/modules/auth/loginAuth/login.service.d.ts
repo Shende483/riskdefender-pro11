@@ -7,10 +7,16 @@ export declare class LoginService {
     private jwtService;
     private otpService;
     constructor(usersService: RegisterService, jwtService: JwtService, otpService: OtpService);
-    sendOtp(email: string): Promise<{
+    sendOtpEmail(email: string): Promise<{
         message: string;
     }>;
-    verifyOtp(email: string, otp: string): Promise<{
+    sendOtpMobile(mobile: string): Promise<{
+        message: string;
+    }>;
+    verifyOtpEmail(email: string, otp: string): Promise<{
+        message: string;
+    }>;
+    verifyOtpMobile(mobile: string, otp: string): Promise<{
         message: string;
     }>;
     login(loginUserDto: LoginUserDto): Promise<{
@@ -18,5 +24,7 @@ export declare class LoginService {
         access_token: string;
     }>;
     isEmailVerified(email: string): Promise<boolean>;
+    isMobileVerified(mobile: string): Promise<boolean>;
     clearVerifiedEmail(email: string): Promise<void>;
+    clearVerifiedMobile(mobile: string): Promise<void>;
 }

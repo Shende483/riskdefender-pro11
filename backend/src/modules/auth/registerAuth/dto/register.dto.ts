@@ -15,11 +15,11 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  country: string;
+  countryCode: string;
 
   @IsString()
   @IsNotEmpty()
-  mobileNo: string;
+  mobile: string;
 
   @IsString()
   @MinLength(6)
