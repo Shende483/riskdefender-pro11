@@ -16,19 +16,54 @@ exports.OtpService = void 0;
 const common_1 = require("@nestjs/common");
 const nodemailer = require("nodemailer");
 const ioredis_1 = require("ioredis");
+const axios_1 = require("axios");
 let OtpService = class OtpService {
     redisClient;
     constructor(redisClient) {
         this.redisClient = redisClient;
     }
-    async sendOtp(email, context) {
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    async generateOtp() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+    async storeOtp(key, otp, expiresIn) {
+        await this.redisClient.set(key, otp, 'EX', expiresIn);
+        console.log(`🛢️ OTP stored in Redis for ${key}: ${otp}`);
+    }
+    async verifyStoredOtp(key, enteredOtp) {
+        const storedOtp = await this.redisClient.get(key);
+        console.log(`📤 Retrieved OTP from Redis for ${key}: ${storedOtp}`);
+        if (!storedOtp) {
+            console.warn(`⚠️ OTP expired or not found for ${key}`);
+            throw new common_1.UnauthorizedException('OTP expired or invalid');
+        }
+        if (storedOtp !== enteredOtp) {
+            console.error(`❌ Invalid OTP entered for ${key}`);
+            throw new common_1.UnauthorizedException('Invalid OTP');
+        }
+        await this.redisClient.del(key);
+        console.log(`🗑️ OTP deleted from Redis for: ${key}`);
+    }
+    async setVerified(key) {
+        await this.redisClient.set(key, 'true');
+        console.log(`📌 ${key} marked as verified.`);
+    }
+    async setVerifiedEmail(email) {
+        await this.redisClient.set(`verified:${email}`, 'true');
+        console.log(`📌 Email marked as verified: ${email}`);
+    }
+    async isVerified(key) {
+        const exists = await this.redisClient.get(key);
+        console.log(`🔎 Checking verified status in Redis: ${exists}`);
+        return exists === 'true';
+    }
+    async clearVerified(key) {
+        await this.redisClient.del(key);
+        console.log(`🗑️ Verification status deleted from Redis for: ${key}`);
+    }
+    async sendOtpEmail(email, context) {
+        const otp = await this.generateOtp();
         const expiresIn = 15 * 60;
-        await this.redisClient.set(`otp:${email}`, otp, 'EX', expiresIn);
-        console.log(`📩 Generating OTP for ${context}: ${email}`);
-        console.log(`🔢 OTP: ${otp} (Valid for 15 min)`);
-        const storedOtp = await this.redisClient.get(`otp:${email}`);
-        console.log(`🛢️ OTP stored in Redis: ${storedOtp}`);
+        await this.storeOtp(`otp:${email}`, otp, expiresIn);
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -51,37 +86,55 @@ let OtpService = class OtpService {
         }
         return { message: `OTP sent successfully to ${email}` };
     }
-    async verifyOtp(email, enteredOtp) {
-        console.log(`🔍 Verifying OTP for ${email}`);
-        const storedOtp = await this.redisClient.get(`otp:${email}`);
-        console.log(`📤 Retrieved OTP from Redis: ${storedOtp}`);
-        if (!storedOtp) {
-            console.warn(`⚠️ OTP expired or not found for ${email}`);
-            throw new common_1.UnauthorizedException('OTP expired or invalid');
-        }
-        if (storedOtp !== enteredOtp) {
-            console.error(`❌ Invalid OTP entered for ${email}`);
-            throw new common_1.UnauthorizedException('Invalid OTP');
-        }
-        await this.redisClient.del(`otp:${email}`);
-        console.log(`🗑️ OTP deleted from Redis for: ${email}`);
-        await this.setVerifiedEmail(email);
+    async verifyOtpEmail(email, enteredOtp) {
+        await this.verifyStoredOtp(`otp:${email}`, enteredOtp);
+        await this.setVerified(`verified:${email}`);
         return { message: 'OTP verified successfully' };
     }
-    async setVerifiedEmail(email) {
-        await this.redisClient.set(`verified:${email}`, 'true');
-        console.log(`📌 Email marked as verified: ${email}`);
-        const verifiedStatus = await this.redisClient.get(`verified:${email}`);
-        console.log(`🛢️ Verified email stored in Redis: ${verifiedStatus}`);
-    }
     async isEmailVerified(email) {
-        const exists = await this.redisClient.get(`verified:${email}`);
-        console.log(`🔎 Checking verified status in Redis: ${exists}`);
-        return exists === 'true';
+        return this.isVerified(`verified:${email}`);
     }
     async clearVerifiedEmail(email) {
-        await this.redisClient.del(`verified:${email}`);
-        console.log(`🗑️ Verification status deleted from Redis for: ${email}`);
+        await this.clearVerified(`verified:${email}`);
+    }
+    async sendOtpMobile(mobile, context) {
+        const otp = await this.generateOtp();
+        const expiresIn = 15 * 60;
+        await this.storeOtp(`otp:${mobile}`, otp, expiresIn);
+        try {
+            await axios_1.default.get('https://www.fast2sms.com/dev/bulkV2', {
+                params: {
+                    authorization: process.env.FAST2SMS_API_KEY,
+                    variables_values: otp,
+                    route: 'otp',
+                    numbers: mobile,
+                },
+                headers: {
+                    'cache-control': 'no-cache',
+                },
+            });
+            console.log(`✅ Mobile OTP sent to ${mobile}`);
+        }
+        catch (error) {
+            console.error(`❌ Failed to send Mobile OTP:`, error);
+            throw new common_1.UnauthorizedException('Failed to send OTP. Please try again.');
+        }
+        return { message: `OTP sent successfully to ${mobile}` };
+    }
+    async verifyOtpMobile(mobile, enteredOtp) {
+        await this.verifyStoredOtp(`otp:${mobile}`, enteredOtp);
+        await this.setVerified(`verified:${mobile}`);
+        return { message: 'OTP verified successfully' };
+    }
+    async setVerifiedMobile(mobile) {
+        await this.redisClient.set(`verified:${mobile}`, 'true');
+        console.log(`📌 Mobile marked as verified: ${mobile}`);
+    }
+    async isMobileVerified(mobile) {
+        return this.isVerified(`verified:${mobile}`);
+    }
+    async clearVerifiedMobile(mobile) {
+        await this.clearVerified(`verified:${mobile}`);
     }
 };
 exports.OtpService = OtpService;

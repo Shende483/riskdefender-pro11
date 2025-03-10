@@ -2,7 +2,7 @@ export declare class CreateUserDto {
     name: string;
     lastName: string;
     email: string;
-    country: string;
-    mobileNo: string;
+    countryCode: string;
+    mobile: string;
     password: string;
 }

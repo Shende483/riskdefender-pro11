@@ -15,8 +15,8 @@ class CreateUserDto {
     name;
     lastName;
     email;
-    country;
-    mobileNo;
+    countryCode;
+    mobile;
     password;
 }
 exports.CreateUserDto = CreateUserDto;
@@ -39,12 +39,12 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateUserDto.prototype, "country", void 0);
+], CreateUserDto.prototype, "countryCode", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateUserDto.prototype, "mobileNo", void 0);
+], CreateUserDto.prototype, "mobile", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(6),

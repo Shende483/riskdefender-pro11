@@ -16,7 +16,7 @@ export class User extends Document {
   country: string;
 
   @Prop({ required: true, unique: true })
-  mobileNo: string;
+  mobile: string;
 
   @Prop({ required: true })
   password: string;

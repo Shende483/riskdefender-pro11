@@ -17,7 +17,7 @@ let User = class User extends mongoose_2.Document {
     lastName;
     email;
     country;
-    mobileNo;
+    mobile;
     password;
 };
 exports.User = User;
@@ -40,7 +40,7 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ required: true, unique: true }),
     __metadata("design:type", String)
-], User.prototype, "mobileNo", void 0);
+], User.prototype, "mobile", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)

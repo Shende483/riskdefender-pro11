@@ -13,6 +13,7 @@ const register_controller_1 = require("./register.controller");
 const mongoose_1 = require("@nestjs/mongoose");
 const register_schema_1 = require("./register.schema");
 const redis_module_1 = require("../../../common/redis.module");
+const otp_service_1 = require("../../../common/otp.service");
 let RegisterModule = class RegisterModule {
 };
 exports.RegisterModule = RegisterModule;
@@ -22,9 +23,9 @@ exports.RegisterModule = RegisterModule = __decorate([
             mongoose_1.MongooseModule.forFeature([{ name: register_schema_1.User.name, schema: register_schema_1.UserSchema }]),
             redis_module_1.RedisModule,
         ],
-        controllers: [register_controller_1.UsersController],
-        providers: [register_service_1.RegisterService],
-        exports: [register_service_1.RegisterService],
+        controllers: [register_controller_1.RegisterController],
+        providers: [register_service_1.RegisterService, otp_service_1.OtpService],
+        exports: [register_service_1.RegisterService, otp_service_1.OtpService],
     })
 ], RegisterModule);
 //# sourceMappingURL=register.module.js.map
