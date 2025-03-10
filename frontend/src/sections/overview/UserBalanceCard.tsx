@@ -6,7 +6,7 @@ export default function UserBalanceCard() {
     const [symbol, setSymbol] = React.useState('');
     
     return (
-        <Card sx={{ bgcolor: 'white' }}>
+        <Card sx={{ bgcolor: '#ede7f6', m: 2 }}>
             <Grid container sx={{ p: 2, pb: 0, color: '#fff' }}>
                 <Grid item xs={12}>
                     <Grid container display='flex' alignItems="center">

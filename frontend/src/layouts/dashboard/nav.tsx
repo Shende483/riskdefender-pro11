@@ -1,7 +1,5 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
-
 import { useEffect } from 'react';
-
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import { useTheme } from '@mui/material/styles';
@@ -13,8 +11,11 @@ import { varAlpha } from '../../theme/styles';
 import { usePathname } from '../../routes/hooks';
 import { RouterLink } from '../../routes/components';
 import { Scrollbar } from '../../components/scrollbar';
+import { usePathname } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
+import { varAlpha } from 'src/theme/styles';
+import { Scrollbar } from 'src/components/scrollbar';
 import { WorkspacesPopover } from '../components/workspaces-popover';
-
 import type { WorkspacesPopoverProps } from '../components/workspaces-popover';
 
 // ----------------------------------------------------------------------
@@ -46,11 +47,10 @@ export function NavDesktop({
   return (
     <Box
       sx={{
-        pt: 2.5,
         px: 2.5,
-        top: 0,
+        top: 60,
         left: 0,
-        height: 1,
+        height: "100vh",
         display: 'none',
         position: 'fixed',
         flexDirection: 'column',
@@ -114,9 +114,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
   const pathname = usePathname();
 
   return (
-    <>
-      <Logo />
-
+    <Box bgcolor="white" height="100vh">
       {slots?.topArea}
 
       <WorkspacesPopover data={workspaces} sx={{ my: 2 }} />
@@ -173,6 +171,6 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
       {slots?.bottomArea}
 
 
-    </>
+    </Box>
   );
 }

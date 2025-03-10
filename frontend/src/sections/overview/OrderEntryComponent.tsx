@@ -94,7 +94,7 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
       };
 
     return (
-        <Box sx={{ p: 1, bgcolor: 'white', borderRadius: '10px' }}>
+        <Card sx={{ m: 2, top: 4, bgcolor: '#ede7f6' }}>
             <CardContent>
                 <FormControl fullWidth sx={{ mb: 1 }}>
                     <Select
@@ -235,7 +235,7 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
 
                 <SubmitButton variant="contained">SUBMIT ORDER</SubmitButton>
             </CardContent>
-        </Box>
+        </Card>
     );
 };
 
