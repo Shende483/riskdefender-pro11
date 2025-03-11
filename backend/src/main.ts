@@ -1,3 +1,4 @@
+
 import * as dotenv from 'dotenv';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -7,16 +8,18 @@ dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
- // app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  // ✅ Enable CORS
+
+  // Enable CORS for the configured IP
   app.enableCors({
-    origin: 'http://localhost:3000', // Allow frontend
+    origin: process.env.FRONTEND_URL,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // Allow cookies if needed
+    credentials: true,
   });
 
-  await app.listen(process.env.PORT || 3005);
-  console.log(`✅ Server running on http://localhost:${process.env.PORT || 3005}`);
+  const PORT = String(process.env.BACKEND_PORT) ;
+  const IP_ADDRESS = String(process.env.BACKEND_IP);
+
+  await app.listen(PORT, IP_ADDRESS);
+  console.log(`✅ Server running on http://${IP_ADDRESS}:${PORT}`);
 }
 bootstrap();
-
