@@ -7,12 +7,14 @@ dotenv.config();
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
-        origin: 'http://localhost:3000',
+        origin: process.env.FRONTEND_URL,
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,
     });
-    await app.listen(process.env.PORT || 3005);
-    console.log(`✅ Server running on http://localhost:${process.env.PORT || 3005}`);
+    const PORT = String(process.env.BACKEND_PORT);
+    const IP_ADDRESS = String(process.env.BACKEND_IP);
+    await app.listen(PORT, IP_ADDRESS);
+    console.log(`✅ Server running on http://${IP_ADDRESS}:${PORT}`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
