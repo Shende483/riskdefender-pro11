@@ -98,26 +98,33 @@ let OtpService = class OtpService {
         await this.clearVerified(`verified:${email}`);
     }
     async sendOtpMobile(mobile, context) {
-        const otp = await this.generateOtp();
+        const dummyOtp = '999999';
+        const useDummyOtp = true;
+        const otp = useDummyOtp ? dummyOtp : await this.generateOtp();
         const expiresIn = 15 * 60;
         await this.storeOtp(`otp:${mobile}`, otp, expiresIn);
-        try {
-            await axios_1.default.get('https://www.fast2sms.com/dev/bulkV2', {
-                params: {
-                    authorization: process.env.FAST2SMS_API_KEY,
-                    variables_values: otp,
-                    route: 'otp',
-                    numbers: mobile,
-                },
-                headers: {
-                    'cache-control': 'no-cache',
-                },
-            });
-            console.log(`✅ Mobile OTP sent to ${mobile}`);
+        if (!useDummyOtp) {
+            try {
+                await axios_1.default.get('https://www.fast2sms.com/dev/bulkV2', {
+                    params: {
+                        authorization: process.env.FAST2SMS_API_KEY,
+                        variables_values: otp,
+                        route: 'otp',
+                        numbers: mobile,
+                    },
+                    headers: {
+                        'cache-control': 'no-cache',
+                    },
+                });
+                console.log(`✅ Mobile OTP sent to ${mobile}`);
+            }
+            catch (error) {
+                console.error(`❌ Failed to send Mobile OTP:`, error);
+                throw new common_1.UnauthorizedException('Failed to send OTP. Please try again.');
+            }
         }
-        catch (error) {
-            console.error(`❌ Failed to send Mobile OTP:`, error);
-            throw new common_1.UnauthorizedException('Failed to send OTP. Please try again.');
+        else {
+            console.log(`📲 Using Dummy OTP for mobile verification: ${dummyOtp}`);
         }
         return { message: `OTP sent successfully to ${mobile}` };
     }
