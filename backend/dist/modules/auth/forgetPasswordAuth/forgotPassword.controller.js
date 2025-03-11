@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ForgetPasswordController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const forgetPassword_service_1 = require("./forgetPassword.service");
 const forgetPassword_dto_1 = require("./dto/forgetPassword.dto");
 let ForgetPasswordController = class ForgetPasswordController {
@@ -62,6 +63,9 @@ let ForgetPasswordController = class ForgetPasswordController {
 exports.ForgetPasswordController = ForgetPasswordController;
 __decorate([
     (0, common_1.Post)('ForgetPassword/verify-email'),
+    (0, swagger_1.ApiOperation)({ summary: 'Send OTP for Forget Password (Email)' }),
+    (0, swagger_1.ApiBody)({ schema: { properties: { email: { type: 'string', example: 'user@example.com' } } } }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'OTP sent successfully' }),
     __param(0, (0, common_1.Body)('email')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -69,6 +73,9 @@ __decorate([
 ], ForgetPasswordController.prototype, "sendOtpEmail", null);
 __decorate([
     (0, common_1.Post)('ForgetPassword/verify-mobile'),
+    (0, swagger_1.ApiOperation)({ summary: 'Send OTP for Forget Password (Mobile)' }),
+    (0, swagger_1.ApiBody)({ schema: { properties: { mobile: { type: 'string', example: '9876543210' } } } }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'OTP sent successfully' }),
     __param(0, (0, common_1.Body)('mobile')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -76,6 +83,9 @@ __decorate([
 ], ForgetPasswordController.prototype, "sendOtpMobile", null);
 __decorate([
     (0, common_1.Post)('ForgetPassword/verify-otp-email'),
+    (0, swagger_1.ApiOperation)({ summary: 'Verify OTP for Forget Password (Email)' }),
+    (0, swagger_1.ApiBody)({ schema: { properties: { email: { type: 'string' }, otp: { type: 'string' } } } }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'OTP verified successfully' }),
     __param(0, (0, common_1.Body)('email')),
     __param(1, (0, common_1.Body)('otp')),
     __metadata("design:type", Function),
@@ -84,6 +94,9 @@ __decorate([
 ], ForgetPasswordController.prototype, "verifyOtpEmail", null);
 __decorate([
     (0, common_1.Post)('ForgetPassword/verify-otp-mobile'),
+    (0, swagger_1.ApiOperation)({ summary: 'Verify OTP for Forget Password (Mobile)' }),
+    (0, swagger_1.ApiBody)({ schema: { properties: { mobile: { type: 'string' }, otp: { type: 'string' } } } }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'OTP verified successfully' }),
     __param(0, (0, common_1.Body)('mobile')),
     __param(1, (0, common_1.Body)('otp')),
     __metadata("design:type", Function),
@@ -92,12 +105,17 @@ __decorate([
 ], ForgetPasswordController.prototype, "verifyOtpMobile", null);
 __decorate([
     (0, common_1.Post)('ForgetPassword/update'),
+    (0, swagger_1.ApiOperation)({ summary: 'Reset Password' }),
+    (0, swagger_1.ApiBody)({ type: forgetPassword_dto_1.ForgetPasswordUserDto }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Password reset successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized - OTP not verified' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [forgetPassword_dto_1.ForgetPasswordUserDto]),
     __metadata("design:returntype", Promise)
 ], ForgetPasswordController.prototype, "resetPassword", null);
 exports.ForgetPasswordController = ForgetPasswordController = __decorate([
+    (0, swagger_1.ApiTags)('Authentication - Forget Password'),
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [forgetPassword_service_1.ForgetPasswordService])
 ], ForgetPasswordController);
