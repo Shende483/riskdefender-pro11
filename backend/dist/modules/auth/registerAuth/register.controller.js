@@ -17,12 +17,14 @@ const common_1 = require("@nestjs/common");
 const common_2 = require("@nestjs/common");
 const register_service_1 = require("./register.service");
 const register_dto_1 = require("./dto/register.dto");
+const swagger_1 = require("@nestjs/swagger");
 let RegisterController = class RegisterController {
     RegisterService;
     constructor(RegisterService) {
         this.RegisterService = RegisterService;
     }
     async sendOtpEmail(email) {
+        console.log("we recieved email", email);
         return this.RegisterService.sendOtpEmail(email);
     }
     async sendOtpMobile(mobileNo) {
@@ -52,6 +54,8 @@ let RegisterController = class RegisterController {
 exports.RegisterController = RegisterController;
 __decorate([
     (0, common_2.Post)('register/verify-email'),
+    (0, swagger_1.ApiOperation)({ summary: 'Send OTP to Email' }),
+    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { email: { type: 'string' } } } }),
     __param(0, (0, common_2.Body)('email')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -59,6 +63,8 @@ __decorate([
 ], RegisterController.prototype, "sendOtpEmail", null);
 __decorate([
     (0, common_2.Post)('register/verify-mobile'),
+    (0, swagger_1.ApiOperation)({ summary: 'Send OTP to Mobile' }),
+    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { mobile: { type: 'string' } } } }),
     __param(0, (0, common_2.Body)('mobile')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -66,6 +72,8 @@ __decorate([
 ], RegisterController.prototype, "sendOtpMobile", null);
 __decorate([
     (0, common_2.Post)('register/verify-otp-email'),
+    (0, swagger_1.ApiOperation)({ summary: 'Verify OTP for Email' }),
+    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { email: { type: 'string' }, otp: { type: 'string' } } } }),
     __param(0, (0, common_2.Body)('email')),
     __param(1, (0, common_2.Body)('otp')),
     __metadata("design:type", Function),
@@ -74,6 +82,8 @@ __decorate([
 ], RegisterController.prototype, "verifyOtpEmail", null);
 __decorate([
     (0, common_2.Post)('register/verify-otp-mobile'),
+    (0, swagger_1.ApiOperation)({ summary: 'Verify OTP for Mobile' }),
+    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { mobile: { type: 'string' }, otp: { type: 'string' } } } }),
     __param(0, (0, common_2.Body)('mobile')),
     __param(1, (0, common_2.Body)('otp')),
     __metadata("design:type", Function),
@@ -82,12 +92,16 @@ __decorate([
 ], RegisterController.prototype, "verifyOtpMobile", null);
 __decorate([
     (0, common_2.Post)('register'),
+    (0, swagger_1.ApiOperation)({ summary: 'Register New User' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'User registered successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Email or Mobile OTP not verified' }),
     __param(0, (0, common_2.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [register_dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], RegisterController.prototype, "createUser", null);
 exports.RegisterController = RegisterController = __decorate([
+    (0, swagger_1.ApiTags)('Auth - Registration'),
     (0, common_2.Controller)('auth'),
     __metadata("design:paramtypes", [register_service_1.RegisterService])
 ], RegisterController);
