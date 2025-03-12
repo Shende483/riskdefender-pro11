@@ -1,14 +1,13 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
 
 import { useState } from 'react';
-
-import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
+import { Box, Link } from '@mui/material';
 
 import { Main } from './main';
 import { layoutClasses } from '../classes';
-import { NavMobile, NavDesktop } from './nav';
+import { NavMobile } from './nav';
 import { navData } from '../config-nav-dashboard';
 import { Iconify } from '../../components/iconify';
 import { Searchbar } from '../components/searchbar';
@@ -81,6 +80,7 @@ export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) 
               <Box width="100%" display="flex" alignItems="center" justifyContent="space-between">
                 <HeaderLogo />
                 <Box gap={1} display="flex" alignItems="center">
+                <Link href="/sign-in" border={1} p={1} borderRadius={1}>Sign in</Link>
                   <Searchbar />
                   <LanguagePopover data={_langs} />
                   <NotificationsPopover data={_notifications} />
@@ -100,11 +100,6 @@ export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) 
                         label: 'Settings',
                         href: '#',
                         icon: <Iconify width={22} icon="solar:settings-bold-duotone" />,
-                      },
-                      {
-                        label: 'Sign In',
-                        href: '/sign-in',
-                        icon: <Iconify width={22} icon="solar:lock-bold-duotone" />,
                       },
                     ]}
                   />

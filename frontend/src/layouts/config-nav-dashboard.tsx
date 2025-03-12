@@ -16,8 +16,8 @@ export const navData = [
     icon: icon('ic-analytics'),
   },
   {
-    title: 'User',
-    path: '/user',
+    title: 'Add Broker',
+    path: '/broker',
     icon: icon('ic-user'),
   },
   {

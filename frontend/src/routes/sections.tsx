@@ -1,25 +1,20 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
-
 import Box from '@mui/material/Box';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
-
 import { varAlpha } from '../theme/styles';
 import { DashboardLayout } from '../layouts/dashboard';
 
 
-// ----------------------------------------------------------------------
-
 export const HomePage = lazy(() => import('../pages/home'));
 export const BlogPage = lazy(() => import('../pages/blog'));
-export const UserPage = lazy(() => import('../pages/user'));
+export const BrokerPage = lazy(() => import('../pages/broker'));
 export const SignInPage = lazy(() => import('../pages/sign-in'));
 export const SignUpPage = lazy(() => import('../pages/sign-up'));
 export const ForgetPage = lazy(() => import('../pages/forget-password'));
 export const ProductsPage = lazy(() => import('../pages/products'));
 export const Page404 = lazy(() => import('../pages/page-not-found'));
-
-// ----------------------------------------------------------------------
+export const ConnectBrokerPage = lazy(() => import('../sections/broker/ConnectBrokerPage'));
 
 const renderFallback = (
   <Box display="flex" alignItems="center" justifyContent="center" flex="1 1 auto">
@@ -46,9 +41,10 @@ export function Router() {
       ),
       children: [
         { element: <HomePage />, index: true },
-        { path: 'user', element: <UserPage /> },
+        { path: 'broker', element: <BrokerPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
+        { path: 'connect-broker', element: <ConnectBrokerPage /> },
       ],
     },
     {
