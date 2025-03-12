@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 
 export const initialSymbols = [
   'BTCUSDT', 'BTCUSDT.P', 'BINANCE:ETHUSDT.P', 'BINANCE:BNBUSDT.P',
@@ -10,16 +10,14 @@ export const initialSymbols = [
   'BINANCE:PKRUSDT.P', 'BINANCE:KESUSDT.P', 'BINANCE:TZSUSDT.P'
 ];
 
-const SymbolContext = createContext();
+const SymbolContext = createContext({ symbol: "", setSymbol: (symbol: string) => {} });
 
 export const SymbolProvider = ({ children }: { children: React.ReactNode }) => {
   const [symbol, setSymbol] = useState(initialSymbols[0]);
 
-  return (
-    <SymbolContext.Provider value={{ symbol, setSymbol }}>
-      {children}
-    </SymbolContext.Provider>
-  );
+  const contextValue = useMemo(() => ({ symbol, setSymbol }), [symbol, setSymbol]);
+
+  return <SymbolContext.Provider value={contextValue}>{children}</SymbolContext.Provider>;
 };
 
 export const useSymbol = () => {

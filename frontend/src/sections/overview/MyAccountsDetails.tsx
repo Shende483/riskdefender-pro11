@@ -30,23 +30,12 @@ const CardWrapper = (({ theme }: { theme: any }) => ({
 
 export function MyAccountsDetails() {
   const theme = useTheme();
-  const [selectedAccount, setSelectedAccount] = useState("");
   const [selectedBroker, setSelectedBroker] = useState("");
   const [selectedSubbroker, setSelectedSubbroker] = useState("");
   const tabs = ["StockMarket", "Forex", "Cryptocurrency"];
 
   return (
-    <Card sx={{ ...CardWrapper({ theme }), height: '100%' }}>      
-    <FormControl fullWidth variant="standard" sx={{ m: 1, py: 0, minWidth: 120, mt: 2 }}>
-      <InputLabel>My Accounts</InputLabel>
-      <Select value={selectedAccount}
-        onChange={(e) => setSelectedAccount(e.target.value)}
-        style={{ minWidth: '5px', width: '150px', height: '30px', }}
-      >
-        <MenuItem value="Select An Account"> Select An Account </MenuItem>
-      </Select>
-    </FormControl>
-
+    <Card sx={{ ...CardWrapper({ theme }), height: '100%' }}>
       <Tabs value="" sx={{ mt: 1 }}>
         {tabs.map((tab) => (
           <Tab key={tab} label={<span style={{ fontWeight: "bold" }}>{tab}</span>}

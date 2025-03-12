@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, MutableRefObject, RefObject } from 'react';
 import { Box, Button, Grid } from '@mui/material';
-import { LightMode, DarkMode, Brightness4 } from '@mui/icons-material';
+import { Brightness4 } from '@mui/icons-material';
 import { initialSymbols } from './tradingview/SymbolDefine';
 
 let tvScriptLoadingPromise: Promise<void> | undefined;
@@ -60,6 +60,7 @@ export default function TradingviewChartAndData() {
 
     function createWidget() {
       if (document.getElementById('tradingview_e5aee') && (window as any).TradingView) {
+        // eslint-disable-next-line new-cap
         new (window as any).TradingView.widget({
           width: dimensions.width,
           height: dimensions.height,
@@ -93,7 +94,6 @@ export default function TradingviewChartAndData() {
   return (
     <Box ref={cardRef} sx={{ height: 670, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <Grid container className="tradingview-widget-container" style={{ width: '100%', height: '100%', position: 'relative' }}>
-        {/* Theme Toggle Button Positioned on Top-Right of Chart */}
         <Button
           variant="text"
           size="small"

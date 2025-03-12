@@ -1,9 +1,9 @@
-import React from "react";
+import { useState } from "react";
 
 import { Card, Grid,Select, MenuItem, InputLabel, Typography, FormControl } from "@mui/material";
 
 export default function UserBalanceCard() {
-    const [symbol, setSymbol] = React.useState('');
+    const [symbol, setSymbol] = useState('');
     
     return (
         <Card sx={{ bgcolor: '#ede7f6', m: 2 }}>

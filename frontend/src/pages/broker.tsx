@@ -1,10 +1,7 @@
 import { Helmet } from 'react-helmet-async';
-
 import { CONFIG } from '../config-global';
-import { UserView } from '../sections/user/view';
-
-
-// ----------------------------------------------------------------------
+import SubscriptionPage from '../sections/broker/SubscriptionPage';
+import AccountManagment from '../sections/broker/AccountManagment';
 
 export default function Page() {
   return (
@@ -13,7 +10,8 @@ export default function Page() {
         <title> {`Users - ${CONFIG.appName}`}</title>
       </Helmet>
 
-      <UserView />
+      <AccountManagment/>
+      <SubscriptionPage />
     </>
   );
 }
