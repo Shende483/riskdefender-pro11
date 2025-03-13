@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, SetStateAction } from 'react';
 import { Card, CardContent, CardHeader, Grid, Typography, Select, MenuItem, Checkbox, Box, TextField } from '@mui/material';
 import io from 'socket.io-client';
 import RazorpayPayment from './RazorpayPayment';
@@ -22,6 +22,28 @@ const planData: Record<string, Plan> = {
     subaccount: 3,
     price: { value: 1990, currency: 'INR/Month', gst: 0.18 },
     features: ['Connect with up to 3 brokers', 'Full access to all trading and investing features'],
+  },
+  advance: {
+    name: 'Advance Plan:',
+    subaccount: 7,
+    price: {
+      value: 3990,
+      currency: 'INR/Month',
+      gst: 0.18,
+
+    },
+    features: ['Connect with up to 7 brokers', 'Full access to all trading and investing features',],
+  },
+  pro: {
+    name: 'Pro Plan:',
+    subaccount: 17,
+    price: {
+      value: 6990,
+      currency: 'INR/Month',
+      gst: 0.18,
+
+    },
+    features: ['Connect with up to 17 brokers', 'Full access to all trading and investing features',],
   },
 };
 
@@ -102,13 +124,18 @@ export default function SubscriptionPage() {
         selectedDuration: duration,
         expiryDate: expireDate,
         createdDate: new Date(),
-        couponCode: couponCode,
+        couponCode,
         subaccountAllowed: planData[selectedPlan].subaccount,
       };
 
       setDatasendnew(newDatasend);
     }
   }, [selectedPlan, duration, couponCode, expireDate]);
+
+  const handleCouponCode = (code: string) => {
+    setCouponCode(code);
+    calculateTotalCost(planData[selectedPlan], duration, code);
+  };
 
   return (
     <div>
@@ -159,12 +186,17 @@ export default function SubscriptionPage() {
           <Typography variant="h6">Discount: - ₹{discountPrice}</Typography>
           <Typography variant="h6">Net Payment: ₹{netPayment}</Typography>
 
+          <Typography variant="h6">Have a Coupon Code ?</Typography>
+          <Box style={{ display: 'flex' }}>
+            <TextField variant="outlined" label="Enter Coupon Code" onChange={(e) => handleCouponCode(e.target.value)} />
+          </Box>
+
           <Box display='flex' alignItems='center'>
             <Checkbox checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
             <Typography variant="body2">I agree to the <a href="#">Terms and Conditions</a></Typography>
           </Box>
 
-          <RazorpayPayment totalPayment={netPayment} datasend={datasendnew} />
+          <RazorpayPayment totalPayment={netPayment} datasend={datasendnew} disabled={!termsAccepted} />
         </Box>
       </Card>
     </div>

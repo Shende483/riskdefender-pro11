@@ -8,9 +8,10 @@ const socket = io('http://localhost:3039');
 interface RazorpayPaymentProps {
   totalPayment: number;
   datasend: any;
+  disabled: boolean;
 }
 
-const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({ totalPayment, datasend }) => {
+const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({ totalPayment, datasend, disabled }) => {
   const [order, setOrder] = useState<{ id: string } | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [paylog, setPaylog] = useState<string | null>(null);
@@ -85,7 +86,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({ totalPayment, datasen
 
   return (
     <Box>
-      <Button onClick={initiatePayment} variant="contained">Make Secure Payment</Button>
+      <Button onClick={initiatePayment} disabled={disabled} variant="contained">Make Secure Payment</Button>
       {paylog && <Typography>Login: {paylog}</Typography>}
       {order && <Typography>Order ID: {order.id}</Typography>}
       {paymentStatus && <Typography>{paymentStatus}</Typography>}
