@@ -11,6 +11,7 @@ export const BlogPage = lazy(() => import('../pages/blog'));
 export const BrokerPage = lazy(() => import('../pages/broker'));
 export const SignInPage = lazy(() => import('../pages/sign-in'));
 export const SignUpPage = lazy(() => import('../pages/sign-up'));
+export const ProfileUpdate = lazy(() => import('../pages/profile-update'));
 export const ForgetPage = lazy(() => import('../pages/forget-password'));
 export const ProductsPage = lazy(() => import('../pages/products'));
 export const Page404 = lazy(() => import('../pages/page-not-found'));
@@ -56,6 +57,10 @@ export function Router() {
     {
       path: '/sign-up',
       element: <SignUpPage />,
+    },
+    {
+      path: '/profile',
+      element: <ProfileUpdate />,
     },
     {
       path: '/forget',

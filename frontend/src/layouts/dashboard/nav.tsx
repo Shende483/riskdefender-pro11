@@ -5,7 +5,6 @@ import ListItem from '@mui/material/ListItem';
 import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
-import { varAlpha } from '../../theme/styles';
 import { usePathname } from '../../routes/hooks';
 import { RouterLink } from '../../routes/components';
 import { Scrollbar } from '../../components/scrollbar';
@@ -50,7 +49,6 @@ export function NavDesktop({
         bgcolor: 'var(--layout-nav-bg)',
         zIndex: 'var(--layout-nav-zIndex)',
         width: 'var(--layout-nav-vertical-width)',
-        borderRight: `1px solid var(--layout-nav-border-color, ${varAlpha(theme.vars.palette.grey['500Channel'], 0.12)})`,
         [theme.breakpoints.up(layoutQuery)]: {
           display: 'flex',
         },
