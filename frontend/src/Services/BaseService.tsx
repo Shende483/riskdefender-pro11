@@ -1,3 +1,4 @@
+
 import type { AxiosError, AxiosHeaders, AxiosInstance, AxiosResponse } from "axios";
 
 import axios from "axios";
@@ -5,6 +6,7 @@ import axios from "axios";
 const API_BASE_URL = `http://${import.meta.env.VITE_BACKEND_IP}:${import.meta.env.VITE_BACKEND_PORT}`;
 
 export interface ApiResponse<T> {
+  access_token: any;
   message: string;
   data: T;
   status: string;
@@ -50,6 +52,25 @@ export default class BaseService {
         throw new Error('Network error');
       }
     }
+  }
+
+  // Add this to BaseService class
+  public static postLogin(url: string, body: object) {
+    return this.api.post(url, body)
+      .then(response => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.data; // Return the raw data without further processing
+        }
+        throw new Error(response.data.message || 'Request failed');
+      })
+      .catch(error => {
+        const axiosError = error;
+        if (axiosError.response) {
+          throw new Error(axiosError.response?.data?.message || 'Request failed');
+        } else {
+          throw new Error('Network error');
+        }
+      });
   }
 
   public static post<T>(url: string, body: object) {
