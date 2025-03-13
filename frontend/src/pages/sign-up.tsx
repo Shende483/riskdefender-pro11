@@ -26,10 +26,9 @@ import {
 } from '@mui/material';
 
 import { CONFIG } from '../config-global';
-import { COUNTRIES, OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant'; // Import AuthService
 import AuthService from '../Services/RegisterService';
+import { COUNTRIES, OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
 
-// Define the UserCredentials interface
 interface UserCredentials {
   firstName: string;
   lastName: string;
@@ -45,8 +44,6 @@ interface UserCredentials {
 
 export default function Page() {
   const navigate = useNavigate();
-
-  // Initialize formData with all required fields
   const [formData, setFormData] = useState<UserCredentials>({
     firstName: '',
     lastName: '',
@@ -66,25 +63,21 @@ export default function Page() {
   const [emailVerified, setEmailVerified] = useState<boolean>(false);
   const [mobileSent, setMobileSent] = useState<boolean>(false);
   const [mobileVerified, setMobileVerified] = useState<boolean>(false);
-  const [timer, setTimer] = useState<number>(0);
+  const [emailTimer, setEmailTimer] = useState<number>(0);
+  const [mobileTimer, setMobileTimer] = useState<number>(0);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
-
-    // Update formData state
     setFormData((prevData) => ({
       ...prevData,
       [name]: name === 'agreeTnC' ? checked : value,
     }));
-
-    // Validate the field in real-time
     validateField(name, name === 'agreeTnC' ? checked : value);
   };
 
   const handleCountryChange = (event: SelectChangeEvent<string>) => {
     const countryValue = event.target.value as string;
     const selectedCountry = COUNTRIES.find((country) => country.value === countryValue);
-
     setFormData((prevData) => ({
       ...prevData,
       country: countryValue,
@@ -194,8 +187,6 @@ export default function Page() {
 
   const validateForm = (): boolean => {
     let isValid = true;
-
-    // Validate all required fields
     const fieldsToValidate = ['firstName', 'lastName', 'email', 'mobile', 'password', 'agreeTnC'];
 
     if (emailSent) fieldsToValidate.push('emailOtp');
@@ -211,17 +202,44 @@ export default function Page() {
     return isValid;
   };
 
+  const startTimer = (type: 'email' | 'mobile') => {
+    const timerDuration = 300; // 5 minutes
+
+    if (type === 'email') {
+      setEmailTimer(timerDuration);
+      const interval = setInterval(() => {
+        setEmailTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+    } else if (type === 'mobile') {
+      setMobileTimer(timerDuration);
+      const interval = setInterval(() => {
+        setMobileTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+    }
+  };
+
   const handleSendEmailOTP = async () => {
     if (validateField('email', formData.email)) {
       try {
         const response = await AuthService.sendOtpEmail(formData.email);
         console.log('Email OTP sent - Response:', response);
         setEmailSent(true);
-        startTimer();
-        setErrors((prev) => ({ ...prev, email: '' })); // Clear any previous email errors
+        startTimer('email');
+        setErrors((prev) => ({ ...prev, email: '' }));
       } catch (error) {
         console.error('Error sending email OTP:', error);
-        // Check if error is an Error object and has a message property
         const errorMessage = error instanceof Error ? error.message : 'Failed to send OTP. Please try again.';
         setErrors((prev) => ({ ...prev, email: errorMessage }));
       }
@@ -231,7 +249,7 @@ export default function Page() {
   const handleVerifyEmailOTP = async () => {
     if (validateField('emailOtp', formData.emailOtp)) {
       try {
-        const response = await AuthService.verifyOtpEmail(formData.email, formData.emailOtp); // Use AuthService
+        const response = await AuthService.verifyOtpEmail(formData.email, formData.emailOtp);
         console.log('Email OTP verified:', response);
         setEmailVerified(true);
       } catch (error) {
@@ -244,10 +262,10 @@ export default function Page() {
   const handleSendMobileOTP = async () => {
     if (validateField('mobile', formData.mobile)) {
       try {
-        const response = await AuthService.sendOtpMobile(formData.mobile); // Use AuthService
+        const response = await AuthService.sendOtpMobile(formData.mobile);
         console.log('Mobile OTP sent:', response);
         setMobileSent(true);
-        startTimer();
+        startTimer('mobile');
       } catch (error) {
         console.error('Error sending mobile OTP:', error);
         setErrors({ ...errors, mobile: 'Failed to send OTP. Please try again.' });
@@ -258,7 +276,7 @@ export default function Page() {
   const handleVerifyMobileOTP = async () => {
     if (validateField('mobileOtp', formData.mobileOtp)) {
       try {
-        const response = await AuthService.verifyOtpMobile(formData.mobile, formData.mobileOtp); // Use AuthService
+        const response = await AuthService.verifyOtpMobile(formData.mobile, formData.mobileOtp);
         console.log('Mobile OTP verified:', response);
         setMobileVerified(true);
       } catch (error) {
@@ -268,41 +286,24 @@ export default function Page() {
     }
   };
 
-  const startTimer = () => {
-    setTimer(300); // 5 minutes
-    const interval = setInterval(() => {
-      setTimer((prevTimer) => {
-        if (prevTimer <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prevTimer - 1;
-      });
-    }, 1000);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
     if (validateForm()) {
       try {
         const createUserDto = {
-          name: formData.firstName, 
+          name: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
           mobile: formData.mobile,
           password: formData.password,
-          country: formData.country
+          country: formData.country,
         };
-        
         const response = await AuthService.register(createUserDto);
         console.log('User registered:', response);
-  
         alert('Account created successfully!');
         navigate('/sign-in');
       } catch (error) {
         console.error('Error registering user:', error);
-        // Provide more specific error information if available
         const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
         alert(errorMessage);
       }
@@ -409,10 +410,10 @@ export default function Page() {
                   color="primary"
                   fullWidth
                   onClick={handleSendEmailOTP}
-                  disabled={emailVerified || timer > 0 || !formData.email}
+                  disabled={emailVerified || emailTimer > 0 || !formData.email}
                   sx={{ height: '56px' }}
                 >
-                  {timer > 0 ? `${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')}` : 'Send OTP'}
+                  {emailTimer > 0 ? `${Math.floor(emailTimer / 60)}:${(emailTimer % 60).toString().padStart(2, '0')}` : 'Send OTP'}
                 </Button>
               </Grid>
 
@@ -514,10 +515,10 @@ export default function Page() {
                   color="primary"
                   fullWidth
                   onClick={handleSendMobileOTP}
-                  disabled={mobileVerified || timer > 0 || !formData.mobile}
+                  disabled={mobileVerified || mobileTimer > 0 || !formData.mobile}
                   sx={{ height: '56px' }}
                 >
-                  {timer > 0 ? `${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')}` : 'Send OTP'}
+                  {mobileTimer > 0 ? `${Math.floor(mobileTimer / 60)}:${(mobileTimer % 60).toString().padStart(2, '0')}` : 'Send OTP'}
                 </Button>
               </Grid>
 

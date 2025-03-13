@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -20,18 +21,15 @@ import {
   FormControlLabel,
 } from '@mui/material';
 
-import { OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
-
+import { OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant'; // Import LoginService
+import LoginService from '../Services/LoginService';
 
 interface UserCredentials {
-  identifier: string; // Common field for email or mobile
+  identifier: string;
   password: string;
   otp: string;
   rememberMe: boolean;
 }
-
-
-// ----------------------------------------------------------------------
 
 export default function Page() {
   const navigate = useNavigate();
@@ -49,18 +47,10 @@ export default function Page() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
-    if (name === 'rememberMe') {
-      setFormData({
-        ...formData,
-        [name]: checked,
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
-    // Validate in real-time
+    setFormData({
+      ...formData,
+      [name]: name === 'rememberMe' ? checked : value,
+    });
     validateField(name, name === 'rememberMe' ? checked : value);
   };
 
@@ -110,34 +100,34 @@ export default function Page() {
     return isValid;
   };
 
-  const validateForm = (): boolean => {
-    let isValid = true;
-    // Validate all required fields
-    const fieldsToValidate = ['identifier', 'password'];
-    if (otpSent) fieldsToValidate.push('otp');
-    fieldsToValidate.forEach((field) => {
-      const value = field === 'rememberMe' ? formData.rememberMe : formData[field as keyof UserCredentials];
-      if (!validateField(field, value)) {
-        isValid = false;
-      }
-    });
-    return isValid;
-  };
-
-  const handleSendOTP = () => {
+  const handleSendOTP = async () => {
     if (validateField('identifier', formData.identifier)) {
-      // Simulate sending OTP
-      console.log(`Sending OTP to: ${formData.identifier}`);
-      setOtpSent(true);
-      startTimer();
+      try {
+        if (/\S+@\S+\.\S+/.test(formData.identifier)) {
+          await LoginService.sendOtpEmail(formData.identifier);
+        } else {
+          await LoginService.sendOtpMobile(formData.identifier);
+        }
+        setOtpSent(true);
+        startTimer();
+      } catch (error) {
+        setErrors({ ...errors, identifier: 'Failed to send OTP. Please try again.' });
+      }
     }
   };
 
-  const handleVerifyOTP = () => {
+  const handleVerifyOTP = async () => {
     if (validateField('otp', formData.otp)) {
-      // Simulate verifying OTP
-      console.log(`Verifying OTP: ${formData.otp}`);
-      setOtpVerified(true);
+      try {
+        if (/\S+@\S+\.\S+/.test(formData.identifier)) {
+          await LoginService.verifyOtpEmail(formData.identifier, formData.otp);
+        } else {
+          await LoginService.verifyOtpMobile(formData.identifier, formData.otp);
+        }
+        setOtpVerified(true);
+      } catch (error) {
+        setErrors({ ...errors, otp: 'Invalid OTP. Please try again.' });
+      }
     }
   };
 
@@ -154,155 +144,168 @@ export default function Page() {
     }, 1000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = (): boolean => {
+    let isValid = true;
+
+    // Validate all required fields
+    const fieldsToValidate = ['identifier', 'password'];
+    if (otpSent) fieldsToValidate.push('otp');
+
+    fieldsToValidate.forEach((field) => {
+      const value = field === 'rememberMe' ? formData.rememberMe : formData[field as keyof UserCredentials];
+      if (!validateField(field, value)) {
+        isValid = false;
+      }
+    });
+
+    return isValid;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      // Simulate form submission
-      console.log('Sign in form submitted:', formData);
-      // Navigate to dashboard after successful login
-      alert('Login successful!');
-      navigate('/dashboard');
+  
+    if (!validateForm()) {
+      console.error('Form validation failed');
+      return;
+    }
+  
+    try {
+      const loginUserDto = {
+        email: /\S+@\S+\.\S+/.test(formData.identifier) ? formData.identifier : undefined,
+        mobile: /^\d+$/.test(formData.identifier) ? formData.identifier : undefined,
+        password: formData.password,
+        otp: formData.otp,
+      };
+  
+      const response = await LoginService.login(loginUserDto);
+      console.log('Login successful:', response);
+      navigate('/');
+    } catch (error) {
+      console.error('Login failed:', error);
+      setErrors({ ...errors, password: 'Invalid credentials. Please try again.' });
     }
   };
+
   return (
     <Container component="main" maxWidth="sm">
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            mt: 8,
-            borderRadius: 2,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-          }}
-        >
-          <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold', mb: 1 }}>
-            RiskdefenderAI.com
-          </Typography>
-          <Typography variant="h5" color="primary" sx={{ mb: 1 }}>
-            Hi, Welcome Back
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            Enter your credentials to continue
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-            <Grid container spacing={2}>
-              <Grid item xs={9}>
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  id="identifier"
-                  label="Enter Email or Mobile"
-                  name="identifier"
-                  value={formData.identifier}
-                  onChange={handleChange}
-                  error={!!errors.identifier}
-                  helperText={errors.identifier}
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSendOTP}
-                  disabled={otpSent}
-                  fullWidth
-                  sx={{ height: '100%' }}
-                >
-                  {otpSent ? `Resend (<span class="math-inline">{Math.floor(timer / 60)}:</span>${(timer % 60).toString().padStart(2, '0')})` : 'Send OTP'}                </Button>
-              </Grid>
-              {otpSent && (
-                <>
-                  <Grid item xs={9}>
-                    <TextField
-                      variant="outlined"
-                      fullWidth
-                      id="otp"
-                      label="Enter OTP"
-                      name="otp"
-                      value={formData.otp}
-                      onChange={handleChange}
-                      error={!!errors.otp}
-                      helperText={errors.otp}
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      onClick={handleVerifyOTP}
-                      disabled={otpVerified}
-                      fullWidth
-                      sx={{ height: '100%' }}
-                    >
-                      Verify
-                    </Button>
-                  </Grid>
-                </>
-              )}
-              <Grid item xs={12}>
-                <FormControl variant="outlined" fullWidth>
-                  <InputLabel htmlFor="password">Password</InputLabel>
-                  <OutlinedInput
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={handleChange}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    label="Password"
-                    error={!!errors.password}
-                  />
-                  <FormHelperText error={!!errors.password}>{errors.password}</FormHelperText>
-                </FormControl>
-              </Grid>
-
-              <Link to="/forget" style={{ marginLeft: 20 }}>Forget Password</Link>
-
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={formData.rememberMe}
-                      onChange={handleChange}
-                      name="rememberMe"
-                      color="primary"
-                    />
-                  }
-                  label="Remember me"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  sx={{ mt: 3, mb: 2 }}
-                >
-                  Sign In
-                </Button>
-              </Grid>
-              <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                <Typography variant="body2">
-                  Don&apos;t have an account? <Link to="/sign-up">Sign Up</Link>
-                </Typography>
-              </Grid>
+      <Paper elevation={3} sx={{ p: 4, mt: 8, borderRadius: 2 }}>
+        <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold', mb: 1 }}>
+          RiskdefenderAI.com
+        </Typography>
+        <Typography variant="h5" color="primary" sx={{ mb: 1 }}>
+          Hi, Welcome Back
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          Enter your credentials to continue
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+          <Grid container spacing={2}>
+            <Grid item xs={9}>
+              <TextField
+                variant="outlined"
+                fullWidth
+                id="identifier"
+                label="Enter Email or Mobile"
+                name="identifier"
+                value={formData.identifier}
+                onChange={handleChange}
+                error={!!errors.identifier}
+                helperText={errors.identifier}
+              />
             </Grid>
-          </Box>
-        </Paper>
-      </Container>
+            <Grid item xs={3}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSendOTP}
+                disabled={otpSent}
+                fullWidth
+                sx={{ height: '100%' }}
+              >
+                {otpSent ? `Resend (${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')})` : 'Send OTP'}
+              </Button>
+            </Grid>
+            {otpSent && (
+              <>
+                <Grid item xs={9}>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    id="otp"
+                    label="Enter OTP"
+                    name="otp"
+                    value={formData.otp}
+                    onChange={handleChange}
+                    error={!!errors.otp}
+                    helperText={errors.otp}
+                  />
+                </Grid>
+                <Grid item xs={3}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleVerifyOTP}
+                    disabled={otpVerified}
+                    fullWidth
+                    sx={{ height: '100%' }}
+                  >
+                    Verify
+                  </Button>
+                </Grid>
+              </>
+            )}
+            <Grid item xs={12}>
+              <FormControl variant="outlined" fullWidth>
+                <InputLabel htmlFor="password">Password</InputLabel>
+                <OutlinedInput
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={handleChange}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="Password"
+                  error={!!errors.password}
+                />
+                <FormHelperText error={!!errors.password}>{errors.password}</FormHelperText>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.rememberMe}
+                    onChange={handleChange}
+                    name="rememberMe"
+                    color="primary"
+                  />
+                }
+                label="Remember me"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button type="submit" fullWidth variant="contained" color="primary" sx={{ mt: 3, mb: 2 }}>
+                Sign In
+              </Button>
+            </Grid>
+            <Grid item xs={12} sx={{ textAlign: 'center' }}>
+              <Typography variant="body2">
+                Don&apos;t have an account? <Link to="/sign-up">Sign Up</Link>
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
+    </Container>
   );
 }

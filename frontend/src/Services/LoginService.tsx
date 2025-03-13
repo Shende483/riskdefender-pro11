@@ -1,8 +1,8 @@
-import { LoginUserDto } from '../Types/AuthTypes';
 import BaseService from './BaseService';
 
+import type { LoginUserDto } from '../Types/AuthTypes';
 
-export default class AuthService {
+export default class LoginService {
   public static setAccessToken(authData: { accessToken: string; appUser: string; userId: string }) {
     localStorage.setItem('appUser', JSON.stringify(authData.appUser));
     localStorage.setItem('accessToken', authData.accessToken);
@@ -38,11 +38,19 @@ export default class AuthService {
   }
 
   static async login(loginUserDto: LoginUserDto) {
-    const response = await BaseService.post<{ accessToken: string; appUser: string; userId: string }>(
+    const response = await BaseService.postLogin(
       'auth/login',
       loginUserDto,
     );
-    this.setAccessToken(response); // Save access token to localStorage
+    console.log('API Response:', response);
+    
+    if (response.access_token) {
+      this.setAccessToken({
+        accessToken: response.access_token,
+        appUser: response.userId || '',
+        userId: response.userId || ''
+      });
+    }
     return response;
   }
 
