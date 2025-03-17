@@ -13,6 +13,8 @@ const redis_config_1 = require("./config/redis.config");
 const login_module_1 = require("./modules/auth/loginAuth/login.module");
 const register_module_1 = require("./modules/auth/registerAuth/register.module");
 const database_config_1 = require("./config/database.config");
+const tradingRules_module_1 = require("./modules/TradingRules/tradingRules.module");
+const subcription_module_1 = require("./modules/SubcriptionDetails copy/subcription.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -23,6 +25,8 @@ exports.AppModule = AppModule = __decorate([
             database_config_1.DatabaseConfig,
             login_module_1.LoginModule,
             register_module_1.RegisterModule,
+            tradingRules_module_1.TradingRulesModule,
+            subcription_module_1.SubscriptionDetailsModule,
         ],
         providers: [redis_config_1.RedisService],
         exports: [redis_config_1.RedisService],

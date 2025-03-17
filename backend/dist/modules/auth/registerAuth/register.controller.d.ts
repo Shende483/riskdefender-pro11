@@ -1,19 +1,12 @@
 import { RegisterService } from './register.service';
 import { CreateUserDto } from './dto/register.dto';
+import { Response } from 'express';
 export declare class RegisterController {
     private RegisterService;
     constructor(RegisterService: RegisterService);
-    sendOtpEmail(email: string): Promise<{
-        message: string;
-    }>;
-    sendOtpMobile(mobileNo: string): Promise<{
-        message: string;
-    }>;
-    verifyOtpEmail(email: string, otp: string): Promise<{
-        message: string;
-    }>;
-    verifyOtpMobile(mobile: string, otp: string): Promise<{
-        message: string;
-    }>;
-    createUser(createUserDto: CreateUserDto): Promise<import("./register.schema").User>;
+    sendOtpEmail(email: string, res: Response): Promise<void>;
+    sendOtpMobile(mobileNo: string, res: Response): Promise<void>;
+    verifyOtpEmail(email: string, otp: string, res: Response): Promise<void>;
+    verifyOtpMobile(mobile: string, otp: string, res: Response): Promise<void>;
+    createUser(createUserDto: CreateUserDto, res: Response): Promise<void | import("./register.schema").User>;
 }

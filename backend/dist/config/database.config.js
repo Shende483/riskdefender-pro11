@@ -13,7 +13,7 @@ exports.DatabaseConfig = mongoose_1.MongooseModule.forRootAsync({
                 throw new Error('❌ MONGO_URI is not defined in environment variables');
             }
             console.log('✅ Successfully connected to MongoDB Atlas');
-            return { uri };
+            return { uri, useNewUrlParser: true, useUnifiedTopology: true };
         }
         catch (error) {
             console.error('❌ Failed to connect to MongoDB Atlas:', error.message);

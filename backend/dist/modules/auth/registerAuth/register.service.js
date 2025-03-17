@@ -26,54 +26,102 @@ let RegisterService = class RegisterService {
         this.userModel = userModel;
         this.otpService = otpService;
     }
-    async sendOtpEmail(email) {
-        console.log(`📩 Sending OTP for email: ${email}`);
+    async sendOtpEmail(email, res) {
+        console.log(`📩 Sending OTP  email: ${email}`);
         const user = await this.findUserByEmail(email);
         if (user) {
-            throw new common_1.UnauthorizedException('Email already registered');
+            res.status(400).json({
+                statusCode: 400,
+                message: 'User Already registered',
+                data: "fghjfdghjhgjkgfjkgjkfhgjhfhghfhg",
+                success: true,
+            });
+            return;
         }
-        return this.otpService.sendOtpEmail(email, 'register');
+        const response = await this.otpService.sendOtpEmail(email, 'register');
+        res.status(400).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
     }
-    async sendOtpMobile(mobile) {
+    async sendOtpMobile(mobile, res) {
         console.log(`📩 Sending OTP for mobile: ${mobile}`);
         const user = await this.findUserByMobile(mobile);
         if (user) {
-            throw new common_1.UnauthorizedException('Mobile number already registered');
+            res.status(400).json({
+                statusCode: 400,
+                message: 'User Already registered',
+                data: "fghjfdghjhgjkgfjkgjkfhgjhfhghfhg",
+                success: false,
+            });
         }
-        return this.otpService.sendOtpMobile(mobile, 'register');
+        const response = await this.otpService.sendOtpMobile(mobile, 'register');
+        res.status(400).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
     }
-    async verifyOtpEmail(email, otp) {
+    async verifyOtpEmail(email, otp, res) {
         console.log(`🔍 Verifying OTP for email: ${email}`);
-        const result = await this.otpService.verifyOtpEmail(email, otp);
+        const response = await this.otpService.verifyOtpEmail(email, otp);
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
         console.log(`✅ Email verified: ${email}`);
         await this.otpService.setVerifiedEmail(email);
-        return result;
     }
-    async verifyOtpMobile(mobile, otp) {
+    async verifyOtpMobile(mobile, otp, res) {
         console.log(`🔍 Verifying OTP for mobile: ${mobile}`);
-        const result = await this.otpService.verifyOtpMobile(mobile, otp);
+        const response = await this.otpService.verifyOtpMobile(mobile, otp);
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
         console.log(`✅ Mobile verified: ${mobile}`);
         await this.otpService.setVerifiedMobile(mobile);
-        return result;
     }
-    async createUser(createUserDto) {
+    async createUser(createUserDto, res) {
         const { email, mobile, password } = createUserDto;
-        if (!(await this.otpService.isEmailVerified(email))) {
-            throw new common_1.UnauthorizedException('Email OTP is not verified');
+        const emailVerified = await this.otpService.isEmailVerified(email);
+        const mobileVerified = await this.otpService.isMobileVerified(mobile);
+        if (!emailVerified) {
+            res.status(400).json({
+                statusCode: 400,
+                message: '❌ Email is not verified. Please verify OTP.',
+                success: false,
+            });
         }
-        if (!(await this.otpService.isMobileVerified(mobile))) {
-            throw new common_1.UnauthorizedException('Mobile OTP is not verified');
+        if (!mobileVerified) {
+            res.status(400).json({
+                statusCode: 400,
+                message: '❌ Mobile number is not verified. Please verify OTP.',
+                success: false,
+            });
         }
         createUserDto.password = await bcrypt_service_1.bcryptService.hashData(password);
         try {
             const newUser = new this.userModel(createUserDto);
             const savedUser = await newUser.save();
             console.log('✅ User registered successfully:', savedUser);
-            return savedUser;
+            res.status(201).json({
+                statusCode: 201,
+                message: '✅ User registered successfully',
+                success: true,
+                data: savedUser,
+            });
         }
         catch (error) {
             console.error('❌ Error saving user:', error);
-            throw new Error('Failed to save user');
+            res.status(500).json({
+                statusCode: 500,
+                message: '❌ Something went wrong. User not saved.',
+                success: false,
+            });
         }
     }
     async isEmailVerified(email) {

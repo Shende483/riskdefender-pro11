@@ -7,15 +7,35 @@ export declare class ForgetPasswordService {
     constructor(usersService: RegisterService, otpService: OtpService);
     sendOtpEmail(email: string): Promise<{
         message: string;
+        statuscode: number;
+        success: boolean;
+        error?: undefined;
+    } | {
+        message: string;
+        error: any;
+        statuscode: number;
+        success: boolean;
     }>;
     sendOtpMobile(mobile: string): Promise<{
         message: string;
+        statuscode: number;
+        success: boolean;
+        error?: undefined;
+    } | {
+        message: string;
+        error: any;
+        statuscode: number;
+        success: boolean;
     }>;
     verifyOtpEmail(email: string, otp: string): Promise<{
         message: string;
+        statuscode: number;
+        success: boolean;
     }>;
     verifyOtpMobile(mobile: string, otp: string): Promise<{
         message: string;
+        statuscode: number;
+        success: boolean;
     }>;
     resetPassword(forgetPasswordUserDto: ForgetPasswordUserDto): Promise<{
         message: string;

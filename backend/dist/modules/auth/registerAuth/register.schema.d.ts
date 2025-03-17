@@ -3,7 +3,7 @@ export declare class User extends Document {
     name: string;
     lastName: string;
     email: string;
-    country: string;
+    countryCode: string;
     mobile: string;
     password: string;
 }

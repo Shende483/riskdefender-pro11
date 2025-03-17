@@ -2,23 +2,16 @@ import { Model } from 'mongoose';
 import { User } from './register.schema';
 import { CreateUserDto } from './dto/register.dto';
 import { OtpService } from '../../../common/otp.service';
+import { Response } from 'express';
 export declare class RegisterService {
     private userModel;
     private otpService;
     constructor(userModel: Model<User>, otpService: OtpService);
-    sendOtpEmail(email: string): Promise<{
-        message: string;
-    }>;
-    sendOtpMobile(mobile: string): Promise<{
-        message: string;
-    }>;
-    verifyOtpEmail(email: string, otp: string): Promise<{
-        message: string;
-    }>;
-    verifyOtpMobile(mobile: string, otp: string): Promise<{
-        message: string;
-    }>;
-    createUser(createUserDto: CreateUserDto): Promise<User>;
+    sendOtpEmail(email: string, res: Response): Promise<void>;
+    sendOtpMobile(mobile: string, res: Response): Promise<void>;
+    verifyOtpEmail(email: string, otp: string, res: Response): Promise<void>;
+    verifyOtpMobile(mobile: string, otp: string, res: Response): Promise<void>;
+    createUser(createUserDto: CreateUserDto, res: Response): Promise<User | void>;
     isEmailVerified(email: string): Promise<boolean>;
     isMobileVerified(mobile: string): Promise<boolean>;
     clearVerifiedEmail(email: string): Promise<void>;
