@@ -81,7 +81,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({ totalPayment, datasen
     }
 
     
-    navigate("/connect-broker");
+    navigate("/broker");
   };
 
   return (
