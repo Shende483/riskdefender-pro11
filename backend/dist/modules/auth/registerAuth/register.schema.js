@@ -16,7 +16,7 @@ let User = class User extends mongoose_2.Document {
     name;
     lastName;
     email;
-    country;
+    countryCode;
     mobile;
     password;
 };
@@ -36,7 +36,7 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
-], User.prototype, "country", void 0);
+], User.prototype, "countryCode", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true, unique: true }),
     __metadata("design:type", String)

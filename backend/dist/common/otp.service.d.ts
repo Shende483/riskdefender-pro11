@@ -11,17 +11,37 @@ export declare class OtpService {
     private clearVerified;
     sendOtpEmail(email: string, context: string): Promise<{
         message: string;
+        statuscode: number;
+        success: boolean;
+        error?: undefined;
+    } | {
+        message: string;
+        error: any;
+        statuscode: number;
+        success: boolean;
     }>;
     verifyOtpEmail(email: string, enteredOtp: string): Promise<{
         message: string;
+        statuscode: number;
+        success: boolean;
     }>;
     isEmailVerified(email: string): Promise<boolean>;
     clearVerifiedEmail(email: string): Promise<void>;
     sendOtpMobile(mobile: string, context: string): Promise<{
         message: string;
+        statuscode: number;
+        success: boolean;
+        error?: undefined;
+    } | {
+        message: string;
+        error: any;
+        statuscode: number;
+        success: boolean;
     }>;
     verifyOtpMobile(mobile: string, enteredOtp: string): Promise<{
         message: string;
+        statuscode: number;
+        success: boolean;
     }>;
     setVerifiedMobile(mobile: string): Promise<void>;
     isMobileVerified(mobile: string): Promise<boolean>;

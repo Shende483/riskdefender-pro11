@@ -13,7 +13,7 @@ export class User extends Document {
   email: string;
 
   @Prop({ required: true })
-  country: string;
+  countryCode: string;
 
   @Prop({ required: true, unique: true })
   mobile: string;

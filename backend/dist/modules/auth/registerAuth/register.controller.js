@@ -14,38 +14,30 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegisterController = void 0;
 const common_1 = require("@nestjs/common");
-const common_2 = require("@nestjs/common");
 const register_service_1 = require("./register.service");
 const register_dto_1 = require("./dto/register.dto");
-const swagger_1 = require("@nestjs/swagger");
 let RegisterController = class RegisterController {
     RegisterService;
     constructor(RegisterService) {
         this.RegisterService = RegisterService;
     }
-    async sendOtpEmail(email) {
-        console.log("we recieved email", email);
-        return this.RegisterService.sendOtpEmail(email);
+    async sendOtpEmail(email, res) {
+        console.log("we received email", email);
+        await this.RegisterService.sendOtpEmail(email, res);
     }
-    async sendOtpMobile(mobileNo) {
+    async sendOtpMobile(mobileNo, res) {
         console.log("mofbb", mobileNo);
-        return this.RegisterService.sendOtpMobile(mobileNo);
+        await this.RegisterService.sendOtpMobile(mobileNo, res);
     }
-    async verifyOtpEmail(email, otp) {
-        return this.RegisterService.verifyOtpEmail(email, otp);
+    async verifyOtpEmail(email, otp, res) {
+        return this.RegisterService.verifyOtpEmail(email, otp, res);
     }
-    async verifyOtpMobile(mobile, otp) {
-        return this.RegisterService.verifyOtpMobile(mobile, otp);
+    async verifyOtpMobile(mobile, otp, res) {
+        return this.RegisterService.verifyOtpMobile(mobile, otp, res);
     }
-    async createUser(createUserDto) {
+    async createUser(createUserDto, res) {
         const { email, mobile } = createUserDto;
-        if (!(await this.RegisterService.isEmailVerified(email))) {
-            throw new common_1.UnauthorizedException('Email is not verified. Please verify OTP.');
-        }
-        if (!(await this.RegisterService.isMobileVerified(mobile))) {
-            throw new common_1.UnauthorizedException('Mobile number is not verified. Please verify OTP.');
-        }
-        const response = await this.RegisterService.createUser(createUserDto);
+        const response = await this.RegisterService.createUser(createUserDto, res);
         await this.RegisterService.clearVerifiedEmail(email);
         await this.RegisterService.clearVerifiedMobile(mobile);
         return response;
@@ -53,56 +45,49 @@ let RegisterController = class RegisterController {
 };
 exports.RegisterController = RegisterController;
 __decorate([
-    (0, common_2.Post)('register/verify-email'),
-    (0, swagger_1.ApiOperation)({ summary: 'Send OTP to Email' }),
-    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { email: { type: 'string' } } } }),
-    __param(0, (0, common_2.Body)('email')),
+    (0, common_1.Post)('register/verify-email'),
+    __param(0, (0, common_1.Body)('email')),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], RegisterController.prototype, "sendOtpEmail", null);
 __decorate([
-    (0, common_2.Post)('register/verify-mobile'),
-    (0, swagger_1.ApiOperation)({ summary: 'Send OTP to Mobile' }),
-    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { mobile: { type: 'string' } } } }),
-    __param(0, (0, common_2.Body)('mobile')),
+    (0, common_1.Post)('register/verify-mobile'),
+    __param(0, (0, common_1.Body)('mobile')),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], RegisterController.prototype, "sendOtpMobile", null);
 __decorate([
-    (0, common_2.Post)('register/verify-otp-email'),
-    (0, swagger_1.ApiOperation)({ summary: 'Verify OTP for Email' }),
-    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { email: { type: 'string' }, otp: { type: 'string' } } } }),
-    __param(0, (0, common_2.Body)('email')),
-    __param(1, (0, common_2.Body)('otp')),
+    (0, common_1.Post)('register/verify-otp-email'),
+    __param(0, (0, common_1.Body)('email')),
+    __param(1, (0, common_1.Body)('otp')),
+    __param(2, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], RegisterController.prototype, "verifyOtpEmail", null);
 __decorate([
-    (0, common_2.Post)('register/verify-otp-mobile'),
-    (0, swagger_1.ApiOperation)({ summary: 'Verify OTP for Mobile' }),
-    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { mobile: { type: 'string' }, otp: { type: 'string' } } } }),
-    __param(0, (0, common_2.Body)('mobile')),
-    __param(1, (0, common_2.Body)('otp')),
+    (0, common_1.Post)('register/verify-otp-mobile'),
+    __param(0, (0, common_1.Body)('mobile')),
+    __param(1, (0, common_1.Body)('otp')),
+    __param(2, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], RegisterController.prototype, "verifyOtpMobile", null);
 __decorate([
-    (0, common_2.Post)('register'),
-    (0, swagger_1.ApiOperation)({ summary: 'Register New User' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'User registered successfully' }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: 'Email or Mobile OTP not verified' }),
-    __param(0, (0, common_2.Body)()),
+    (0, common_1.Post)('register'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [register_dto_1.CreateUserDto]),
+    __metadata("design:paramtypes", [register_dto_1.CreateUserDto, Object]),
     __metadata("design:returntype", Promise)
 ], RegisterController.prototype, "createUser", null);
 exports.RegisterController = RegisterController = __decorate([
-    (0, swagger_1.ApiTags)('Auth - Registration'),
-    (0, common_2.Controller)('auth'),
+    (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [register_service_1.RegisterService])
 ], RegisterController);
 //# sourceMappingURL=register.controller.js.map

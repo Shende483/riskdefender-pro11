@@ -24,65 +24,128 @@ let LoginService = class LoginService {
         this.jwtService = jwtService;
         this.otpService = otpService;
     }
-    async sendOtpEmail(email) {
+    async sendOtpEmail(email, res) {
         console.log(`📩 Sending OTP for login (email): ${email}`);
         const user = await this.usersService.findUserByEmail(email);
         if (!user) {
-            throw new common_1.UnauthorizedException('User not found');
+            res.status(400).json({
+                statusCode: 400,
+                message: 'User not found',
+                success: false,
+            });
+            return;
         }
-        return this.otpService.sendOtpEmail(email, 'login');
+        const response = await this.otpService.sendOtpEmail(email, 'login');
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
     }
-    async sendOtpMobile(mobile) {
+    async sendOtpMobile(mobile, res) {
         console.log(`📩 Sending OTP for login (mobile): ${mobile}`);
         const user = await this.usersService.findUserByMobile(mobile);
         if (!user) {
-            throw new common_1.UnauthorizedException('User not found');
+            res.status(400).json({
+                statusCode: 400,
+                message: 'User not found',
+                success: false,
+            });
+            return;
         }
-        return this.otpService.sendOtpMobile(mobile, 'login');
+        const response = await this.otpService.sendOtpMobile(mobile, 'login');
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
     }
-    async verifyOtpEmail(email, otp) {
+    async verifyOtpEmail(email, otp, res) {
         console.log(`🔍 Verifying OTP for email: ${email}`);
-        const result = await this.otpService.verifyOtpEmail(email, otp);
+        const response = await this.otpService.verifyOtpEmail(email, otp);
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
         console.log(`✅ Storing verification status for email: ${email}`);
         await this.otpService.setVerifiedEmail(email);
-        return result;
     }
-    async verifyOtpMobile(mobile, otp) {
+    async verifyOtpMobile(mobile, otp, res) {
         console.log(`🔍 Verifying OTP for mobile: ${mobile}`);
-        const result = await this.otpService.verifyOtpMobile(mobile, otp);
+        const response = await this.otpService.verifyOtpMobile(mobile, otp);
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
         console.log(`✅ Storing verification status for mobile: ${mobile}`);
         await this.otpService.setVerifiedMobile(mobile);
-        return result;
     }
-    async login(loginUserDto) {
+    async login(loginUserDto, res) {
         const { email, mobile, password } = loginUserDto;
         console.log(`🔐 Attempting login for:`, { email, mobile });
         let user;
         if (email) {
             user = await this.usersService.findUserByEmail(email);
-            if (!user)
-                throw new common_1.UnauthorizedException('User not found');
+            if (!user) {
+                res.status(400).json({
+                    statusCode: 400,
+                    message: 'User not found',
+                    success: false,
+                });
+                return;
+            }
             const isMatch = await bcrypt_service_1.bcryptService.compareData(String(password), user.password);
-            if (!isMatch)
-                throw new common_1.UnauthorizedException('Invalid password');
+            if (!isMatch) {
+                res.status(400).json({
+                    statusCode: 400,
+                    message: 'Invalid password',
+                    success: false,
+                });
+                return;
+            }
             await this.otpService.clearVerifiedEmail(email);
         }
         else if (mobile) {
             user = await this.usersService.findUserByMobile(mobile);
-            if (!user)
-                throw new common_1.UnauthorizedException('User not found');
+            if (!user) {
+                res.status(400).json({
+                    statusCode: 400,
+                    message: 'User not found',
+                    success: false,
+                });
+                return;
+            }
             const isMatch = await bcrypt_service_1.bcryptService.compareData(String(password), user.password);
-            if (!isMatch)
-                throw new common_1.UnauthorizedException('Invalid password');
+            if (!isMatch) {
+                res.status(400).json({
+                    statusCode: 400,
+                    message: 'Invalid password',
+                    success: false,
+                });
+                return;
+            }
             await this.otpService.clearVerifiedMobile(mobile);
         }
         else {
-            throw new common_1.UnauthorizedException('Either email or mobile is required for login.');
+            res.status(400).json({
+                statusCode: 400,
+                message: 'Either email or mobile is required for login.',
+                success: false,
+            });
+            return;
         }
-        return {
+        const accessToken = await this.jwtService.signAsync({
+            id: user._id,
+        });
+        console.log("grgrt", accessToken);
+        res.status(200).json({
+            statusCode: 200,
             message: 'Login successful',
-            access_token: this.jwtService.sign({ userId: user._id, email: user.email, mobile: user.mobile }),
-        };
+            success: true,
+            access_token: accessToken
+        });
     }
     async isEmailVerified(email) {
         return this.otpService.isEmailVerified(email);

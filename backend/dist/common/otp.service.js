@@ -78,18 +78,23 @@ let OtpService = class OtpService {
                 subject: `OTP for ${context}`,
                 text: `Dear user, your OTP is ${otp}. It is valid for 15 minutes.`,
             });
-            console.log(`✅ OTP sent successfully to ${email}`);
+            return { message: `✅ OTP sent successfully to ${email}`, statuscode: 201, success: true };
         }
         catch (error) {
             console.error(`❌ Failed to send OTP to ${email}:`, error);
-            throw new common_1.UnauthorizedException('Failed to send OTP. Please try again.');
+            return { message: `❌ Failed to send OTP,Incorrect eamil:${email}:`, error, statuscode: 400, success: false };
         }
-        return { message: `OTP sent successfully to ${email}` };
     }
     async verifyOtpEmail(email, enteredOtp) {
-        await this.verifyStoredOtp(`otp:${email}`, enteredOtp);
-        await this.setVerified(`verified:${email}`);
-        return { message: 'OTP verified successfully' };
+        try {
+            await this.verifyStoredOtp(`otp:${email}`, enteredOtp);
+            await this.setVerified(`verified:${email}`);
+            return { message: `OTP verified successfully for ${email}`, statuscode: 201, success: true };
+        }
+        catch (error) {
+            console.error(`❌ Error during OTP verification for ${email}:`, error);
+            return { message: '❌ Invalid OTP ', statuscode: 500, success: false };
+        }
     }
     async isEmailVerified(email) {
         return this.isVerified(`verified:${email}`);
@@ -116,22 +121,29 @@ let OtpService = class OtpService {
                         'cache-control': 'no-cache',
                     },
                 });
+                return { message: `✅ OTP sent successfully to ${mobile}`, statuscode: 201, success: true };
                 console.log(`✅ Mobile OTP sent to ${mobile}`);
             }
             catch (error) {
                 console.error(`❌ Failed to send Mobile OTP:`, error);
-                throw new common_1.UnauthorizedException('Failed to send OTP. Please try again.');
+                return { message: `❌ Failed to send OTP to ${mobile}:`, error, statuscode: 400, success: false };
             }
         }
         else {
             console.log(`📲 Using Dummy OTP for mobile verification: ${dummyOtp}`);
+            return { message: `✅ OTP sent successfully to ${mobile} ,dummy otp is 999999`, statuscode: 201, success: true };
         }
-        return { message: `OTP sent successfully to ${mobile}` };
     }
     async verifyOtpMobile(mobile, enteredOtp) {
-        await this.verifyStoredOtp(`otp:${mobile}`, enteredOtp);
-        await this.setVerified(`verified:${mobile}`);
-        return { message: 'OTP verified successfully' };
+        try {
+            await this.verifyStoredOtp(`otp:${mobile}`, enteredOtp);
+            await this.setVerified(`verified:${mobile}`);
+            return { message: `OTP verified successfully for ${mobile}`, statuscode: 201, success: true };
+        }
+        catch (error) {
+            console.error(`❌ Error during OTP verification for ${mobile}:`, error);
+            return { message: '❌ Invalid OTP ', statuscode: 500, success: false };
+        }
     }
     async setVerifiedMobile(mobile) {
         await this.redisClient.set(`verified:${mobile}`, 'true');
