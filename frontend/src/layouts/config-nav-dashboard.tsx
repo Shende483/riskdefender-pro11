@@ -1,7 +1,4 @@
-
-
-// ----------------------------------------------------------------------
-
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import { Label } from "../components/label";
 import { SvgColor } from "../components/svg-color";
 
@@ -14,6 +11,11 @@ export const navData = [
     title: 'Dashboard',
     path: '/',
     icon: icon('ic-analytics'),
+  },
+  {
+    title: 'Subscription',
+    path: '/subscription',
+    icon: <SubscriptionsIcon/>,
   },
   {
     title: 'Add Broker',

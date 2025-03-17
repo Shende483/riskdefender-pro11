@@ -8,7 +8,7 @@ import { DashboardLayout } from '../layouts/dashboard';
 
 export const HomePage = lazy(() => import('../pages/home'));
 export const BlogPage = lazy(() => import('../pages/blog'));
-export const BrokerPage = lazy(() => import('../pages/broker'));
+export const SubscriptionPage = lazy(() => import('../sections/broker/SubscriptionPage'));
 export const SignInPage = lazy(() => import('../pages/sign-in'));
 export const SignUpPage = lazy(() => import('../pages/sign-up'));
 export const ProfileUpdate = lazy(() => import('../pages/profile-update'));
@@ -42,10 +42,10 @@ export function Router() {
       ),
       children: [
         { element: <HomePage />, index: true },
-        { path: 'broker', element: <BrokerPage /> },
+        { path: 'subscription', element: <SubscriptionPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
-        { path: 'connect-broker', element: <ConnectBrokerPage /> },
+        { path: 'broker', element: <ConnectBrokerPage /> },
       ],
     },
     {
