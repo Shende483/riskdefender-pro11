@@ -1,6 +1,6 @@
 import type { SelectChangeEvent } from '@mui/material';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -23,6 +23,8 @@ import {
   FormHelperText,
   InputAdornment,
   FormControlLabel,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 
 import { CONFIG } from '../config-global';
@@ -40,6 +42,12 @@ interface UserCredentials {
   country: string;
   countryCode: string;
   agreeTnC: boolean;
+}
+
+interface StatusMessage {
+  text: string;
+  type: 'success' | 'error' | 'info' | 'warning';
+  field?: string;
 }
 
 export default function Page() {
@@ -65,6 +73,9 @@ export default function Page() {
   const [mobileVerified, setMobileVerified] = useState<boolean>(false);
   const [emailTimer, setEmailTimer] = useState<number>(0);
   const [mobileTimer, setMobileTimer] = useState<number>(0);
+
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
@@ -189,8 +200,9 @@ export default function Page() {
     let isValid = true;
     const fieldsToValidate = ['firstName', 'lastName', 'email', 'mobile', 'password', 'agreeTnC'];
 
-    if (emailSent) fieldsToValidate.push('emailOtp');
-    if (mobileSent) fieldsToValidate.push('mobileOtp');
+    // Only validate OTPs if they're required for verification
+    if (!emailVerified) fieldsToValidate.push('emailOtp');
+    if (!mobileVerified) fieldsToValidate.push('mobileOtp');
 
     fieldsToValidate.forEach((field) => {
       const value = field === 'agreeTnC' ? formData.agreeTnC : formData[field as keyof UserCredentials];
@@ -199,34 +211,39 @@ export default function Page() {
       }
     });
 
+    // Check if both email and mobile are verified
+    if (!emailVerified || !mobileVerified) {
+      showMessage('Please verify both email and mobile before submitting', 'warning');
+      isValid = false;
+    }
+
     return isValid;
   };
 
   const startTimer = (type: 'email' | 'mobile') => {
     const timerDuration = 300; // 5 minutes
+  
+    const setTimerFunction = type === 'email' ? setEmailTimer : setMobileTimer;
+  
+    setTimerFunction(timerDuration);
+    const interval = setInterval(() => {
+      setTimerFunction((prevTimer) => {
+        if (prevTimer <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prevTimer - 1;
+      });
+    }, 1000);
+  };
 
-    if (type === 'email') {
-      setEmailTimer(timerDuration);
-      const interval = setInterval(() => {
-        setEmailTimer((prevTimer) => {
-          if (prevTimer <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return prevTimer - 1;
-        });
-      }, 1000);
-    } else if (type === 'mobile') {
-      setMobileTimer(timerDuration);
-      const interval = setInterval(() => {
-        setMobileTimer((prevTimer) => {
-          if (prevTimer <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return prevTimer - 1;
-        });
-      }, 1000);
+  const showMessage = (message: string, type: 'success' | 'error' | 'info' | 'warning', field?: string) => {
+    setStatusMessage({ text: message, type, field });
+    setShowSnackbar(true);
+    
+    // updates field error if it's an error message
+    if (type === 'error' && field) {
+      setErrors(prev => ({ ...prev, [field]: message }));
     }
   };
 
@@ -234,14 +251,16 @@ export default function Page() {
     if (validateField('email', formData.email)) {
       try {
         const response = await AuthService.sendOtpEmail(formData.email);
-        console.log('Email OTP sent - Response:', response);
         setEmailSent(true);
         startTimer('email');
-        setErrors((prev) => ({ ...prev, email: '' }));
-      } catch (error) {
+        showMessage(response.message || `OTP sent to email: ${formData.email}`, 'success', 'email');
+        
+        // Clear any previous errors
+        setErrors(prev => ({ ...prev, email: '' }));
+      } catch (error: any) {
         console.error('Error sending email OTP:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send OTP. Please try again.';
-        setErrors((prev) => ({ ...prev, email: errorMessage }));
+        showMessage(error.message || 'Failed to send OTP. Please try again.', 'error', 'email');
+        setEmailSent(false);
       }
     }
   };
@@ -250,11 +269,11 @@ export default function Page() {
     if (validateField('emailOtp', formData.emailOtp)) {
       try {
         const response = await AuthService.verifyOtpEmail(formData.email, formData.emailOtp);
-        console.log('Email OTP verified:', response);
         setEmailVerified(true);
-      } catch (error) {
+        showMessage(response.message || 'Email OTP verified successfully', 'success', 'emailOtp');
+      } catch (error: any) {
         console.error('Error verifying email OTP:', error);
-        setErrors({ ...errors, emailOtp: 'Invalid OTP. Please try again.' });
+        showMessage(error.message || 'Invalid OTP. Please try again.', 'error', 'emailOtp');
       }
     }
   };
@@ -263,12 +282,16 @@ export default function Page() {
     if (validateField('mobile', formData.mobile)) {
       try {
         const response = await AuthService.sendOtpMobile(formData.mobile);
-        console.log('Mobile OTP sent:', response);
         setMobileSent(true);
         startTimer('mobile');
-      } catch (error) {
+        showMessage(response.message || `OTP sent to mobile: ${formData.mobile}`, 'success', 'mobile');
+        
+        // Clear any previous errors
+        setErrors(prev => ({ ...prev, mobile: '' }));
+      } catch (error: any) {
         console.error('Error sending mobile OTP:', error);
-        setErrors({ ...errors, mobile: 'Failed to send OTP. Please try again.' });
+        showMessage(error.message || 'Failed to send OTP. Please try again.', 'error', 'mobile');
+        setMobileSent(false);
       }
     }
   };
@@ -277,11 +300,11 @@ export default function Page() {
     if (validateField('mobileOtp', formData.mobileOtp)) {
       try {
         const response = await AuthService.verifyOtpMobile(formData.mobile, formData.mobileOtp);
-        console.log('Mobile OTP verified:', response);
         setMobileVerified(true);
-      } catch (error) {
+        showMessage(response.message || 'Mobile OTP verified successfully', 'success', 'mobileOtp');
+      } catch (error: any) {
         console.error('Error verifying mobile OTP:', error);
-        setErrors({ ...errors, mobileOtp: 'Invalid OTP. Please try again.' });
+        showMessage(error.message || 'Invalid OTP. Please try again.', 'error', 'mobileOtp');
       }
     }
   };
@@ -296,18 +319,25 @@ export default function Page() {
           email: formData.email,
           mobile: formData.mobile,
           password: formData.password,
-          country: formData.country,
+          countryCode: formData.countryCode,
         };
+        
         const response = await AuthService.register(createUserDto);
-        console.log('User registered:', response);
-        alert('Account created successfully!');
-        navigate('/sign-in');
-      } catch (error) {
+        showMessage(response.message || 'Registration successful', 'success');
+        
+        // Navigate to sign-in page after successful registration
+        setTimeout(() => {
+          navigate('/sign-in');
+        }, 2000);
+      } catch (error: any) {
         console.error('Error registering user:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
-        alert(errorMessage);
+        showMessage(error.message || 'Registration failed. Please try again.', 'error');
       }
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setShowSnackbar(false);
   };
 
   return (
@@ -340,6 +370,21 @@ export default function Page() {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
             Enter your credentials to continue
           </Typography>
+
+          <Snackbar
+            open={showSnackbar}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={statusMessage?.type || 'info'}
+              sx={{ width: '100%' }}
+            >
+              {statusMessage?.text}
+            </Alert>
+          </Snackbar>
 
           <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
             <Grid container spacing={2}>
@@ -389,7 +434,7 @@ export default function Page() {
                   helperText={errors.email}
                   disabled={emailVerified}
                   sx={{
-                    bgcolor: emailVerified ? '#fff' : '#fffde7',
+                    bgcolor: emailVerified ? '#e0f7fa' : '#fffde7',
                     borderRadius: 1,
                     '& input': {
                       textAlign: 'center',
@@ -417,47 +462,50 @@ export default function Page() {
                 </Button>
               </Grid>
 
-              {/* Email OTP */}
-              <Grid item xs={9}>
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  id="emailOtp"
-                  label="Enter Email OTP"
-                  name="emailOtp"
-                  value={formData.emailOtp}
-                  onChange={handleChange}
-                  error={!!errors.emailOtp}
-                  helperText={errors.emailOtp}
-                  disabled={!emailSent || emailVerified}
-                  sx={{
-                    bgcolor: '#f9f9f9',
-                    borderRadius: 1,
-                    '& input': {
-                      textAlign: 'center',
-                      letterSpacing: '9px',
-                    },
-                  }}
-                  inputProps={{
-                    maxLength: OTP_LENGTH,
-                    placeholder: '_ _ _ _ _ _',
-                  }}
-                />
-              </Grid>
+              {/* Email OTP - Only show when needed and hide after verification */}
+              {(emailSent && !emailVerified) && (
+                <>
+                  <Grid item xs={9}>
+                    <TextField
+                      variant="outlined"
+                      fullWidth
+                      id="emailOtp"
+                      label="Enter Email OTP"
+                      name="emailOtp"
+                      value={formData.emailOtp}
+                      onChange={handleChange}
+                      error={!!errors.emailOtp}
+                      helperText={errors.emailOtp}
+                      sx={{
+                        bgcolor: '#f9f9f9',
+                        borderRadius: 1,
+                        '& input': {
+                          textAlign: 'center',
+                          letterSpacing: '9px',
+                        },
+                      }}
+                      inputProps={{
+                        maxLength: OTP_LENGTH,
+                        placeholder: '_ _ _ _ _ _',
+                      }}
+                    />
+                  </Grid>
 
-              {/* Verify Email OTP Button */}
-              <Grid item xs={3}>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  fullWidth
-                  onClick={handleVerifyEmailOTP}
-                  disabled={!emailSent || emailVerified || !formData.emailOtp}
-                  sx={{ height: '56px' }}
-                >
-                  Verify OTP
-                </Button>
-              </Grid>
+                  {/* Verify Email OTP Button */}
+                  <Grid item xs={3}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      fullWidth
+                      onClick={handleVerifyEmailOTP}
+                      disabled={!emailSent || !formData.emailOtp}
+                      sx={{ height: '56px' }}
+                    >
+                      Verify OTP
+                    </Button>
+                  </Grid>
+                </>
+              )}
 
               {/* Country Select */}
               <Grid item xs={12}>
@@ -493,7 +541,7 @@ export default function Page() {
                   helperText={errors.mobile}
                   disabled={mobileVerified}
                   sx={{
-                    bgcolor: mobileVerified ? '#fff' : '#f9f9f9',
+                    bgcolor: mobileVerified ? '#e0f7fa' : '#f9f9f9', 
                     borderRadius: 1,
                     '& input': {
                       textAlign: 'center',
@@ -522,47 +570,70 @@ export default function Page() {
                 </Button>
               </Grid>
 
-              {/* Mobile OTP */}
-              <Grid item xs={9}>
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  id="mobileOtp"
-                  label="Enter Mobile OTP"
-                  name="mobileOtp"
-                  value={formData.mobileOtp}
-                  onChange={handleChange}
-                  error={!!errors.mobileOtp}
-                  helperText={errors.mobileOtp}
-                  disabled={!mobileSent || mobileVerified}
-                  sx={{
-                    bgcolor: '#f9f9f9',
-                    borderRadius: 1,
-                    '& input': {
-                      textAlign: 'center',
-                      letterSpacing: '9px',
-                    },
-                  }}
-                  inputProps={{
-                    maxLength: OTP_LENGTH,
-                    pattern: '\\d*',
-                    placeholder: '_ _ _ _ _ _',
-                  }}
-                />
-              </Grid>
+              {/* Mobile OTP - Only show when needed and hide after verification */}
+              {(mobileSent && !mobileVerified) && (
+                <>
+                  <Grid item xs={9}>
+                    <TextField
+                      variant="outlined"
+                      fullWidth
+                      id="mobileOtp"
+                      label="Enter Mobile OTP"
+                      name="mobileOtp"
+                      value={formData.mobileOtp}
+                      onChange={handleChange}
+                      error={!!errors.mobileOtp}
+                      helperText={errors.mobileOtp}
+                      sx={{
+                        bgcolor: '#f9f9f9',
+                        borderRadius: 1,
+                        '& input': {
+                          textAlign: 'center',
+                          letterSpacing: '9px',
+                        },
+                      }}
+                      inputProps={{
+                        maxLength: OTP_LENGTH,
+                        pattern: '\\d*',
+                        placeholder: '_ _ _ _ _ _',
+                      }}
+                    />
+                  </Grid>
 
-              {/* Verify Mobile OTP Button */}
-              <Grid item xs={3}>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  fullWidth
-                  onClick={handleVerifyMobileOTP}
-                  disabled={!mobileSent || mobileVerified || !formData.mobileOtp}
-                  sx={{ height: '56px' }}
-                >
-                  Verify OTP
-                </Button>
+                  {/* Verify Mobile OTP Button */}
+                  <Grid item xs={3}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      fullWidth
+                      onClick={handleVerifyMobileOTP}
+                      disabled={!mobileSent || !formData.mobileOtp}
+                      sx={{ height: '56px' }}
+                    >
+                      Verify OTP
+                    </Button>
+                  </Grid>
+                </>
+              )}
+
+              {/* Verification Status */}
+              <Grid item xs={12}>
+                <Grid container spacing={1}>
+                  {emailVerified && (
+                    <Grid item>
+                      <Alert severity="success" sx={{ py: 0 }}>
+                        Email Verified
+                      </Alert>
+                    </Grid>
+                  )}
+                  {mobileVerified && (
+                    <Grid item>
+                      <Alert severity="success" sx={{ py: 0 }}>
+                        Mobile Verified
+                      </Alert>
+                    </Grid>
+                  )}
+                </Grid>
               </Grid>
 
               {/* Password */}
@@ -643,6 +714,7 @@ export default function Page() {
                     fontSize: '16px',
                     textTransform: 'none',
                   }}
+                  disabled={!emailVerified || !mobileVerified}
                 >
                   Sign Up
                 </Button>

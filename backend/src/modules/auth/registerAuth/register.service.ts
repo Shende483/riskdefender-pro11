@@ -16,50 +16,50 @@ export class RegisterService {
   ) {}
 
   // 🔹 Send OTP for Email
-  async sendOtpEmail(email: string ,res: Response ) {
-    console.log(`📩 Sending OTP  email: ${email}`);    
+  async sendOtpEmail(email: string, res: Response) {
+    console.log(`📩 Sending OTP to email: ${email}`);
   
     const user = await this.findUserByEmail(email);
     if (user) {
-      res.status(400).json({
+      // User already exists, return an error response
+      return res.status(400).json({
         statusCode: 400,
-        message: 'User Already registered',
-        data: "fghjfdghjhgjkgfjkgjkfhgjhfhghfhg",
-        success: true,
+        message: 'User already registered.',
+        success: false,
       });
-      return; // ✅ Important: Add this to stop further execution
     }
   
     const response = await this.otpService.sendOtpEmail(email, 'register');
-    res.status(400).json({
-      statusCode: response.statuscode,
+    return res.status(200).json({
+      statusCode: 200,
       message: response.message,
       success: response.success,
     });
   }
-  
 
   // 🔹 Send OTP for Mobile
-  async sendOtpMobile(mobile: string,res: Response) {
-    console.log(`📩 Sending OTP for mobile: ${mobile}`);
+  async sendOtpMobile(mobile: string, res: Response) {
+    console.log(`📩 Sending OTP to mobile: ${mobile}`);
+  
     const user = await this.findUserByMobile(mobile);
     if (user) {
-
-      res.status(400).json({
+      // User already exists, return an error response
+      return res.status(400).json({
         statusCode: 400,
-        message: 'User Already registered',
+        message: 'User already registered.',
+
         data: "fghjfdghjhgjkgfjkgjkfhgjhfhghfhg",
         success: false,
       });
     }
+  
     const response = await this.otpService.sendOtpMobile(mobile, 'register');
-    res.status(400).json({
-      statusCode: response.statuscode,
+    return res.status(200).json({
+      statusCode: 200,
       message: response.message,
       success: response.success,
     });
   }
-
   // 🔹 Verify OTP for Email
   async verifyOtpEmail(email: string, otp: string,res:Response) {
     console.log(`🔍 Verifying OTP for email: ${email}`);

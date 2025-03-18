@@ -18,7 +18,7 @@ export interface CreateUserDto {
     name: string;
     lastName: string;
     email: string;
-    country: string;
+    countryCode: string;
     mobile: string;
     password: string;
 }
