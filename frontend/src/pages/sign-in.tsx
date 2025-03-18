@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -19,9 +18,11 @@ import {
   FormHelperText,
   InputAdornment,
   FormControlLabel,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 
-import { OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant'; // Import LoginService
+import { OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
 import LoginService from '../Services/LoginService';
 
 interface UserCredentials {
@@ -29,6 +30,12 @@ interface UserCredentials {
   password: string;
   otp: string;
   rememberMe: boolean;
+}
+
+interface StatusMessage {
+  text: string;
+  type: 'success' | 'error' | 'info' | 'warning';
+  field?: string;
 }
 
 export default function Page() {
@@ -44,6 +51,10 @@ export default function Page() {
   const [otpSent, setOtpSent] = useState<boolean>(false);
   const [otpVerified, setOtpVerified] = useState<boolean>(false);
   const [timer, setTimer] = useState<number>(0);
+  
+  // New state for status messages
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
@@ -103,15 +114,33 @@ export default function Page() {
   const handleSendOTP = async () => {
     if (validateField('identifier', formData.identifier)) {
       try {
+        let response;
         if (/\S+@\S+\.\S+/.test(formData.identifier)) {
-          await LoginService.sendOtpEmail(formData.identifier);
+          response = await LoginService.sendOtpEmail(formData.identifier);
+          setStatusMessage({ 
+            text: response.message || `OTP sent to email: ${formData.identifier}`, 
+            type: 'success', 
+            field: 'identifier' 
+          });
         } else {
-          await LoginService.sendOtpMobile(formData.identifier);
+          response = await LoginService.sendOtpMobile(formData.identifier);
+          setStatusMessage({ 
+            text: response.message || `OTP sent to mobile: ${formData.identifier}`, 
+            type: 'success', 
+            field: 'identifier' 
+          });
         }
+        setShowSnackbar(true);
         setOtpSent(true);
         startTimer();
-      } catch (error) {
-        setErrors({ ...errors, identifier: 'Failed to send OTP. Please try again.' });
+      } catch (error: any) {
+        setStatusMessage({ 
+          text: error.message || 'Failed to send OTP. Please try again.', 
+          type: 'error', 
+          field: 'identifier' 
+        });
+        setShowSnackbar(true);
+        setErrors({ ...errors, identifier: error.message || 'Failed to send OTP. Please try again.' });
       }
     }
   };
@@ -119,14 +148,32 @@ export default function Page() {
   const handleVerifyOTP = async () => {
     if (validateField('otp', formData.otp)) {
       try {
+        let response;
         if (/\S+@\S+\.\S+/.test(formData.identifier)) {
-          await LoginService.verifyOtpEmail(formData.identifier, formData.otp);
+          response = await LoginService.verifyOtpEmail(formData.identifier, formData.otp);
+          setStatusMessage({ 
+            text: response.message || 'Email OTP verified successfully', 
+            type: 'success', 
+            field: 'otp' 
+          });
         } else {
-          await LoginService.verifyOtpMobile(formData.identifier, formData.otp);
+          response = await LoginService.verifyOtpMobile(formData.identifier, formData.otp);
+          setStatusMessage({ 
+            text: response.message || 'Mobile OTP verified successfully', 
+            type: 'success', 
+            field: 'otp' 
+          });
         }
+        setShowSnackbar(true);
         setOtpVerified(true);
-      } catch (error) {
-        setErrors({ ...errors, otp: 'Invalid OTP. Please try again.' });
+      } catch (error: any) {
+        setStatusMessage({ 
+          text: error.message || 'Invalid OTP. Please try again.', 
+          type: 'error', 
+          field: 'otp' 
+        });
+        setShowSnackbar(true);
+        setErrors({ ...errors, otp: error.message || 'Invalid OTP. Please try again.' });
       }
     }
   };
@@ -179,11 +226,30 @@ export default function Page() {
   
       const response = await LoginService.login(loginUserDto);
       console.log('Login successful:', response);
-      navigate('/');
-    } catch (error) {
+      
+      setStatusMessage({ 
+        text: response.message || 'Login successful', 
+        type: 'success' 
+      });
+      setShowSnackbar(true);
+      
+      // Navigate after a brief delay to allow the user to see the success message
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } catch (error: any) {
       console.error('Login failed:', error);
-      setErrors({ ...errors, password: 'Invalid credentials. Please try again.' });
+      setStatusMessage({ 
+        text: error.message || 'Invalid credentials. Please try again.', 
+        type: 'error' 
+      });
+      setShowSnackbar(true);
+      setErrors({ ...errors, password: error.message || 'Invalid credentials. Please try again.' });
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setShowSnackbar(false);
   };
 
   return (
@@ -198,8 +264,26 @@ export default function Page() {
         <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
           Enter your credentials to continue
         </Typography>
+        
+        {/* Status Messages */}
+        <Snackbar
+          open={showSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert 
+            onClose={handleCloseSnackbar} 
+            severity={statusMessage?.type || 'info'} 
+            sx={{ width: '100%' }}
+          >
+            {statusMessage?.text}
+          </Alert>
+        </Snackbar>
+        
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
           <Grid container spacing={2}>
+            {/* Identifier field (email/mobile) */}
             <Grid item xs={9}>
               <TextField
                 variant="outlined"
@@ -212,19 +296,31 @@ export default function Page() {
                 error={!!errors.identifier}
                 helperText={errors.identifier}
               />
+              {statusMessage?.field === 'identifier' && (
+                <FormHelperText 
+                  sx={{ 
+                    color: statusMessage.type === 'error' ? 'error.main' : 'success.main',
+                    ml: 1
+                  }}
+                >
+                  {statusMessage.text}
+                </FormHelperText>
+              )}
             </Grid>
             <Grid item xs={3}>
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleSendOTP}
-                disabled={otpSent}
+                disabled={otpSent && timer > 0}
                 fullWidth
                 sx={{ height: '100%' }}
               >
-                {otpSent ? `Resend (${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')})` : 'Send OTP'}
+                {otpSent && timer > 0 ? `Resend (${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')})` : 'Send OTP'}
               </Button>
             </Grid>
+            
+            {/* OTP fields */}
             {otpSent && (
               <>
                 <Grid item xs={9}>
@@ -239,6 +335,16 @@ export default function Page() {
                     error={!!errors.otp}
                     helperText={errors.otp}
                   />
+                  {statusMessage?.field === 'otp' && (
+                    <FormHelperText 
+                      sx={{ 
+                        color: statusMessage.type === 'error' ? 'error.main' : 'success.main',
+                        ml: 1
+                      }}
+                    >
+                      {statusMessage.text}
+                    </FormHelperText>
+                  )}
                 </Grid>
                 <Grid item xs={3}>
                   <Button
@@ -254,6 +360,8 @@ export default function Page() {
                 </Grid>
               </>
             )}
+            
+            {/* Password field */}
             <Grid item xs={12}>
               <FormControl variant="outlined" fullWidth>
                 <InputLabel htmlFor="password">Password</InputLabel>
@@ -280,6 +388,8 @@ export default function Page() {
                 <FormHelperText error={!!errors.password}>{errors.password}</FormHelperText>
               </FormControl>
             </Grid>
+            
+            {/* Remember me checkbox */}
             <Grid item xs={12}>
               <FormControlLabel
                 control={
@@ -293,11 +403,15 @@ export default function Page() {
                 label="Remember me"
               />
             </Grid>
+            
+            {/* Submit button */}
             <Grid item xs={12}>
               <Button type="submit" fullWidth variant="contained" color="primary" sx={{ mt: 3, mb: 2 }}>
                 Sign In
               </Button>
             </Grid>
+            
+            {/* Sign up link */}
             <Grid item xs={12} sx={{ textAlign: 'center' }}>
               <Typography variant="body2">
                 Don&apos;t have an account? <Link to="/sign-up">Sign Up</Link>

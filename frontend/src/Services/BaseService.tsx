@@ -40,7 +40,7 @@ export default class BaseService {
     try {
       const response = await request;
       // Accept any 2xx status code as success
-      if (response.status >= 200 && response.status < 300) {
+      if (response.status >= 200 && response.status < 400) {
         return response.data;
       }
       throw new Error(response.data.message || 'Request failed');
