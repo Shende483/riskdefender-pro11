@@ -13,9 +13,9 @@ const login_controller_1 = require("./login.controller");
 const register_module_1 = require("../registerAuth/register.module");
 const jwt_1 = require("@nestjs/jwt");
 const jwt_strategy_1 = require("../../../common/strategies/jwt.strategy");
-const config_1 = require("@nestjs/config");
 const otp_service_1 = require("../../../common/otp.service");
 const redis_module_1 = require("../../../common/redis.module");
+const jwt_confing_1 = require("../../../config/jwt.confing");
 let LoginModule = class LoginModule {
 };
 exports.LoginModule = LoginModule;
@@ -24,13 +24,7 @@ exports.LoginModule = LoginModule = __decorate([
         imports: [
             register_module_1.RegisterModule,
             redis_module_1.RedisModule,
-            jwt_1.JwtModule.registerAsync({
-                imports: [config_1.ConfigModule],
-                inject: [config_1.ConfigService],
-                useFactory: (configService) => ({
-                    secret: configService.get('JWT_SECRET'),
-                }),
-            }),
+            jwt_1.JwtModule.registerAsync(jwt_confing_1.default.asProvider()),
         ],
         controllers: [login_controller_1.LoginController],
         providers: [login_service_1.LoginService, jwt_strategy_1.JwtStrategy, otp_service_1.OtpService],

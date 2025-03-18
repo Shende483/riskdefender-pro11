@@ -1,204 +1,273 @@
-import { useState, useEffect, useMemo, SetStateAction } from 'react';
-import { Card, CardContent, CardHeader, Grid, Typography, Select, MenuItem, Checkbox, Box, TextField } from '@mui/material';
-import io from 'socket.io-client';
-import RazorpayPayment from './RazorpayPayment';
+import React, { useState, useMemo } from "react";
+import axios from "axios";
+import {
+  Typography,
+  Button,
+  TextField,
+  Card,
+  Box,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Divider,
+  Grid,
+  Checkbox,
+} from "@mui/material";
+import RazorpayPayment from "./RazorpayPayment"; // Ensure this component is imported
 
-// Define the type for the subscription plans
-interface Plan {
-  name: string;
-  subaccount: number;
-  price: {
-    value: number;
-    currency: string;
-    gst: number;
-  };
-  features: string[];
+interface SubscriptionDetails {
+  planName: string;
+  numberOfBroker: number;
+  activeDateTime: string;
+  expireDateTime: string;
+  transactionId: string;
+  transactionDate: string;
+  status: string;
+  duration: string;
 }
 
-// Define the structure for plan data
-const planData: Record<string, Plan> = {
-  basic: {
-    name: 'Basic Plan:',
-    subaccount: 3,
-    price: { value: 1990, currency: 'INR/Month', gst: 0.18 },
-    features: ['Connect with up to 3 brokers', 'Full access to all trading and investing features'],
-  },
-  advance: {
-    name: 'Advance Plan:',
-    subaccount: 7,
-    price: {
-      value: 3990,
-      currency: 'INR/Month',
-      gst: 0.18,
+export default function AccountManagement() {
+  const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails>({
+    planName: "",
+    numberOfBroker: 1,
+    activeDateTime: "",
+    expireDateTime: "",
+    transactionId: "TXN123456", // Default transaction ID
+    transactionDate: new Date().toISOString().split("T")[0], // Default transaction date (today's date)
+    status: "active", // Default status
+    duration: "",
+  });
 
-    },
-    features: ['Connect with up to 7 brokers', 'Full access to all trading and investing features',],
-  },
-  pro: {
-    name: 'Pro Plan:',
-    subaccount: 17,
-    price: {
-      value: 6990,
-      currency: 'INR/Month',
-      gst: 0.18,
-
-    },
-    features: ['Connect with up to 17 brokers', 'Full access to all trading and investing features',],
-  },
-};
-
-// WebSocket connection
-const socket = io('http://localhost:3001');
-
-export default function SubscriptionPage() {
-  const [selectedPlan, setSelectedPlan] = useState<string>('');
-  const [duration, setDuration] = useState<string>('1 Year');
+  const [responseMessage, setResponseMessage] = useState<string>("");
   const [totalCost, setTotalCost] = useState<number>(0);
   const [totalGst, setTotalGst] = useState<number>(0);
-  const [expireDate, setExpireDate] = useState<Date | null>(null);
-  const [couponCode, setCouponCode] = useState<string>('');
   const [totalPayment, setTotalPayment] = useState<number>(0);
   const [discountPrice, setDiscountPrice] = useState<number>(0);
-  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [netPayment, setNetPayment] = useState<number>(0);
+  const [couponCode, setCouponCode] = useState<string>("");
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [datasendnew, setDatasendnew] = useState<any>(null);
-  const [pay, setPay] = useState<string | null>(null);
 
-  // Map durations to months
+  const getToken = () => {
+    return (
+      localStorage.getItem("access_token") ||
+      document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("access_token="))
+        ?.split("=")[1] ||
+      ""
+    );
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+    const { name, value } = e.target;
+    setSubscriptionDetails((prevDetails) => ({
+      ...prevDetails,
+      [name!]: value,
+    }));
+
+    // Recalculate total cost when number of brokers or duration changes
+    if (name === "numberOfBroker" || name === "duration") {
+      calculateTotalCost(value as string | number, name);
+    }
+  };
+
   const durationInMonths = useMemo(
     () => ({
-      '1 Month': 1,
-      '3 Month': 3,
-      '6 Month': 6,
-      '1 Year': 12,
+      "1 month": 1,
+      "3 months": 3,
+      "6 months": 6,
+      "1 year": 12,
     }),
     []
   );
 
-  const calculateTotalCost = (plan: Plan, selectedDuration: string, code: string) => {
-    if (plan && selectedDuration) {
-      const total = plan.price.value * durationInMonths[selectedDuration as keyof typeof durationInMonths];
-      const gst = total * plan.price.gst;
-      const totalWithGST = total + gst;
+  const calculateTotalCost = (value: string | number, fieldName: string) => {
+    const numberOfBrokers = fieldName === "numberOfBroker" ? Number(value) : subscriptionDetails.numberOfBroker;
+    const duration = fieldName === "duration" ? (value as string) : subscriptionDetails.duration;
 
-      setTotalCost(total);
-      setTotalGst(gst);
-      setTotalPayment(totalWithGST);
+    const pricePerBroker = 1990; // ₹1990 per broker per month
+    const total = pricePerBroker * numberOfBrokers * durationInMonths[duration];
+    const gst = total * 0.18; // 18% GST
+    const totalWithGST = total + gst;
 
-      const currentDate = new Date();
-      currentDate.setMonth(currentDate.getMonth() + durationInMonths[selectedDuration as keyof typeof durationInMonths]);
-      setExpireDate(currentDate);
+    setTotalCost(total);
+    setTotalGst(gst);
+    setTotalPayment(totalWithGST);
 
-      if (code === 'radha123') {
-        const discountFactor = 0.1;
-        const discountAmount = totalWithGST * discountFactor;
-        const netAmount = totalWithGST - discountAmount;
-
-        setDiscountPrice(discountAmount);
-        setNetPayment(netAmount);
-      } else {
-        setDiscountPrice(0);
-        setNetPayment(totalWithGST);
-      }
+    // Apply coupon code discount
+    if (couponCode === "radha123") {
+      const discountAmount = totalWithGST * 0.1; // 10% discount
+      setDiscountPrice(discountAmount);
+      setNetPayment(totalWithGST - discountAmount);
+    } else {
+      setDiscountPrice(0);
+      setNetPayment(totalWithGST);
     }
+
+    // Calculate expiry date
+    const currentDate = new Date();
+    currentDate.setMonth(currentDate.getMonth() + durationInMonths[duration]);
+    setSubscriptionDetails((prevDetails) => ({
+      ...prevDetails,
+      expireDateTime: currentDate.toISOString().split("T")[0],
+    }));
   };
 
-  const handlePlanClick = (plan: string) => {
-    setSelectedPlan(plan);
-    calculateTotalCost(planData[plan], duration, couponCode);
-  };
-
-  const handleDurationSelect = (selectedDuration: string) => {
-    setDuration(selectedDuration);
-    calculateTotalCost(planData[selectedPlan], selectedDuration, couponCode);
-  };
-
-  useEffect(() => {
-    socket.on('p', (status: string) => {
-      setPay(status);
-    });
-
-    if (selectedPlan && duration) {
-      const newDatasend = {
-        selectedPlan: planData[selectedPlan],
-        selectedDuration: duration,
-        expiryDate: expireDate,
-        createdDate: new Date(),
-        couponCode,
-        subaccountAllowed: planData[selectedPlan].subaccount,
-      };
-
-      setDatasendnew(newDatasend);
+  const handleCreateSubscriptionDetails = async () => {
+    try {
+      const token = getToken();
+      const response = await axios.post(
+        "http://localhost:3040/subscription-details/create",
+        subscriptionDetails,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setResponseMessage(response.data.message || "Subscription created successfully.");
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Failed to create subscription.";
+      setResponseMessage(errorMessage);
     }
-  }, [selectedPlan, duration, couponCode, expireDate]);
-
-  const handleCouponCode = (code: string) => {
-    setCouponCode(code);
-    calculateTotalCost(planData[selectedPlan], duration, code);
   };
 
   return (
-    <div>
-      <Card sx={{ padding: 2, background: 'white' }}>
-        <Typography variant="h5">Choose a Plan: {pay}</Typography>
-
+    <Card sx={{ py: 3, my: 3, width: "100%", maxWidth: 800, mx: "auto", boxShadow: 3, borderRadius: 3 }}>
+      <Box marginX={3} marginBottom={3} display="flex" gap={2} flexDirection="column">
+        <Typography variant="h5" textAlign="center" fontWeight={600}>
+          Subcription Plan
+        </Typography>
+        <Typography variant="h6" textAlign="center" color="primary" gutterBottom>
+          1 BROKER = ₹1990/month + gst
+        </Typography>
+        <Divider sx={{ my: 2 }} />
         <Grid container spacing={2}>
-          {Object.keys(planData).map((plan) => (
-            <Grid item xs={12} sm={6} md={4} key={plan}>
-              <Card sx={{ cursor: 'pointer', backgroundColor: selectedPlan === plan ? 'lightblue' : 'lightgray' }} onClick={() => handlePlanClick(plan)}>
-                <CardHeader title={planData[plan].name} subheader={selectedPlan === plan ? 'Selected' : ''} />
-                <CardContent>
-                  <Typography variant="h5">₹ {planData[plan].price.value} / {planData[plan].price.currency}</Typography>
-                  <Typography variant="body2">{planData[plan].price.gst * 100}% GST applicable</Typography>
-                  {planData[plan].features.map((feature, index) => (
-                    <Typography key={index} variant="body2">
-                      {feature}
-                    </Typography>
-                  ))}
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+          <Grid item xs={6}>
+            <TextField
+              label="Plan Name"
+              name="planName"
+              value={subscriptionDetails.planName}
+              onChange={handleInputChange}
+              variant="outlined"
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Number of Brokers"
+              name="numberOfBroker"
+              type="number"
+              value={subscriptionDetails.numberOfBroker}
+              onChange={handleInputChange}
+              variant="outlined"
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl fullWidth>
+              <InputLabel>Duration</InputLabel>
+              <Select name="duration" value={subscriptionDetails.duration} onChange={handleInputChange}>
+                <MenuItem value="1 month">1 Month</MenuItem>
+                <MenuItem value="3 months">3 Months</MenuItem>
+                <MenuItem value="6 months">6 Months</MenuItem>
+                <MenuItem value="1 year">1 Year</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Active Date"
+              name="activeDateTime"
+              type="date"
+              value={subscriptionDetails.activeDateTime}
+              onChange={handleInputChange}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Expire Date"
+              name="expireDateTime"
+              type="date"
+              value={subscriptionDetails.expireDateTime}
+              onChange={handleInputChange}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Transaction ID"
+              name="transactionId"
+              value={subscriptionDetails.transactionId}
+              onChange={handleInputChange}
+              variant="outlined"
+              fullWidth
+              disabled // Disable editing
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Transaction Date"
+              name="transactionDate"
+              type="date"
+              value={subscriptionDetails.transactionDate}
+              onChange={handleInputChange}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              disabled // Disable editing
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Status"
+              name="status"
+              value={subscriptionDetails.status}
+              onChange={handleInputChange}
+              variant="outlined"
+              fullWidth
+              disabled // Disable editing
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Coupon Code"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              variant="outlined"
+              fullWidth
+            />
+          </Grid>
         </Grid>
 
-        <Box sx={{ mt: 2, p: 2 }}>
-          <Box display='flex' gap={2}>
-            <Box>
-              <Typography variant="h6">Enter Broker :</Typography>
-              <TextField label="Broker Name" variant="outlined" />
-            </Box>
-            <Box>
-              <Typography variant="h6">Select Duration:</Typography>
-              <Select sx={{ minWidth: 200 }} value={duration} onChange={(e) => handleDurationSelect(e.target.value)}>
-                {Object.keys(durationInMonths).map((key) => (
-                  <MenuItem key={key} value={key}>
-                    {key}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Box>
-          </Box>
-
+        <Box sx={{ mt: 2 }}>
           <Typography variant="h6">Total Cost: ₹{totalCost}</Typography>
           <Typography variant="h6">GST: ₹{totalGst}</Typography>
           <Typography variant="h6">Total Payment: ₹{totalPayment}</Typography>
-
           <Typography variant="h6">Discount: - ₹{discountPrice}</Typography>
           <Typography variant="h6">Net Payment: ₹{netPayment}</Typography>
-
-          <Typography variant="h6">Have a Coupon Code ?</Typography>
-          <Box style={{ display: 'flex' }}>
-            <TextField variant="outlined" label="Enter Coupon Code" onChange={(e) => handleCouponCode(e.target.value)} />
-          </Box>
-
-          <Box display='flex' alignItems='center'>
-            <Checkbox checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
-            <Typography variant="body2">I agree to the <a href="#">Terms and Conditions</a></Typography>
-          </Box>
-
-          <RazorpayPayment totalPayment={netPayment} datasend={datasendnew} disabled={!termsAccepted} />
         </Box>
-      </Card>
-    </div>
+
+        <Box display="flex" alignItems="center">
+          <Checkbox checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
+          <Typography variant="body2">
+            I agree to the <a href="#">Terms and Conditions</a>
+          </Typography>
+        </Box>
+
+        <Button onClick={handleCreateSubscriptionDetails} variant="contained" sx={{ mt: 2 }}>
+          Create Subscription
+        </Button>
+        {responseMessage && (
+          <Typography variant="body1" color="error" sx={{ mt: 2 }}>
+            {responseMessage}
+          </Typography>
+        )}
+
+<RazorpayPayment totalPayment={netPayment} datasend={datasendnew} />
+      </Box>
+    </Card>
   );
-};
+}

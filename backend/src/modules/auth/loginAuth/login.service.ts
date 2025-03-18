@@ -15,6 +15,13 @@ export class LoginService {
     private otpService: OtpService,
   ) {}
 
+
+
+  async generateToken(user: any): Promise<string> {
+    const payload = { id: user._id, email: user.email };
+    return this.jwtService.sign(payload);
+  }
+
   async sendOtpEmail(email: string, res: Response) {
     console.log(`📩 Sending OTP for login (email): ${email}`);
     const user = await this.usersService.findUserByEmail(email);
@@ -133,10 +140,12 @@ export class LoginService {
 
 
 
-    const accessToken = await this.jwtService.signAsync({
-      id: user._id,
-    });
-console.log("grgrt",accessToken)
+
+    console.log("User:", user); 
+    const accessToken = await this.generateToken(user); // Corrected placement for token generation
+    console.log("Generated Token:", accessToken); // Corrected console log
+
+
     
     res.status(200).json({
       statusCode: 200,

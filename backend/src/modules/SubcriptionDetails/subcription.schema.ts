@@ -1,4 +1,3 @@
-// subscriptionDetails.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
@@ -9,18 +8,23 @@ export class SubscriptionDetails {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
 
+  @Prop({ required: true })
+  planName: string;
 
   @Prop({ required: true })
-  subAccountName: string;
+  numberOfBroker: number;
 
   @Prop({ required: true })
-  totalUsedAccount: number;
+  activeDateTime: Date;
 
   @Prop({ required: true })
-  startDate: Date;
+  expireDateTime: Date;
 
   @Prop({ required: true })
-  endDate: Date;
+  transactionId: string;
+
+  @Prop({ required: true })
+  transactionDate: Date;
 
   @Prop({ required: true })
   status: string;

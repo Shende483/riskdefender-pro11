@@ -24,6 +24,10 @@ let LoginService = class LoginService {
         this.jwtService = jwtService;
         this.otpService = otpService;
     }
+    async generateToken(user) {
+        const payload = { id: user._id, email: user.email };
+        return this.jwtService.sign(payload);
+    }
     async sendOtpEmail(email, res) {
         console.log(`📩 Sending OTP for login (email): ${email}`);
         const user = await this.usersService.findUserByEmail(email);
@@ -136,10 +140,9 @@ let LoginService = class LoginService {
             });
             return;
         }
-        const accessToken = await this.jwtService.signAsync({
-            id: user._id,
-        });
-        console.log("grgrt", accessToken);
+        console.log("User:", user);
+        const accessToken = await this.generateToken(user);
+        console.log("Generated Token:", accessToken);
         res.status(200).json({
             statusCode: 200,
             message: 'Login successful',
