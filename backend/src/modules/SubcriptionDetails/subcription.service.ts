@@ -11,26 +11,33 @@ export class SubscriptionDetailsService {
   ) {}
 
   async createSubscriptionDetails(details: {
-    subAccountName: string;
-    totalAllotmentAccount: number;
-    startDate: Date;
-    endDate: Date;
+    planName: string;
+    numberOfBroker: number;
+    activeDateTime: Date;
+    expireDateTime: Date;
+    transactionId: string;
+    transactionDate: Date;
     status: string;
+    userId: string;    // Added `userId` to receive it directly from the controller
+    email: string;     // Added `email` to receive it directly from the controller
   }, req: any, res: any) {
-    const userId = req.user?.userId; // Extract userId from token
+    
+    const { userId, email } = details; // Extract `userId` and `email` from details
 
-    const existingSubaccount = await this.subscriptionDetailsModel.findOne({
+    // Log user details for confirmation
+    console.log(`🟠 Received UserId: ${userId}, 🔵 Email: ${email}`);
+
+    const existingSubscription = await this.subscriptionDetailsModel.findOne({
       userId,
-      subAccountName: details.subAccountName,
+      planName: details.planName,
     });
 
-    if (existingSubaccount) {
-      res.status(400).json({
+    if (existingSubscription) {
+      return res.status(400).json({
         statusCode: 400,
-        message: 'Subaccount name already exists for this user.',
+        message: `PlanName-${existingSubscription.planName} already exists for this user.Please try with different "Plan Name"`,
         success: false,
       });
-      return;
     }
 
     const newSubscriptionDetails = new this.subscriptionDetailsModel({
@@ -40,7 +47,7 @@ export class SubscriptionDetailsService {
 
     await newSubscriptionDetails.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       statusCode: 200,
       message: 'Subscription created successfully.',
       success: true,

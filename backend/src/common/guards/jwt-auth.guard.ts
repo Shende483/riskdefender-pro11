@@ -1,52 +1,41 @@
 
 
-
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const response: Response = context.switchToHttp().getResponse();
+    const token = request.headers.authorization?.split(' ')[1];
 
-    const authHeader = request.headers.authorization;
-    console.log("authheader", authHeader)
+    console.log("🟢 Received Token:", token); // Debug log to ensure token is received
 
-    if (!authHeader) {
-      response.status(401).json({
-        statusCode: 401,
-        message: 'Authorization header missing',
-        success: false,
-      });
-      return false;
-    }
-
-    const token = authHeader.split(' ')[1];
-    console.log("token", token)
     if (!token) {
-      response.status(401).json({
-        statusCode: 401,
-        message: 'Token not provided',
-        success: false,
-      });
-      return false;
+      throw new UnauthorizedException('❌ Token is required');
     }
 
     try {
-      const decoded = this.jwtService.verifyAsync(token);
-     console.log("decoded", decoded)
+      const decoded = await this.jwtService.verifyAsync(token);
+
+      if (!decoded) {
+        throw new UnauthorizedException('❌ Invalid token payload');
+      }
+
+      console.log("✅ Decoded Token:", decoded); // Confirm token decoding success
+      
+      // Attach userId and email directly to the request object
+      request['user'] = {
+        userId: decoded.id,
+        email: decoded.email
+      };
+
       return true;
-    } catch (err) {
-      response.status(401).json({
-        statusCode: 401,
-        message: 'Invalid or expired token',
-        success: false,
-      });
-      return false;
+    } catch (error) {
+      console.error("❌ Token Verification Error:", error.message); // Detailed error log
+      throw new UnauthorizedException('❌ Invalid or expired token');
     }
   }
 }
