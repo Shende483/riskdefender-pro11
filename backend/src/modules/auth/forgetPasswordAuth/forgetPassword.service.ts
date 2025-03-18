@@ -50,44 +50,42 @@ export class ForgetPasswordService {
     return result;
   }
 
-
-
   async resetPassword(forgetPasswordUserDto: ForgetPasswordUserDto) {
     const { email, mobile, password } = forgetPasswordUserDto;
     console.log(`🔐 Attempting password reset for:`, { email, mobile });
 
     let user;
     if (email) {
-        user = await this.usersService.findUserByEmail(email);
-        if (!user) throw new UnauthorizedException('User not found');
+      user = await this.usersService.findUserByEmail(email);
+      if (!user) throw new UnauthorizedException('User not found');
 
-        if (!await this.isEmailVerified(email)) {
-            throw new UnauthorizedException('Email OTP is not verified.');
-        }
+      if (!(await this.isEmailVerified(email))) {
+        throw new UnauthorizedException('Email OTP is not verified.');
+      }
 
-        const newPassword = await bcryptService.hashData(String(password));
-        await this.usersService.updateUserPassword(user._id, newPassword);
-        await this.otpService.clearVerifiedEmail(email);
+      const newPassword = await bcryptService.hashData(String(password));
+      await this.usersService.updateUserPassword(user._id, newPassword);
+      await this.otpService.clearVerifiedEmail(email);
     } else if (mobile) {
-        user = await this.usersService.findUserByMobile(mobile);
-        if (!user) throw new UnauthorizedException('User not found');
+      user = await this.usersService.findUserByMobile(mobile);
+      if (!user) throw new UnauthorizedException('User not found');
 
-        if (!await this.isMobileVerified(mobile)) {
-            throw new UnauthorizedException('Mobile OTP is not verified.');
-        }
+      if (!(await this.isMobileVerified(mobile))) {
+        throw new UnauthorizedException('Mobile OTP is not verified.');
+      }
 
-        const newPassword = await bcryptService.hashData(String(password));
-        await this.usersService.updateUserPassword(user._id, newPassword);
-        await this.otpService.clearVerifiedMobile(mobile);
+      const newPassword = await bcryptService.hashData(String(password));
+      await this.usersService.updateUserPassword(user._id, newPassword);
+      await this.otpService.clearVerifiedMobile(mobile);
     } else {
-        throw new UnauthorizedException('Either email or mobile is required for password reset.');
+      throw new UnauthorizedException(
+        'Either email or mobile is required for password reset.',
+      );
     }
 
     return { message: 'Password reset successful' };
-}
+  }
 
-
- 
   async isEmailVerified(email: string): Promise<boolean> {
     return this.otpService.isEmailVerified(email);
   }

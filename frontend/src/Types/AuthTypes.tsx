@@ -32,11 +32,20 @@ export interface LoginUserDto {
     mobile?: string;
     password: string;
     otp?: string;
-  }
-  
-  export interface ApiResponse<T> {
+}
+
+export interface ApiResponse<T> {
     message: string;
     data: T;
     status: string;
     statusCode: number;
-  }
+}
+
+
+// types/forgotpass.types.ts
+
+export interface ForgetPasswordDto {
+    email?: string;
+    mobile?: string;
+    password: string;
+}
