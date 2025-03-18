@@ -7,8 +7,8 @@ export declare class RegisterService {
     private userModel;
     private otpService;
     constructor(userModel: Model<User>, otpService: OtpService);
-    sendOtpEmail(email: string, res: Response): Promise<void>;
-    sendOtpMobile(mobile: string, res: Response): Promise<void>;
+    sendOtpEmail(email: string, res: Response): Promise<Response<any, Record<string, any>>>;
+    sendOtpMobile(mobile: string, res: Response): Promise<Response<any, Record<string, any>>>;
     verifyOtpEmail(email: string, otp: string, res: Response): Promise<void>;
     verifyOtpMobile(mobile: string, otp: string, res: Response): Promise<void>;
     createUser(createUserDto: CreateUserDto, res: Response): Promise<User | void>;

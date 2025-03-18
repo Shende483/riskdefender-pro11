@@ -27,38 +27,36 @@ let RegisterService = class RegisterService {
         this.otpService = otpService;
     }
     async sendOtpEmail(email, res) {
-        console.log(`📩 Sending OTP  email: ${email}`);
+        console.log(`📩 Sending OTP to email: ${email}`);
         const user = await this.findUserByEmail(email);
         if (user) {
-            res.status(400).json({
+            return res.status(400).json({
                 statusCode: 400,
-                message: 'User Already registered',
-                data: "fghjfdghjhgjkgfjkgjkfhgjhfhghfhg",
-                success: true,
+                message: 'User already registered.',
+                success: false,
             });
-            return;
         }
         const response = await this.otpService.sendOtpEmail(email, 'register');
-        res.status(400).json({
-            statusCode: response.statuscode,
+        return res.status(200).json({
+            statusCode: 200,
             message: response.message,
             success: response.success,
         });
     }
     async sendOtpMobile(mobile, res) {
-        console.log(`📩 Sending OTP for mobile: ${mobile}`);
+        console.log(`📩 Sending OTP to mobile: ${mobile}`);
         const user = await this.findUserByMobile(mobile);
         if (user) {
-            res.status(400).json({
+            return res.status(400).json({
                 statusCode: 400,
-                message: 'User Already registered',
+                message: 'User already registered.',
                 data: "fghjfdghjhgjkgfjkgjkfhgjhfhghfhg",
                 success: false,
             });
         }
         const response = await this.otpService.sendOtpMobile(mobile, 'register');
-        res.status(400).json({
-            statusCode: response.statuscode,
+        return res.status(200).json({
+            statusCode: 200,
             message: response.message,
             success: response.success,
         });

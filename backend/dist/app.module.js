@@ -14,7 +14,7 @@ const login_module_1 = require("./modules/auth/loginAuth/login.module");
 const register_module_1 = require("./modules/auth/registerAuth/register.module");
 const database_config_1 = require("./config/database.config");
 const tradingRules_module_1 = require("./modules/TradingRules/tradingRules.module");
-const subcription_module_1 = require("./modules/SubcriptionDetails copy/subcription.module");
+const subcription_module_1 = require("./modules/SubcriptionDetails/subcription.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;

@@ -17,41 +17,28 @@ let JwtAuthGuard = class JwtAuthGuard {
     constructor(jwtService) {
         this.jwtService = jwtService;
     }
-    canActivate(context) {
+    async canActivate(context) {
         const request = context.switchToHttp().getRequest();
-        const response = context.switchToHttp().getResponse();
-        const authHeader = request.headers.authorization;
-        console.log("authheader", authHeader);
-        if (!authHeader) {
-            response.status(401).json({
-                statusCode: 401,
-                message: 'Authorization header missing',
-                success: false,
-            });
-            return false;
-        }
-        const token = authHeader.split(' ')[1];
-        console.log("token", token);
+        const token = request.headers.authorization?.split(' ')[1];
+        console.log("🟢 Received Token:", token);
         if (!token) {
-            response.status(401).json({
-                statusCode: 401,
-                message: 'Token not provided',
-                success: false,
-            });
-            return false;
+            throw new common_1.UnauthorizedException('❌ Token is required');
         }
         try {
-            const decoded = this.jwtService.verifyAsync(token);
-            console.log("decoded", decoded);
+            const decoded = await this.jwtService.verifyAsync(token);
+            if (!decoded) {
+                throw new common_1.UnauthorizedException('❌ Invalid token payload');
+            }
+            console.log("✅ Decoded Token:", decoded);
+            request['user'] = {
+                userId: decoded.id,
+                email: decoded.email
+            };
             return true;
         }
-        catch (err) {
-            response.status(401).json({
-                statusCode: 401,
-                message: 'Invalid or expired token',
-                success: false,
-            });
-            return false;
+        catch (error) {
+            console.error("❌ Token Verification Error:", error.message);
+            throw new common_1.UnauthorizedException('❌ Invalid or expired token');
         }
     }
 };
