@@ -1,6 +1,6 @@
 import type { SelectChangeEvent } from '@mui/material';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -9,10 +9,12 @@ import {
   Box,
   Grid,
   Paper,
+  Alert,
   Button,
   Select,
   Checkbox,
   MenuItem,
+  Snackbar,
   Container,
   TextField,
   IconButton,
@@ -23,8 +25,6 @@ import {
   FormHelperText,
   InputAdornment,
   FormControlLabel,
-  Alert,
-  Snackbar,
 } from '@mui/material';
 
 import { CONFIG } from '../config-global';

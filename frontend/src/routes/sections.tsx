@@ -1,7 +1,9 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
+
 import Box from '@mui/material/Box';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
+
 import { varAlpha } from '../theme/styles';
 import { DashboardLayout } from '../layouts/dashboard';
 
@@ -12,7 +14,7 @@ export const SubscriptionPage = lazy(() => import('../sections/broker/Subscripti
 export const SignInPage = lazy(() => import('../pages/sign-in'));
 export const SignUpPage = lazy(() => import('../pages/sign-up'));
 export const ProfileUpdate = lazy(() => import('../pages/profile-update'));
-export const ForgetPage = lazy(() => import('../pages/forget-password'));
+export const ForgetPassword = lazy(() => import('../pages/forget-password'));
 export const ProductsPage = lazy(() => import('../pages/products'));
 export const Page404 = lazy(() => import('../pages/page-not-found'));
 export const ConnectBrokerPage = lazy(() => import('../sections/broker/ConnectBrokerPage'));
@@ -63,8 +65,8 @@ export function Router() {
       element: <ProfileUpdate />,
     },
     {
-      path: '/forget',
-      element: <ForgetPage />,
+      path: '/forget-password',
+      element: <ForgetPassword />,
     },
     {
       path: '404',

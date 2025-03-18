@@ -6,8 +6,10 @@ import {
   Box,
   Grid,
   Paper,
+  Alert,
   Button,
   Checkbox,
+  Snackbar,
   Container,
   TextField,
   IconButton,
@@ -18,12 +20,10 @@ import {
   FormHelperText,
   InputAdornment,
   FormControlLabel,
-  Alert,
-  Snackbar,
 } from '@mui/material';
 
-import { OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
 import LoginService from '../Services/LoginService';
+import {OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
 
 interface UserCredentials {
   identifier: string;
@@ -226,15 +226,12 @@ export default function Page() {
   
       const response = await LoginService.login(loginUserDto);
       console.log('Login successful:', response);
-      
       setStatusMessage({ 
         text: response.message || 'Login successful', 
         type: 'success' 
       });
       setShowSnackbar(true);
-      
-      // Navigate after a brief delay to allow the user to see the success message
-      setTimeout(() => {
+            setTimeout(() => {
         navigate('/');
       }, 1500);
     } catch (error: any) {
@@ -265,7 +262,6 @@ export default function Page() {
           Enter your credentials to continue
         </Typography>
         
-        {/* Status Messages */}
         <Snackbar
           open={showSnackbar}
           autoHideDuration={6000}
@@ -283,7 +279,6 @@ export default function Page() {
         
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
           <Grid container spacing={2}>
-            {/* Identifier field (email/mobile) */}
             <Grid item xs={9}>
               <TextField
                 variant="outlined"
@@ -387,6 +382,7 @@ export default function Page() {
                 />
                 <FormHelperText error={!!errors.password}>{errors.password}</FormHelperText>
               </FormControl>
+              <Link to="/forget-password">Forgot Password?</Link>
             </Grid>
             
             {/* Remember me checkbox */}

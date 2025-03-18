@@ -1,18 +1,17 @@
-
 import { Module } from '@nestjs/common';
 import { ForgetPasswordService } from './forgetPassword.service';
-import { ForgetPasswordController } from './forgotPassword.controller';
 import { RegisterModule } from '../registerAuth/register.module';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from '../../../common/strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OtpService } from '../../../common/otp.service';
 import { RedisModule } from 'src/common/redis.module';
+import { ForgetPasswordController } from './forgotPassword.controller';
 
 @Module({
   imports: [
     RegisterModule,
-    RedisModule, // ✅ Add RedisModule
+    RedisModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -24,4 +23,4 @@ import { RedisModule } from 'src/common/redis.module';
   controllers: [ForgetPasswordController],
   providers: [ForgetPasswordService, JwtStrategy, OtpService],
 })
-export class LoginModule {}
+export class ForgetPasswordModule {} // Make sure this is properly imported in your AppModule

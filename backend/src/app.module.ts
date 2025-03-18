@@ -7,6 +7,7 @@ import { RegisterModule } from './modules/auth/registerAuth/register.module';
 import { DatabaseConfig } from './config/database.config';
 import { TradingRulesModule } from './modules/TradingRules/tradingRules.module';
 import { SubscriptionDetailsModule } from './modules/SubcriptionDetails copy/subcription.module';
+import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPassword.Module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { SubscriptionDetailsModule } from './modules/SubcriptionDetails copy/sub
     DatabaseConfig,
     LoginModule,
     RegisterModule,
+    ForgetPasswordModule,
     TradingRulesModule,
     SubscriptionDetailsModule,
    
