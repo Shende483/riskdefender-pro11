@@ -1,4 +1,4 @@
-import { Button, Card, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
+import { Box, Button, Card, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import io from 'socket.io-client';
 import { MarketData } from './json/MarketData';
@@ -41,85 +41,112 @@ export default function ConnectBrokerPage() {
   };
 
   return (
-    <Card sx={{ p: 3, top: 10, bottom: 10, display: 'flex', flexDirection: 'column', }}>
-      <FormControl fullWidth sx={{ my: 2 }}>
-        <InputLabel id="market-type-label">Select Market Type</InputLabel>
-        <Select
-          labelId="market-type-label"
-          id="market-type"
-          name="marketType"
-          value={formData.marketType}
-          onChange={handleSelectChange}
-        >
-          {Object.keys(MarketData).map((market, index) => (
-            <MenuItem key={index} value={market}>
-              {market}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      {formData.marketType && brokerOptions[formData.marketType] && (
-        <FormControl fullWidth sx={{ my: 2 }}>
-          <InputLabel id="broker-name-label">Select Broker Name</InputLabel>
+    <>
+      <Box sx={{ mt: 2 }}>
+        <FormControl fullWidth sx={{ my: 2, bgcolor: 'white' }}>
+          <InputLabel id="plan-name-label">Select Plan</InputLabel>
           <Select
-            labelId="broker-name-label"
-            id="broker-name"
-            name="brokerName"
-            value={formData.brokerName}
+            labelId="plan-name-label"
+            id="plan-name"
+            name="planname"
+          >
+            <MenuItem value="Select Plan"> Plan 1 </MenuItem>
+            <MenuItem value="Select Plan"> Plan 2 </MenuItem>
+            <MenuItem value="Select Plan"> Plan 3 </MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+      <Card sx={{ p: 3, top: 10, bottom: 10, display: 'flex', flexDirection: 'column', }}>
+        <FormControl fullWidth sx={{ my: 2 }}>
+          <InputLabel id="market-type-label">Select Market Type</InputLabel>
+          <Select
+            labelId="market-type-label"
+            id="market-type"
+            name="marketType"
+            value={formData.marketType}
             onChange={handleSelectChange}
           >
-            {brokerOptions[formData.marketType].map((broker) => (
-              <MenuItem key={broker} value={broker}>
-                {broker}
+            {Object.keys(MarketData).map((market, index) => (
+              <MenuItem key={index} value={market}>
+                {market}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-      )}
 
-      <TextField label="Subbroker Name" name="subbrokerName" value={formData.subbrokerName} onChange={handleChange} />
-      <br />
-      <TextField label="API Key" name="Apikey" value={formData.Apikey} onChange={handleChange} />
-      <br />
-      <TextField label="API Secret" name="ApiSecret" value={formData.ApiSecret} onChange={handleChange} />
-
-      <Grid container spacing={2} my={3}>
-        {Object.entries((formData.data as any)[formData.marketType] as TradeData).map(
-          ([tradeType, tradeData]) => (
-            <Grid item xs={12} sm={6} md={4}>
-              <Card sx={{ p: 2, backgroundColor: "lightblue" }} >
-                <div key={tradeType}>
-                  <Typography variant="h6" my={2}>
-                    Set Rules for {formData.marketType} {tradeType.charAt(0).toUpperCase() + tradeType.slice(1)} Trading
-                  </Typography>
-
-                  {Object.entries(tradeData).map(([key, value]) => (
-                    <div key={key} style={{ marginBottom: "10px" }}>
-                      <TextField
-                        label={key}
-                        variant="outlined"
-                        fullWidth
-                        sx={{ backgroundColor: "white", borderRadius: 1 }}
-                        value={value as string}
-                        onChange={() => handleChange}
-                      />
-                    </div>
-                  ))}
-
-                </div>
-              </Card>
-            </Grid>
-          )
+        {formData.marketType && brokerOptions[formData.marketType] && (
+          <FormControl fullWidth sx={{ my: 2 }}>
+            <InputLabel id="broker-name-label">Select Broker Name</InputLabel>
+            <Select
+              labelId="broker-name-label"
+              id="broker-name"
+              name="brokerName"
+              value={formData.brokerName}
+              onChange={handleSelectChange}
+            >
+              {brokerOptions[formData.marketType].map((broker) => (
+                <MenuItem key={broker} value={broker}>
+                  {broker}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         )}
 
-      </Grid>
+        <TextField label="Subbroker Name" name="subbrokerName" value={formData.subbrokerName} onChange={handleChange} />
+        <br />
+        <TextField label="API Key" name="Apikey" value={formData.Apikey} onChange={handleChange} />
+        <br />
+        <TextField label="API Secret" name="ApiSecret" value={formData.ApiSecret} onChange={handleChange} />
+
+        <FormControl fullWidth sx={{ my: 2 }}>
+          <InputLabel id="status-label">Status</InputLabel>
+          <Select
+            labelId="status-label"
+            id="status"
+            name="status"
+          >
+            <MenuItem value="active"> Active </MenuItem>
+            <MenuItem value="inactive"> Inactive </MenuItem>
+          </Select>
+        </FormControl>
+        <Grid container spacing={2} my={3}>
+          {Object.entries((formData.data as any)[formData.marketType] as TradeData).map(
+            ([tradeType, tradeData]) => (
+              <Grid item xs={12} sm={6} md={4}>
+                <Card sx={{ p: 2, backgroundColor: "lightblue" }} >
+                  <div key={tradeType}>
+                    <Typography variant="h6" my={2}>
+                      Set Rules for {formData.marketType} {tradeType.charAt(0).toUpperCase() + tradeType.slice(1)} Trading
+                    </Typography>
+
+                    {Object.entries(tradeData).map(([key, value]) => (
+                      <div key={key} style={{ marginBottom: "10px" }}>
+                        <TextField
+                          label={key}
+                          variant="outlined"
+                          fullWidth
+                          sx={{ backgroundColor: "white", borderRadius: 1 }}
+                          value={value as string}
+                          onChange={() => handleChange}
+                        />
+                      </div>
+                    ))}
+
+                  </div>
+                </Card>
+              </Grid>
+            )
+          )}
+
+        </Grid>
 
 
-      <Button variant="contained" color="primary" style={{ marginTop: "20px" }} onClick={handleSubmit}>
-        Submit
-      </Button>
+        <Button variant="contained" color="primary" style={{ marginTop: "20px" }} onClick={handleSubmit}>
+          Submit
+        </Button>
 
-    </Card>
+      </Card>
+    </>
   );
 }
