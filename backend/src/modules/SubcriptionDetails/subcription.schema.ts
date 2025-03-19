@@ -8,6 +8,7 @@ export class SubscriptionDetails {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
 
+  
   @Prop({ required: true })
   planName: string;
 
