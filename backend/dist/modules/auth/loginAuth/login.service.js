@@ -28,6 +28,64 @@ let LoginService = class LoginService {
         const payload = { id: user._id, email: user.email };
         return this.jwtService.sign(payload);
     }
+    async sendOtpEmail(email, res) {
+        console.log(`📩 Sending OTP for login (email): ${email}`);
+        const user = await this.usersService.findUserByEmail(email);
+        if (!user) {
+            res.status(400).json({
+                statusCode: 400,
+                message: 'User not found',
+                success: false,
+            });
+            return;
+        }
+        const response = await this.otpService.sendOtpEmail(email, 'login');
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
+    }
+    async sendOtpMobile(mobile, res) {
+        console.log(`📩 Sending OTP for login (mobile): ${mobile}`);
+        const user = await this.usersService.findUserByMobile(mobile);
+        if (!user) {
+            res.status(400).json({
+                statusCode: 400,
+                message: 'User not found',
+                success: false,
+            });
+            return;
+        }
+        const response = await this.otpService.sendOtpMobile(mobile, 'login');
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
+    }
+    async verifyOtpEmail(email, otp, res) {
+        console.log(`🔍 Verifying OTP for email: ${email}`);
+        const response = await this.otpService.verifyOtpEmail(email, otp);
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
+        console.log(`✅ Storing verification status for email: ${email}`);
+        await this.otpService.setVerifiedEmail(email);
+    }
+    async verifyOtpMobile(mobile, otp, res) {
+        console.log(`🔍 Verifying OTP for mobile: ${mobile}`);
+        const response = await this.otpService.verifyOtpMobile(mobile, otp);
+        res.status(200).json({
+            statusCode: response.statuscode,
+            message: response.message,
+            success: response.success,
+        });
+        console.log(`✅ Storing verification status for mobile: ${mobile}`);
+        await this.otpService.setVerifiedMobile(mobile);
+    }
     async login(loginUserDto, res) {
         const { email, mobile, password } = loginUserDto;
         console.log(`🔐 Attempting login for:`, { email, mobile });
@@ -51,6 +109,7 @@ let LoginService = class LoginService {
                 });
                 return;
             }
+            await this.otpService.clearVerifiedEmail(email);
         }
         else if (mobile) {
             user = await this.usersService.findUserByMobile(mobile);
@@ -71,6 +130,7 @@ let LoginService = class LoginService {
                 });
                 return;
             }
+            await this.otpService.clearVerifiedMobile(mobile);
         }
         else {
             res.status(400).json({
@@ -89,6 +149,18 @@ let LoginService = class LoginService {
             success: true,
             access_token: accessToken
         });
+    }
+    async isEmailVerified(email) {
+        return this.otpService.isEmailVerified(email);
+    }
+    async isMobileVerified(mobile) {
+        return this.otpService.isMobileVerified(mobile);
+    }
+    async clearVerifiedEmail(email) {
+        await this.otpService.clearVerifiedEmail(email);
+    }
+    async clearVerifiedMobile(mobile) {
+        await this.otpService.clearVerifiedMobile(mobile);
     }
 };
 exports.LoginService = LoginService;

@@ -9,5 +9,13 @@ export declare class LoginService {
     private otpService;
     constructor(usersService: RegisterService, jwtService: JwtService, otpService: OtpService);
     generateToken(user: any): Promise<string>;
+    sendOtpEmail(email: string, res: Response): Promise<void>;
+    sendOtpMobile(mobile: string, res: Response): Promise<void>;
+    verifyOtpEmail(email: string, otp: string, res: Response): Promise<void>;
+    verifyOtpMobile(mobile: string, otp: string, res: Response): Promise<void>;
     login(loginUserDto: LoginUserDto, res: Response): Promise<void>;
+    isEmailVerified(email: string): Promise<boolean>;
+    isMobileVerified(mobile: string): Promise<boolean>;
+    clearVerifiedEmail(email: string): Promise<void>;
+    clearVerifiedMobile(mobile: string): Promise<void>;
 }

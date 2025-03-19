@@ -1,6 +1,3 @@
-
-
-
 import { Module } from '@nestjs/common';
 import { LoginService } from './login.service';
 import { LoginController } from './login.controller';
@@ -16,16 +13,9 @@ import jwtConfing from 'src/config/jwt.confing';
   imports: [
     RegisterModule,
     RedisModule, // ✅ Add RedisModule
-    JwtModule.registerAsync( jwtConfing.asProvider() ),
-      
-
+    JwtModule.registerAsync(jwtConfing.asProvider()),
   ],
   controllers: [LoginController],
   providers: [LoginService, JwtStrategy, OtpService],
 })
 export class LoginModule {}
-
-
-
-
-

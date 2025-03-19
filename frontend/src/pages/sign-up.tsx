@@ -1,10 +1,11 @@
 import type { SelectChangeEvent } from '@mui/material';
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   Box,
   Grid,
@@ -73,6 +74,10 @@ export default function Page() {
   const [mobileVerified, setMobileVerified] = useState<boolean>(false);
   const [emailTimer, setEmailTimer] = useState<number>(0);
   const [mobileTimer, setMobileTimer] = useState<number>(0);
+  const [emailOtpLoading, setEmailOtpLoading] = useState<boolean>(false);
+  const [mobileOtpLoading, setMobileOtpLoading] = useState<boolean>(false);
+  const [emailVerifying, setEmailVerifying] = useState<boolean>(false);
+  const [mobileVerifying, setMobileVerifying] = useState<boolean>(false);
 
   const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
@@ -200,10 +205,6 @@ export default function Page() {
     let isValid = true;
     const fieldsToValidate = ['firstName', 'lastName', 'email', 'mobile', 'password', 'agreeTnC'];
 
-    // Only validate OTPs if they're required for verification
-    if (!emailVerified) fieldsToValidate.push('emailOtp');
-    if (!mobileVerified) fieldsToValidate.push('mobileOtp');
-
     fieldsToValidate.forEach((field) => {
       const value = field === 'agreeTnC' ? formData.agreeTnC : formData[field as keyof UserCredentials];
       if (!validateField(field, value)) {
@@ -250,7 +251,11 @@ export default function Page() {
   const handleSendEmailOTP = async () => {
     if (validateField('email', formData.email)) {
       try {
+        setEmailOtpLoading(true);
+        setEmailSent(false); // Reset email sent state
+        
         const response = await AuthService.sendOtpEmail(formData.email);
+        
         setEmailSent(true);
         startTimer('email');
         showMessage(response.message || `OTP sent to email: ${formData.email}`, 'success', 'email');
@@ -261,6 +266,8 @@ export default function Page() {
         console.error('Error sending email OTP:', error);
         showMessage(error.message || 'Failed to send OTP. Please try again.', 'error', 'email');
         setEmailSent(false);
+      } finally {
+        setEmailOtpLoading(false);
       }
     }
   };
@@ -268,12 +275,18 @@ export default function Page() {
   const handleVerifyEmailOTP = async () => {
     if (validateField('emailOtp', formData.emailOtp)) {
       try {
+        setEmailVerifying(true);
         const response = await AuthService.verifyOtpEmail(formData.email, formData.emailOtp);
         setEmailVerified(true);
         showMessage(response.message || 'Email OTP verified successfully', 'success', 'emailOtp');
+        
+        // Reset OTP field on successful verification
+        setFormData(prev => ({ ...prev, emailOtp: '' }));
       } catch (error: any) {
         console.error('Error verifying email OTP:', error);
         showMessage(error.message || 'Invalid OTP. Please try again.', 'error', 'emailOtp');
+      } finally {
+        setEmailVerifying(false);
       }
     }
   };
@@ -281,7 +294,11 @@ export default function Page() {
   const handleSendMobileOTP = async () => {
     if (validateField('mobile', formData.mobile)) {
       try {
+        setMobileOtpLoading(true);
+        setMobileSent(false); // Reset mobile sent state
+        
         const response = await AuthService.sendOtpMobile(formData.mobile);
+        
         setMobileSent(true);
         startTimer('mobile');
         showMessage(response.message || `OTP sent to mobile: ${formData.mobile}`, 'success', 'mobile');
@@ -292,6 +309,8 @@ export default function Page() {
         console.error('Error sending mobile OTP:', error);
         showMessage(error.message || 'Failed to send OTP. Please try again.', 'error', 'mobile');
         setMobileSent(false);
+      } finally {
+        setMobileOtpLoading(false);
       }
     }
   };
@@ -299,15 +318,35 @@ export default function Page() {
   const handleVerifyMobileOTP = async () => {
     if (validateField('mobileOtp', formData.mobileOtp)) {
       try {
+        setMobileVerifying(true);
         const response = await AuthService.verifyOtpMobile(formData.mobile, formData.mobileOtp);
         setMobileVerified(true);
         showMessage(response.message || 'Mobile OTP verified successfully', 'success', 'mobileOtp');
+        
+        // Reset OTP field on successful verification
+        setFormData(prev => ({ ...prev, mobileOtp: '' }));
       } catch (error: any) {
         console.error('Error verifying mobile OTP:', error);
         showMessage(error.message || 'Invalid OTP. Please try again.', 'error', 'mobileOtp');
+      } finally {
+        setMobileVerifying(false);
       }
     }
   };
+
+  const resetEmailVerification = useCallback(() => {
+    if (emailTimer === 0 && !emailVerified) {
+      setEmailSent(false);
+      setFormData(prev => ({ ...prev, emailOtp: '' }));
+    }
+  }, [emailTimer, emailVerified, setEmailSent, setFormData]);
+
+  const resetMobileVerification = useCallback(() => {
+    if (mobileTimer === 0 && !mobileVerified) {
+      setMobileSent(false);
+      setFormData(prev => ({ ...prev, mobileOtp: '' }));
+    }
+  }, [mobileTimer, mobileVerified, setMobileSent, setFormData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -339,6 +378,19 @@ export default function Page() {
   const handleCloseSnackbar = () => {
     setShowSnackbar(false);
   };
+
+  // Automatically reset verification forms when timer expires
+  useEffect(() => {
+    if (emailTimer === 0) {
+      resetEmailVerification();
+    }
+  }, [emailTimer, resetEmailVerification]); // Include resetEmailVerification
+
+  useEffect(() => {
+    if (mobileTimer === 0) {
+      resetMobileVerification();
+    }
+  }, [mobileTimer, resetMobileVerification]); // Include resetMobileVerification
 
   return (
     <>
@@ -455,10 +507,16 @@ export default function Page() {
                   color="primary"
                   fullWidth
                   onClick={handleSendEmailOTP}
-                  disabled={emailVerified || emailTimer > 0 || !formData.email}
+                  disabled={emailVerified || emailTimer > 0 || !formData.email || emailOtpLoading}
                   sx={{ height: '56px' }}
                 >
-                  {emailTimer > 0 ? `${Math.floor(emailTimer / 60)}:${(emailTimer % 60).toString().padStart(2, '0')}` : 'Send OTP'}
+                  {emailOtpLoading ? (
+                    <CircularProgress size={24} />
+                  ) : emailTimer > 0 ? (
+                    `${Math.floor(emailTimer / 60)}:${(emailTimer % 60).toString().padStart(2, '0')}`
+                  ) : (
+                    'Send OTP'
+                  )}
                 </Button>
               </Grid>
 
@@ -498,10 +556,10 @@ export default function Page() {
                       color="primary"
                       fullWidth
                       onClick={handleVerifyEmailOTP}
-                      disabled={!emailSent || !formData.emailOtp}
+                      disabled={!emailSent || !formData.emailOtp || emailVerifying}
                       sx={{ height: '56px' }}
                     >
-                      Verify OTP
+                      {emailVerifying ? <CircularProgress size={24} /> : 'Verify OTP'}
                     </Button>
                   </Grid>
                 </>
@@ -563,10 +621,16 @@ export default function Page() {
                   color="primary"
                   fullWidth
                   onClick={handleSendMobileOTP}
-                  disabled={mobileVerified || mobileTimer > 0 || !formData.mobile}
+                  disabled={mobileVerified || mobileTimer > 0 || !formData.mobile || mobileOtpLoading}
                   sx={{ height: '56px' }}
                 >
-                  {mobileTimer > 0 ? `${Math.floor(mobileTimer / 60)}:${(mobileTimer % 60).toString().padStart(2, '0')}` : 'Send OTP'}
+                  {mobileOtpLoading ? (
+                    <CircularProgress size={24} />
+                  ) : mobileTimer > 0 ? (
+                    `${Math.floor(mobileTimer / 60)}:${(mobileTimer % 60).toString().padStart(2, '0')}`
+                  ) : (
+                    'Send OTP'
+                  )}
                 </Button>
               </Grid>
 
@@ -607,10 +671,10 @@ export default function Page() {
                       color="primary"
                       fullWidth
                       onClick={handleVerifyMobileOTP}
-                      disabled={!mobileSent || !formData.mobileOtp}
+                      disabled={!mobileSent || !formData.mobileOtp || mobileVerifying}
                       sx={{ height: '56px' }}
                     >
-                      Verify OTP
+                      {mobileVerifying ? <CircularProgress size={24} /> : 'Verify OTP'}
                     </Button>
                   </Grid>
                 </>
