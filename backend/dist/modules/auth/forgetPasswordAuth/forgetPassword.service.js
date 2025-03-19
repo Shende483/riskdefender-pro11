@@ -59,7 +59,7 @@ let ForgetPasswordService = class ForgetPasswordService {
             user = await this.usersService.findUserByEmail(email);
             if (!user)
                 throw new common_1.UnauthorizedException('User not found');
-            if (!await this.isEmailVerified(email)) {
+            if (!(await this.isEmailVerified(email))) {
                 throw new common_1.UnauthorizedException('Email OTP is not verified.');
             }
             const newPassword = await bcrypt_service_1.bcryptService.hashData(String(password));
@@ -70,7 +70,7 @@ let ForgetPasswordService = class ForgetPasswordService {
             user = await this.usersService.findUserByMobile(mobile);
             if (!user)
                 throw new common_1.UnauthorizedException('User not found');
-            if (!await this.isMobileVerified(mobile)) {
+            if (!(await this.isMobileVerified(mobile))) {
                 throw new common_1.UnauthorizedException('Mobile OTP is not verified.');
             }
             const newPassword = await bcrypt_service_1.bcryptService.hashData(String(password));

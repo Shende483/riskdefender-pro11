@@ -14,7 +14,8 @@ export class JwtAuthGuard implements CanActivate {
     console.log("🟢 Received Token:", token); // Debug log to ensure token is received
 
     if (!token) {
-      throw new UnauthorizedException('❌ Token is required');
+     // throw new UnauthorizedException('❌ Token is required');
+      console.log("❌ Token is required"); // 
     }
 
     try {
@@ -35,7 +36,7 @@ export class JwtAuthGuard implements CanActivate {
       return true;
     } catch (error) {
       console.error("❌ Token Verification Error:", error.message); // Detailed error log
-      throw new UnauthorizedException('❌ Invalid or expired token');
+      throw new UnauthorizedException('❌ User Not sign in  or expired token');
     }
   }
 }

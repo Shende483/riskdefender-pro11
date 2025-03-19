@@ -10,20 +10,15 @@ import {
   Select,
   FormControl,
   InputLabel,
-  Divider,
   Grid,
   Checkbox,
 } from "@mui/material";
-import RazorpayPayment from "./RazorpayPayment"; // Ensure this component is imported
+import { useNavigate } from "react-router-dom";
 
 interface SubscriptionDetails {
   planName: string;
   numberOfBroker: number;
-  activeDateTime: string;
   expireDateTime: string;
-  transactionId: string;
-  transactionDate: string;
-  status: string;
   duration: string;
 }
 
@@ -31,12 +26,8 @@ export default function AccountManagement() {
   const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails>({
     planName: "",
     numberOfBroker: 1,
-    activeDateTime: "",
     expireDateTime: "",
-    transactionId: "TXN123456", // Default transaction ID
-    transactionDate: new Date().toISOString().split("T")[0], // Default transaction date (today's date)
-    status: "active", // Default status
-    duration: "",
+    duration: "1 month", // Set a default duration to avoid issues
   });
 
   const [responseMessage, setResponseMessage] = useState<string>("");
@@ -48,17 +39,15 @@ export default function AccountManagement() {
   const [couponCode, setCouponCode] = useState<string>("");
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [datasendnew, setDatasendnew] = useState<any>(null);
+  const navigate = useNavigate();
 
-  const getToken = () => {
-    return (
-      localStorage.getItem("access_token") ||
-      document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("access_token="))
-        ?.split("=")[1] ||
-      ""
-    );
-  };
+  const getToken = () =>
+    localStorage.getItem("access_token") ||
+    document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("access_token="))
+      ?.split("=")[1] ||
+    "";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
     const { name, value } = e.target;
@@ -87,8 +76,13 @@ export default function AccountManagement() {
     const numberOfBrokers = fieldName === "numberOfBroker" ? Number(value) : subscriptionDetails.numberOfBroker;
     const duration = fieldName === "duration" ? (value as string) : subscriptionDetails.duration;
 
+    // Ensure duration is valid
+    if (!duration || !durationInMonths[duration as keyof typeof durationInMonths]) {
+      return; // Exit if duration is invalid
+    }
+
     const pricePerBroker = 1990; // ₹1990 per broker per month
-    const total = pricePerBroker * numberOfBrokers * durationInMonths[duration];
+    const total = pricePerBroker * numberOfBrokers * durationInMonths[duration as keyof typeof durationInMonths];
     const gst = total * 0.18; // 18% GST
     const totalWithGST = total + gst;
 
@@ -108,7 +102,7 @@ export default function AccountManagement() {
 
     // Calculate expiry date
     const currentDate = new Date();
-    currentDate.setMonth(currentDate.getMonth() + durationInMonths[duration]);
+    currentDate.setMonth(currentDate.getMonth() + durationInMonths[duration as keyof typeof durationInMonths]);
     setSubscriptionDetails((prevDetails) => ({
       ...prevDetails,
       expireDateTime: currentDate.toISOString().split("T")[0],
@@ -126,7 +120,8 @@ export default function AccountManagement() {
         }
       );
       setResponseMessage(response.data.message || "Subscription created successfully.");
-    } catch (error) {
+      navigate("/broker");
+    } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Failed to create subscription.";
       setResponseMessage(errorMessage);
     }
@@ -135,13 +130,14 @@ export default function AccountManagement() {
   return (
     <Card sx={{ py: 3, my: 3, width: "100%", maxWidth: 800, mx: "auto", boxShadow: 3, borderRadius: 3 }}>
       <Box marginX={3} marginBottom={3} display="flex" gap={2} flexDirection="column">
-        <Typography variant="h5" textAlign="center" fontWeight={600}>
-          Subcription Plan
-        </Typography>
-        <Typography variant="h6" textAlign="center" color="primary" gutterBottom>
-          1 BROKER = ₹1990/month + gst
-        </Typography>
-        <Divider sx={{ my: 2 }} />
+        <Box bgcolor="lightblue" borderRadius={1} marginBottom={3}>
+          <Typography variant="h4" marginBottom={2} marginTop={2} color="#00b0ff" textAlign="center" fontWeight={600}>
+            Subscription Plan
+          </Typography>
+          <Typography variant="h3" marginBottom={3} textAlign="center" color="white" gutterBottom>
+            1 BROKER = ₹1990/month + GST
+          </Typography>
+        </Box>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <TextField
@@ -177,62 +173,6 @@ export default function AccountManagement() {
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Active Date"
-              name="activeDateTime"
-              type="date"
-              value={subscriptionDetails.activeDateTime}
-              onChange={handleInputChange}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Expire Date"
-              name="expireDateTime"
-              type="date"
-              value={subscriptionDetails.expireDateTime}
-              onChange={handleInputChange}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Transaction ID"
-              name="transactionId"
-              value={subscriptionDetails.transactionId}
-              onChange={handleInputChange}
-              variant="outlined"
-              fullWidth
-              disabled // Disable editing
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Transaction Date"
-              name="transactionDate"
-              type="date"
-              value={subscriptionDetails.transactionDate}
-              onChange={handleInputChange}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              disabled // Disable editing
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Status"
-              name="status"
-              value={subscriptionDetails.status}
-              onChange={handleInputChange}
-              variant="outlined"
-              fullWidth
-              disabled // Disable editing
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
               label="Coupon Code"
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
@@ -258,7 +198,7 @@ export default function AccountManagement() {
         </Box>
 
         <Button onClick={handleCreateSubscriptionDetails} variant="contained" sx={{ mt: 2 }}>
-          Create Subscription
+          Make Payment
         </Button>
         {responseMessage && (
           <Typography variant="body1" color="error" sx={{ mt: 2 }}>
@@ -266,7 +206,7 @@ export default function AccountManagement() {
           </Typography>
         )}
 
-<RazorpayPayment totalPayment={netPayment} datasend={datasendnew} />
+        {/* <RazorpayPayment onClick={handleCreateSubscriptionDetails} totalPayment={netPayment} datasend={datasendnew} disabled={!termsAccepted} /> */}
       </Box>
     </Card>
   );

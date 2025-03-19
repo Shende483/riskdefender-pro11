@@ -3,7 +3,7 @@ import { IsString, IsNumber, IsDateString, IsNotEmpty } from 'class-validator';
 export class CreateSubscriptionDetailsDto {
   @IsNotEmpty()
   @IsString()
-  userId: string;
+  userId: Object;
 
   @IsNotEmpty()
   @IsString()
@@ -13,7 +13,7 @@ export class CreateSubscriptionDetailsDto {
   @IsNumber()
   numberOfBroker: number;
 
-  @IsNotEmpty()
+
   @IsDateString()
   activeDateTime: Date;
 
@@ -21,15 +21,15 @@ export class CreateSubscriptionDetailsDto {
   @IsDateString()
   expireDateTime: Date;
 
-  @IsNotEmpty()
+
   @IsString()
   transactionId: string;
 
-  @IsNotEmpty()
+ 
   @IsDateString()
   transactionDate: Date;
 
-  @IsNotEmpty()
+
   @IsString()
   status: string;
 }
