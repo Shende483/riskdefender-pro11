@@ -42,7 +42,7 @@ export default function AccountManagement() {
   const navigate = useNavigate();
 
   const getToken = () =>
-    localStorage.getItem("access_token") ||
+    localStorage.getItem("accessToken") ||
     document.cookie
       .split("; ")
       .find((row) => row.startsWith("access_token="))

@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 
 import LoginService from '../Services/LoginService';
-import {OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
+import {MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
 
 interface UserCredentials {
   identifier: string;
@@ -48,9 +48,6 @@ export default function Page() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [otpSent, setOtpSent] = useState<boolean>(false);
-  const [otpVerified, setOtpVerified] = useState<boolean>(false);
-  const [timer, setTimer] = useState<number>(0);
   
   // New state for status messages
   const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
@@ -83,19 +80,6 @@ export default function Page() {
           delete newErrors.identifier;
         }
         break;
-      case 'otp':
-        if (otpSent) {
-          if (!value) {
-            newErrors.otp = 'OTP is required';
-            isValid = false;
-          } else if (!/^\d+$/.test(value) || value.length !== OTP_LENGTH) {
-            newErrors.otp = 'Please enter a valid 6-digit OTP';
-            isValid = false;
-          } else {
-            delete newErrors.otp;
-          }
-        }
-        break;
       case 'password':
         if (!value) {
           newErrors.password = 'Password is required';
@@ -111,92 +95,11 @@ export default function Page() {
     return isValid;
   };
 
-  const handleSendOTP = async () => {
-    if (validateField('identifier', formData.identifier)) {
-      try {
-        let response;
-        if (/\S+@\S+\.\S+/.test(formData.identifier)) {
-          response = await LoginService.sendOtpEmail(formData.identifier);
-          setStatusMessage({ 
-            text: response.message || `OTP sent to email: ${formData.identifier}`, 
-            type: 'success', 
-            field: 'identifier' 
-          });
-        } else {
-          response = await LoginService.sendOtpMobile(formData.identifier);
-          setStatusMessage({ 
-            text: response.message || `OTP sent to mobile: ${formData.identifier}`, 
-            type: 'success', 
-            field: 'identifier' 
-          });
-        }
-        setShowSnackbar(true);
-        setOtpSent(true);
-        startTimer();
-      } catch (error: any) {
-        setStatusMessage({ 
-          text: error.message || 'Failed to send OTP. Please try again.', 
-          type: 'error', 
-          field: 'identifier' 
-        });
-        setShowSnackbar(true);
-        setErrors({ ...errors, identifier: error.message || 'Failed to send OTP. Please try again.' });
-      }
-    }
-  };
-
-  const handleVerifyOTP = async () => {
-    if (validateField('otp', formData.otp)) {
-      try {
-        let response;
-        if (/\S+@\S+\.\S+/.test(formData.identifier)) {
-          response = await LoginService.verifyOtpEmail(formData.identifier, formData.otp);
-          setStatusMessage({ 
-            text: response.message || 'Email OTP verified successfully', 
-            type: 'success', 
-            field: 'otp' 
-          });
-        } else {
-          response = await LoginService.verifyOtpMobile(formData.identifier, formData.otp);
-          setStatusMessage({ 
-            text: response.message || 'Mobile OTP verified successfully', 
-            type: 'success', 
-            field: 'otp' 
-          });
-        }
-        setShowSnackbar(true);
-        setOtpVerified(true);
-      } catch (error: any) {
-        setStatusMessage({ 
-          text: error.message || 'Invalid OTP. Please try again.', 
-          type: 'error', 
-          field: 'otp' 
-        });
-        setShowSnackbar(true);
-        setErrors({ ...errors, otp: error.message || 'Invalid OTP. Please try again.' });
-      }
-    }
-  };
-
-  const startTimer = () => {
-    setTimer(300); // 5 minutes
-    const interval = setInterval(() => {
-      setTimer((prevTimer) => {
-        if (prevTimer <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prevTimer - 1;
-      });
-    }, 1000);
-  };
-
   const validateForm = (): boolean => {
     let isValid = true;
 
     // Validate all required fields
     const fieldsToValidate = ['identifier', 'password'];
-    if (otpSent) fieldsToValidate.push('otp');
 
     fieldsToValidate.forEach((field) => {
       const value = field === 'rememberMe' ? formData.rememberMe : formData[field as keyof UserCredentials];
@@ -221,7 +124,6 @@ export default function Page() {
         email: /\S+@\S+\.\S+/.test(formData.identifier) ? formData.identifier : undefined,
         mobile: /^\d+$/.test(formData.identifier) ? formData.identifier : undefined,
         password: formData.password,
-        otp: formData.otp,
       };
   
       const response = await LoginService.login(loginUserDto);
@@ -279,7 +181,7 @@ export default function Page() {
         
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
           <Grid container spacing={2}>
-            <Grid item xs={9}>
+            <Grid item xs={12}>
               <TextField
                 variant="outlined"
                 fullWidth
@@ -302,60 +204,7 @@ export default function Page() {
                 </FormHelperText>
               )}
             </Grid>
-            <Grid item xs={3}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSendOTP}
-                disabled={otpSent && timer > 0}
-                fullWidth
-                sx={{ height: '100%' }}
-              >
-                {otpSent && timer > 0 ? `Resend (${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')})` : 'Send OTP'}
-              </Button>
-            </Grid>
-            
-            {/* OTP fields */}
-            {otpSent && (
-              <>
-                <Grid item xs={9}>
-                  <TextField
-                    variant="outlined"
-                    fullWidth
-                    id="otp"
-                    label="Enter OTP"
-                    name="otp"
-                    value={formData.otp}
-                    onChange={handleChange}
-                    error={!!errors.otp}
-                    helperText={errors.otp}
-                  />
-                  {statusMessage?.field === 'otp' && (
-                    <FormHelperText 
-                      sx={{ 
-                        color: statusMessage.type === 'error' ? 'error.main' : 'success.main',
-                        ml: 1
-                      }}
-                    >
-                      {statusMessage.text}
-                    </FormHelperText>
-                  )}
-                </Grid>
-                <Grid item xs={3}>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleVerifyOTP}
-                    disabled={otpVerified}
-                    fullWidth
-                    sx={{ height: '100%' }}
-                  >
-                    Verify
-                  </Button>
-                </Grid>
-              </>
-            )}
-            
+
             {/* Password field */}
             <Grid item xs={12}>
               <FormControl variant="outlined" fullWidth>
