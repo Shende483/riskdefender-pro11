@@ -60,7 +60,7 @@ export default function TradingviewChartAndData() {
 
     function createWidget() {
       if (document.getElementById('tradingview_e5aee') && (window as any).TradingView) {
-        new (window as any).TradingView.widget({
+        (window as any).TradingView.widget({
           width: dimensions.width,
           height: dimensions.height,
           symbol: `BINANCE:${currentSymbol}.P`,
