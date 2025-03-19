@@ -22,7 +22,7 @@ let JwtAuthGuard = class JwtAuthGuard {
         const token = request.headers.authorization?.split(' ')[1];
         console.log("🟢 Received Token:", token);
         if (!token) {
-            throw new common_1.UnauthorizedException('❌ Token is required');
+            console.log("❌ Token is required");
         }
         try {
             const decoded = await this.jwtService.verifyAsync(token);
@@ -38,7 +38,7 @@ let JwtAuthGuard = class JwtAuthGuard {
         }
         catch (error) {
             console.error("❌ Token Verification Error:", error.message);
-            throw new common_1.UnauthorizedException('❌ Invalid or expired token');
+            throw new common_1.UnauthorizedException('❌ User Not sign in  or expired token');
         }
     }
 };

@@ -6,20 +6,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginModule = void 0;
+exports.ForgetPasswordModule = void 0;
 const common_1 = require("@nestjs/common");
 const forgetPassword_service_1 = require("./forgetPassword.service");
-const forgotPassword_controller_1 = require("./forgotPassword.controller");
 const register_module_1 = require("../registerAuth/register.module");
 const jwt_1 = require("@nestjs/jwt");
 const jwt_strategy_1 = require("../../../common/strategies/jwt.strategy");
 const config_1 = require("@nestjs/config");
 const otp_service_1 = require("../../../common/otp.service");
 const redis_module_1 = require("../../../common/redis.module");
-let LoginModule = class LoginModule {
+const forgotPassword_controller_1 = require("./forgotPassword.controller");
+let ForgetPasswordModule = class ForgetPasswordModule {
 };
-exports.LoginModule = LoginModule;
-exports.LoginModule = LoginModule = __decorate([
+exports.ForgetPasswordModule = ForgetPasswordModule;
+exports.ForgetPasswordModule = ForgetPasswordModule = __decorate([
     (0, common_1.Module)({
         imports: [
             register_module_1.RegisterModule,
@@ -35,5 +35,5 @@ exports.LoginModule = LoginModule = __decorate([
         controllers: [forgotPassword_controller_1.ForgetPasswordController],
         providers: [forgetPassword_service_1.ForgetPasswordService, jwt_strategy_1.JwtStrategy, otp_service_1.OtpService],
     })
-], LoginModule);
+], ForgetPasswordModule);
 //# sourceMappingURL=forgetPassword.Module.js.map

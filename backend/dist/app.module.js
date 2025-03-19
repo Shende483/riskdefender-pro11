@@ -15,6 +15,7 @@ const register_module_1 = require("./modules/auth/registerAuth/register.module")
 const database_config_1 = require("./config/database.config");
 const tradingRules_module_1 = require("./modules/TradingRules/tradingRules.module");
 const subcription_module_1 = require("./modules/SubcriptionDetails/subcription.module");
+const forgetPassword_Module_1 = require("./modules/auth/forgetPasswordAuth/forgetPassword.Module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -25,6 +26,7 @@ exports.AppModule = AppModule = __decorate([
             database_config_1.DatabaseConfig,
             login_module_1.LoginModule,
             register_module_1.RegisterModule,
+            forgetPassword_Module_1.ForgetPasswordModule,
             tradingRules_module_1.TradingRulesModule,
             subcription_module_1.SubscriptionDetailsModule,
         ],

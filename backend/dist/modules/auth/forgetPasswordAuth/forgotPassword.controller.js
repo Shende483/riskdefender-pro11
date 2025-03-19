@@ -23,7 +23,7 @@ let ForgetPasswordController = class ForgetPasswordController {
         this.forgetPasswordService = forgetPasswordService;
     }
     async sendOtpEmail(email) {
-        console.log("📩 Sending OTP for forget password (email):", email);
+        console.log('📩 Sending OTP for forget password (email):', email);
         return this.forgetPasswordService.sendOtpEmail(email);
     }
     async sendOtpMobile(mobile) {
@@ -36,9 +36,9 @@ let ForgetPasswordController = class ForgetPasswordController {
         return this.forgetPasswordService.verifyOtpMobile(mobile, otp);
     }
     async resetPassword(forgetPasswordUserData) {
-        console.log("🔍 Received Forget Password request:", forgetPasswordUserData);
+        console.log('🔍 Received Forget Password request:', forgetPasswordUserData);
         const { email, mobile } = forgetPasswordUserData;
-        console.log("🔎 Processing reset for:", email || mobile);
+        console.log('🔎 Processing reset for:', email || mobile);
         if (email) {
             const isVerified = await this.forgetPasswordService.isEmailVerified(email);
             if (!isVerified) {
@@ -62,9 +62,13 @@ let ForgetPasswordController = class ForgetPasswordController {
 };
 exports.ForgetPasswordController = ForgetPasswordController;
 __decorate([
-    (0, common_1.Post)('ForgetPassword/verify-email'),
+    (0, common_1.Post)('forget-password/verify-email'),
     (0, swagger_1.ApiOperation)({ summary: 'Send OTP for Forget Password (Email)' }),
-    (0, swagger_1.ApiBody)({ schema: { properties: { email: { type: 'string', example: 'user@example.com' } } } }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            properties: { email: { type: 'string', example: 'user@example.com' } },
+        },
+    }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'OTP sent successfully' }),
     __param(0, (0, common_1.Body)('email')),
     __metadata("design:type", Function),
@@ -72,9 +76,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ForgetPasswordController.prototype, "sendOtpEmail", null);
 __decorate([
-    (0, common_1.Post)('ForgetPassword/verify-mobile'),
+    (0, common_1.Post)('forget-password/verify-mobile'),
     (0, swagger_1.ApiOperation)({ summary: 'Send OTP for Forget Password (Mobile)' }),
-    (0, swagger_1.ApiBody)({ schema: { properties: { mobile: { type: 'string', example: '9876543210' } } } }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            properties: { mobile: { type: 'string', example: '9876543210' } },
+        },
+    }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'OTP sent successfully' }),
     __param(0, (0, common_1.Body)('mobile')),
     __metadata("design:type", Function),
@@ -82,9 +90,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ForgetPasswordController.prototype, "sendOtpMobile", null);
 __decorate([
-    (0, common_1.Post)('ForgetPassword/verify-otp-email'),
+    (0, common_1.Post)('forget-password/verify-otp-email'),
     (0, swagger_1.ApiOperation)({ summary: 'Verify OTP for Forget Password (Email)' }),
-    (0, swagger_1.ApiBody)({ schema: { properties: { email: { type: 'string' }, otp: { type: 'string' } } } }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            properties: { email: { type: 'string' }, otp: { type: 'string' } },
+        },
+    }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'OTP verified successfully' }),
     __param(0, (0, common_1.Body)('email')),
     __param(1, (0, common_1.Body)('otp')),
@@ -93,9 +105,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ForgetPasswordController.prototype, "verifyOtpEmail", null);
 __decorate([
-    (0, common_1.Post)('ForgetPassword/verify-otp-mobile'),
+    (0, common_1.Post)('forget-password/verify-otp-mobile'),
     (0, swagger_1.ApiOperation)({ summary: 'Verify OTP for Forget Password (Mobile)' }),
-    (0, swagger_1.ApiBody)({ schema: { properties: { mobile: { type: 'string' }, otp: { type: 'string' } } } }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            properties: { mobile: { type: 'string' }, otp: { type: 'string' } },
+        },
+    }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'OTP verified successfully' }),
     __param(0, (0, common_1.Body)('mobile')),
     __param(1, (0, common_1.Body)('otp')),
@@ -104,7 +120,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ForgetPasswordController.prototype, "verifyOtpMobile", null);
 __decorate([
-    (0, common_1.Post)('ForgetPassword/update'),
+    (0, common_1.Post)('forget-password/update'),
     (0, swagger_1.ApiOperation)({ summary: 'Reset Password' }),
     (0, swagger_1.ApiBody)({ type: forgetPassword_dto_1.ForgetPasswordUserDto }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Password reset successfully' }),
