@@ -3,6 +3,13 @@ import { Box, Button, Grid } from '@mui/material';
 import { Brightness4 } from '@mui/icons-material';
 import { initialSymbols } from './tradingview/SymbolDefine';
 
+// Declare TradingView globally to satisfy TypeScript
+declare global {
+  interface Window {
+    TradingView: any;
+  }
+}
+
 let tvScriptLoadingPromise: Promise<void> | undefined;
 
 export default function TradingviewChartAndData() {
@@ -10,7 +17,7 @@ export default function TradingviewChartAndData() {
   const cardRef: RefObject<HTMLDivElement> = useRef(null);
 
   const [theme, setTheme] = useState<string>('dark');
-  const [currentSymbol, setCurrentSymbol] = useState<string>(initialSymbols[0]); // Default to BTCUSDT
+  const [currentSymbol, setCurrentSymbol] = useState<string>(initialSymbols[0]);
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({
     width: 850,
     height: 570
@@ -32,35 +39,11 @@ export default function TradingviewChartAndData() {
   }, []);
 
   useEffect(() => {
-    onLoadScriptRef.current = createWidget;
-
-    if (!tvScriptLoadingPromise) {
-      tvScriptLoadingPromise = new Promise<void>((resolve, reject) => {
-        const script = document.createElement('script');
-        script.id = 'tradingview-widget-loading-script';
-        script.src = 'https://s3.tradingview.com/tv.js';
-        script.type = 'text/javascript';
-        script.onload = () => resolve();
-        script.onerror = () => reject();
-        document.head.appendChild(script);
-      });
-    }
-
-    tvScriptLoadingPromise
-      .then(() => {
-        if (onLoadScriptRef.current) {
-          onLoadScriptRef.current();
-        }
-      })
-      .catch((err) => console.error('TradingView script failed to load:', err));
-
-    return () => {
-      onLoadScriptRef.current = null;
-    };
-
     function createWidget() {
-      if (document.getElementById('tradingview_e5aee') && (window as any).TradingView) {
-        (window as any).TradingView.widget({
+      const widgetContainer = document.getElementById('tradingview_e5aee');
+      if (widgetContainer && window.TradingView) {
+        // eslint-disable-next-line new-cap
+        new window.TradingView.widget({
           width: dimensions.width,
           height: dimensions.height,
           symbol: `BINANCE:${currentSymbol}.P`,
@@ -81,9 +64,37 @@ export default function TradingviewChartAndData() {
           container_id: 'tradingview_e5aee'
         });
       } else {
-        console.error('TradingView is not available.');
+        console.error('TradingView is not available or container is missing.');
       }
     }
+
+    onLoadScriptRef.current = createWidget;
+
+    if (!tvScriptLoadingPromise) {
+      tvScriptLoadingPromise = new Promise<void>((resolve, reject) => {
+        const script = document.createElement('script');
+        script.id = 'tradingview-widget-loading-script';
+        script.src = 'https://s3.tradingview.com/tv.js';
+        script.async = true;
+        script.defer = true;
+        script.type = 'text/javascript';
+        script.onload = () => resolve();
+        script.onerror = () => reject();
+        document.head.appendChild(script);
+      });
+    }
+
+    tvScriptLoadingPromise
+      .then(() => {
+        if (onLoadScriptRef.current) {
+          onLoadScriptRef.current();
+        }
+      })
+      .catch((err) => console.error('TradingView script failed to load:', err));
+
+    return () => {
+      onLoadScriptRef.current = null;
+    };
   }, [theme, currentSymbol, dimensions]);
 
   const toggleTheme = () => {
@@ -92,7 +103,11 @@ export default function TradingviewChartAndData() {
 
   return (
     <Box ref={cardRef} sx={{ height: 670, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Grid container className="tradingview-widget-container" style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <Grid
+        container
+        className="tradingview-widget-container"
+        style={{ width: '100%', height: '100%', position: 'relative' }}
+      >
         <Button
           variant="text"
           size="small"
@@ -121,4 +136,4 @@ export default function TradingviewChartAndData() {
       </Grid>
     </Box>
   );
-};
+}
