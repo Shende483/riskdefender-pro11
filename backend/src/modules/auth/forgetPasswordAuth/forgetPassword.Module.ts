@@ -23,4 +23,4 @@ import { ForgetPasswordController } from './forgotPassword.controller';
   controllers: [ForgetPasswordController],
   providers: [ForgetPasswordService, JwtStrategy, OtpService],
 })
-export class ForgetPasswordModule {} // Make sure this is properly imported in your AppModule
+export class ForgetPasswordModule {}

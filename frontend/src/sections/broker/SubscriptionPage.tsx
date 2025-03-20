@@ -1,19 +1,22 @@
-import React, { useState, useMemo } from "react";
 import axios from "axios";
-import {
-  Typography,
-  Button,
-  TextField,
-  Card,
-  Box,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Grid,
-  Checkbox,
-} from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState } from "react";
+
+import {
+  Box,
+  Card,
+  Grid,
+  Button,
+  Select,
+  MenuItem,
+  Checkbox,
+  TextField,
+  Typography,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
+
+import { getToken } from "../../utils/getTokenFn";
 
 interface SubscriptionDetails {
   planName: string;
@@ -41,14 +44,7 @@ export default function AccountManagement() {
   const [datasendnew, setDatasendnew] = useState<any>(null);
   const navigate = useNavigate();
 
-  const getToken = () =>
-    localStorage.getItem("accessToken") ||
-    document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("access_token="))
-      ?.split("=")[1] ||
-    "";
-
+ 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
     const { name, value } = e.target;
     setSubscriptionDetails((prevDetails) => ({

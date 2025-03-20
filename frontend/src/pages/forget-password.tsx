@@ -58,6 +58,7 @@ const ForgetPassword: React.FC = () => {
             setTimer((prevTimer) => {
                 if (prevTimer <= 1) {
                     clearInterval(interval);
+                    setOtpSent(false)
                     return 0;
                 }
                 return prevTimer - 1;
@@ -168,7 +169,7 @@ const ForgetPassword: React.FC = () => {
                                 value={emailOrMobile}
                                 onChange={(e) => setEmailOrMobile(e.target.value)}
                                 placeholder="Enter your email or mobile number"
-                                disabled={otpSent}
+                                disabled={otpSent && timer > 0}
                                 sx={{ mb: 2, bgcolor: 'rgba(255, 255, 200, 0.3)' }}
                             />
                         </Grid>
@@ -179,7 +180,7 @@ const ForgetPassword: React.FC = () => {
                                     variant="contained"
                                     color="primary"
                                     onClick={handleSendOTP}
-                                    disabled={!emailOrMobile || otpLoading || timer > 0}
+                                    disabled={!emailOrMobile || otpLoading ||( otpSent && timer > 0)}
                                     fullWidth
                                     sx={{ height: '56px' }}
                                 >

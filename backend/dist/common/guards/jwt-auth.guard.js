@@ -19,26 +19,15 @@ let JwtAuthGuard = class JwtAuthGuard {
     }
     async canActivate(context) {
         const request = context.switchToHttp().getRequest();
-        const response = context.switchToHttp().getResponse();
         const token = request.headers.authorization?.split(' ')[1];
         console.log("🟢 Received Token:", token);
         if (!token) {
-            response.status(401).json({
-                statusCode: 401,
-                message: '❌ Token is required, Please login First...',
-                success: false
-            });
-            return false;
+            console.log("❌ Token is required");
         }
         try {
             const decoded = await this.jwtService.verifyAsync(token);
             if (!decoded) {
-                response.status(401).json({
-                    statusCode: 401,
-                    message: '❌ Invalid token payload',
-                    success: false
-                });
-                return false;
+                throw new common_1.UnauthorizedException('❌ Invalid token payload');
             }
             console.log("✅ Decoded Token:", decoded);
             request['user'] = {
@@ -49,12 +38,7 @@ let JwtAuthGuard = class JwtAuthGuard {
         }
         catch (error) {
             console.error("❌ Token Verification Error:", error.message);
-            response.status(401).json({
-                statusCode: 401,
-                message: `❌ Token Verification Error:", ${error.message}`,
-                success: false
-            });
-            return false;
+            throw new common_1.UnauthorizedException('❌ User Not sign in  or expired token');
         }
     }
 };
