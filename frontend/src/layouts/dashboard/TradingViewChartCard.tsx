@@ -1,7 +1,18 @@
+
+/* eslint-disable no-new */
+
+
 import { useEffect, useRef, useState, MutableRefObject, RefObject } from 'react';
 import { Box, Button, Grid } from '@mui/material';
 import { Brightness4 } from '@mui/icons-material';
 import { initialSymbols } from './tradingview/SymbolDefine';
+
+// Declare TradingView globally to satisfy TypeScript
+declare global {
+  interface Window {
+    TradingView: any;
+  }
+}
 
 let tvScriptLoadingPromise: Promise<void> | undefined;
 
@@ -39,6 +50,8 @@ export default function TradingviewChartAndData() {
         const script = document.createElement('script');
         script.id = 'tradingview-widget-loading-script';
         script.src = 'https://s3.tradingview.com/tv.js';
+        script.async = true;  // Ensures Vite loads it properly
+        script.defer = true;
         script.type = 'text/javascript';
         script.onload = () => resolve();
         script.onerror = () => reject();
@@ -59,8 +72,12 @@ export default function TradingviewChartAndData() {
     };
 
     function createWidget() {
-      if (document.getElementById('tradingview_e5aee') && (window as any).TradingView) {
-        (window as any).TradingView.widget({
+      const widgetContainer = document.getElementById('tradingview_e5aee');
+      
+      if (widgetContainer && window.TradingView) {
+
+        // eslint-disable-next-line new-cap
+        new window.TradingView.widget({
           width: dimensions.width,
           height: dimensions.height,
           symbol: `BINANCE:${currentSymbol}.P`,
@@ -81,7 +98,7 @@ export default function TradingviewChartAndData() {
           container_id: 'tradingview_e5aee'
         });
       } else {
-        console.error('TradingView is not available.');
+        console.error('TradingView is not available or container is missing.');
       }
     }
   }, [theme, currentSymbol, dimensions]);
@@ -92,7 +109,11 @@ export default function TradingviewChartAndData() {
 
   return (
     <Box ref={cardRef} sx={{ height: 670, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Grid container className="tradingview-widget-container" style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <Grid
+        container
+        className="tradingview-widget-container"
+        style={{ width: '100%', height: '100%', position: 'relative' }}
+      >
         <Button
           variant="text"
           size="small"
@@ -121,4 +142,6 @@ export default function TradingviewChartAndData() {
       </Grid>
     </Box>
   );
-};
+}
+
+
