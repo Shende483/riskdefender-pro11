@@ -1,3 +1,7 @@
+
+/* eslint-disable no-new */
+
+
 import { useEffect, useRef, useState, MutableRefObject, RefObject } from 'react';
 import { Box, Button, Grid } from '@mui/material';
 import { Brightness4 } from '@mui/icons-material';
@@ -17,7 +21,7 @@ export default function TradingviewChartAndData() {
   const cardRef: RefObject<HTMLDivElement> = useRef(null);
 
   const [theme, setTheme] = useState<string>('dark');
-  const [currentSymbol, setCurrentSymbol] = useState<string>(initialSymbols[0]);
+  const [currentSymbol, setCurrentSymbol] = useState<string>(initialSymbols[0]); // Default to BTCUSDT
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({
     width: 850,
     height: 570
@@ -39,9 +43,39 @@ export default function TradingviewChartAndData() {
   }, []);
 
   useEffect(() => {
+    onLoadScriptRef.current = createWidget;
+
+    if (!tvScriptLoadingPromise) {
+      tvScriptLoadingPromise = new Promise<void>((resolve, reject) => {
+        const script = document.createElement('script');
+        script.id = 'tradingview-widget-loading-script';
+        script.src = 'https://s3.tradingview.com/tv.js';
+        script.async = true;  // Ensures Vite loads it properly
+        script.defer = true;
+        script.type = 'text/javascript';
+        script.onload = () => resolve();
+        script.onerror = () => reject();
+        document.head.appendChild(script);
+      });
+    }
+
+    tvScriptLoadingPromise
+      .then(() => {
+        if (onLoadScriptRef.current) {
+          onLoadScriptRef.current();
+        }
+      })
+      .catch((err) => console.error('TradingView script failed to load:', err));
+
+    return () => {
+      onLoadScriptRef.current = null;
+    };
+
     function createWidget() {
       const widgetContainer = document.getElementById('tradingview_e5aee');
+      
       if (widgetContainer && window.TradingView) {
+
         // eslint-disable-next-line new-cap
         new window.TradingView.widget({
           width: dimensions.width,
@@ -67,34 +101,6 @@ export default function TradingviewChartAndData() {
         console.error('TradingView is not available or container is missing.');
       }
     }
-
-    onLoadScriptRef.current = createWidget;
-
-    if (!tvScriptLoadingPromise) {
-      tvScriptLoadingPromise = new Promise<void>((resolve, reject) => {
-        const script = document.createElement('script');
-        script.id = 'tradingview-widget-loading-script';
-        script.src = 'https://s3.tradingview.com/tv.js';
-        script.async = true;
-        script.defer = true;
-        script.type = 'text/javascript';
-        script.onload = () => resolve();
-        script.onerror = () => reject();
-        document.head.appendChild(script);
-      });
-    }
-
-    tvScriptLoadingPromise
-      .then(() => {
-        if (onLoadScriptRef.current) {
-          onLoadScriptRef.current();
-        }
-      })
-      .catch((err) => console.error('TradingView script failed to load:', err));
-
-    return () => {
-      onLoadScriptRef.current = null;
-    };
   }, [theme, currentSymbol, dimensions]);
 
   const toggleTheme = () => {
@@ -137,3 +143,5 @@ export default function TradingviewChartAndData() {
     </Box>
   );
 }
+
+
