@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { RedisService } from './config/redis.config';
 import { LoginModule } from './modules/auth/loginAuth/login.module';
@@ -8,6 +7,8 @@ import { DatabaseConfig } from './config/database.config';
 import { TradingRulesModule } from './modules/TradingRules/tradingRules.module';
 import { SubscriptionDetailsModule } from './modules/SubcriptionDetails/subcription.module';
 import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPassword.Module';
+import { MarketTypeModule } from './modules/market-type/market-type.module';
+
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPa
     ForgetPasswordModule,
     TradingRulesModule,
     SubscriptionDetailsModule,
-   
+    MarketTypeModule
   ],
   providers: [RedisService],
   exports: [RedisService ],
