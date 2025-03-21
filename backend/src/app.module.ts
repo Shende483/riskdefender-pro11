@@ -8,6 +8,7 @@ import { DatabaseConfig } from './config/database.config';
 import { TradingRulesModule } from './modules/TradingRules/tradingRules.module';
 import { SubscriptionDetailsModule } from './modules/SubcriptionDetails/subcription.module';
 import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPassword.Module';
+import { PlanModule } from './modules/adminModules/planManage/plan.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPa
     ForgetPasswordModule,
     TradingRulesModule,
     SubscriptionDetailsModule,
+    PlanModule,
    
   ],
   providers: [RedisService],
