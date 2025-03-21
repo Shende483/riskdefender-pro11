@@ -8,9 +8,9 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { MarketTypeService } from './market-type.service';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { MarketTypeService } from './marketType.service';
 
 @Controller('Admin/market-type')
 export class MarketTypeController {
@@ -55,6 +55,7 @@ export class MarketTypeController {
   }
 
   @Get('getAll')
+  @UseGuards(JwtAuthGuard)
   async getAllActiveMarketTypes(@Res() res: Response) {
     try {
       const marketTypes =
