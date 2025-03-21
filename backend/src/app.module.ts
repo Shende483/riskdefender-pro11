@@ -7,6 +7,7 @@ import { DatabaseConfig } from './config/database.config';
 import { TradingRulesModule } from './modules/TradingRules/tradingRules.module';
 import { SubscriptionDetailsModule } from './modules/SubcriptionDetails/subcription.module';
 import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPassword.Module';
+import { PlanModule } from './modules/adminModules/planManage/plan.module';
 
 import { BrokersModule } from './modules/adminModules/BrokerManagment/broker.module';
 import { MarketTypeModule } from './modules/adminModules/MarketType/marketType.module';
@@ -20,6 +21,7 @@ import { MarketTypeModule } from './modules/adminModules/MarketType/marketType.m
     ForgetPasswordModule,
     TradingRulesModule,
     SubscriptionDetailsModule,
+    PlanModule,
     MarketTypeModule,
     BrokersModule,
 
