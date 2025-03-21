@@ -7,8 +7,9 @@ import { DatabaseConfig } from './config/database.config';
 import { TradingRulesModule } from './modules/TradingRules/tradingRules.module';
 import { SubscriptionDetailsModule } from './modules/SubcriptionDetails/subcription.module';
 import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPassword.Module';
-import { MarketTypeModule } from './modules/market-type/market-type.module';
 
+import { BrokersModule } from './modules/adminModules/BrokerManagment/broker.module';
+import { MarketTypeModule } from './modules/adminModules/MarketType/marketType.module';
 
 @Module({
   imports: [
@@ -19,7 +20,9 @@ import { MarketTypeModule } from './modules/market-type/market-type.module';
     ForgetPasswordModule,
     TradingRulesModule,
     SubscriptionDetailsModule,
-    MarketTypeModule
+    MarketTypeModule,
+    BrokersModule,
+
   ],
   providers: [RedisService],
   exports: [RedisService ],
