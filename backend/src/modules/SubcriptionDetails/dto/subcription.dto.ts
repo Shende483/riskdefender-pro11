@@ -7,6 +7,10 @@ export class CreateSubscriptionDetailsDto {
 
   @IsNotEmpty()
   @IsString()
+  planId: string;
+
+  @IsNotEmpty()
+  @IsString()
   planName: string;
 
   @IsNotEmpty()
@@ -15,21 +19,12 @@ export class CreateSubscriptionDetailsDto {
 
 
   @IsDateString()
-  activeDateTime: Date;
+  startDate: Date;
 
   @IsNotEmpty()
   @IsDateString()
-  expireDateTime: Date;
-
-
-  @IsString()
-  transactionId: string;
-
- 
-  @IsDateString()
-  transactionDate: Date;
-
-
+  endDate: Date;
+;
   @IsString()
   status: string;
 }

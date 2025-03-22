@@ -6,8 +6,11 @@ import { LoginModule } from './modules/auth/loginAuth/login.module';
 import { RegisterModule } from './modules/auth/registerAuth/register.module';
 import { DatabaseConfig } from './config/database.config';
 import { TradingRulesModule } from './modules/TradingRules/tradingRules.module';
-import { SubscriptionDetailsModule } from './modules/SubcriptionDetails/subcription.module';
+import { SubscriptionDetailsModule } from './modules/subcriptionDetails/subcription.module';
 import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPassword.Module';
+import { recordPaymnetModule } from './modules/recordPayment/payment.module';
+import { UpdateUserInfoModule } from './modules/auth/updateUserInfo/UserUpdateInfo.module';
+
 
 @Module({
   imports: [
@@ -18,6 +21,8 @@ import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPa
     ForgetPasswordModule,
     TradingRulesModule,
     SubscriptionDetailsModule,
+    recordPaymnetModule,
+    UpdateUserInfoModule
    
   ],
   providers: [RedisService],

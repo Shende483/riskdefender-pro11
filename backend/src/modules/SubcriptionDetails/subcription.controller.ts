@@ -68,20 +68,21 @@ export class SubscriptionDetailsController {
 
 import { Controller, Post, Body, Res, Req, UseGuards, BadRequestException } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { SubscriptionDetailsService } from './subcription.service';
+import { SubscriptionService } from '../subcriptionDetails/subcription.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('subscription-details')
 export class SubscriptionDetailsController {
-  constructor(private readonly subscriptionDetailsService: SubscriptionDetailsService) {}
+  constructor(private readonly subscriptionService: SubscriptionService) {}
 
-  @Post('create')
+  @Post('subscribe')
   @UseGuards(JwtAuthGuard)
-  async createSubscriptionDetails(
+  async createSubscription(
     @Body() body: {
+      planId: string;
       planName: string;
       numberOfBroker: number;
-      expireDateTime: Date;
+      endDate: Date;
     },
     @Req() req: Request,
     @Res() res: Response
@@ -103,14 +104,14 @@ export class SubscriptionDetailsController {
     const requiredFields = [
       'planName',
       'numberOfBroker',
-      'expireDateTime'
+      'endDate'
     ];
 
     const missingFields = requiredFields.filter((field) => !body[field]);
     if (missingFields.length > 0) {
       return res.status(400).json({
         statusCode: 400,
-        message: `Missing required fields: ${missingFields.join(', ')}`,
+        message: `Please complete all required fields before proceeding.`,
         success: false,
       });
     }
@@ -120,10 +121,7 @@ export class SubscriptionDetailsController {
 
     // Simulate Razorpay data fetching
     const razorpayData = {
-      transactionId: 'RAZORPAY_TXN_12345', // Example Razorpay Transaction ID
-      transactionDate: new Date(),
-      activeDateTime: new Date(),         
-      // Current timestamp as transaction date
+      startDate: new Date(),         
       status: 'active'                    // Example status
     };
 
@@ -131,6 +129,6 @@ export class SubscriptionDetailsController {
     const finalData = { ...updatedBody, ...razorpayData };
 
     // Pass the final data to the service layer
-    return this.subscriptionDetailsService.createSubscriptionDetails(finalData, req, res);
+    return this.subscriptionService.createSubscription(finalData, req, res);
   }
 }

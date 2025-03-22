@@ -14,8 +14,10 @@ const login_module_1 = require("./modules/auth/loginAuth/login.module");
 const register_module_1 = require("./modules/auth/registerAuth/register.module");
 const database_config_1 = require("./config/database.config");
 const tradingRules_module_1 = require("./modules/TradingRules/tradingRules.module");
-const subcription_module_1 = require("./modules/SubcriptionDetails/subcription.module");
+const subcription_module_1 = require("./modules/subcriptionDetails/subcription.module");
 const forgetPassword_Module_1 = require("./modules/auth/forgetPasswordAuth/forgetPassword.Module");
+const payment_module_1 = require("./modules/recordPayment/payment.module");
+const UserUpdateInfo_module_1 = require("./modules/auth/updateUserInfo/UserUpdateInfo.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -29,6 +31,8 @@ exports.AppModule = AppModule = __decorate([
             forgetPassword_Module_1.ForgetPasswordModule,
             tradingRules_module_1.TradingRulesModule,
             subcription_module_1.SubscriptionDetailsModule,
+            payment_module_1.recordPaymnetModule,
+            UserUpdateInfo_module_1.UpdateUserInfoModule
         ],
         providers: [redis_config_1.RedisService],
         exports: [redis_config_1.RedisService],

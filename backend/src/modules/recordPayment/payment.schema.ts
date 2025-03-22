@@ -1,30 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
-export type SubscriptionDocument = HydratedDocument<Subscription>;
+export type PaymentDocument = HydratedDocument<Payment>;
 
 @Schema({ timestamps: true })
-export class Subscription {
+export class Payment {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Plan', required: true })
-  planId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Subscription', required: true })
+  subscriptionId: Types.ObjectId;
 
   @Prop({ required: true })
-  planName: string;
+  amount: number;
 
   @Prop({ required: true })
-  numberOfBroker: number;
+  paymentMethod: string;
 
   @Prop({ required: true })
-  startDate: Date;
-
-  @Prop({ required: true })
-  endDate: Date;
+  transactionId: string;
 
   @Prop({ required: true })
   status: string;
 }
 
-export const SubscriptionSchema = SchemaFactory.createForClass(Subscription);
+export const PaymentSchema = SchemaFactory.createForClass(Payment);
