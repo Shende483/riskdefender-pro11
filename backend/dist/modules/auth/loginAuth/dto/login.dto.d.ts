@@ -1,7 +1,6 @@
 export declare class LoginUserDto {
-    email?: string;
-    mobile?: string;
-    emailOrMobile: string;
+    email: string;
+    mobile: string;
     otp?: string;
     password?: string;
 }

@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type UserDocument = HydratedDocument<User>;
 
 @Schema({ timestamps: true }) // Adds createdAt & updatedAt fields automatically
-export class User extends Document {
+export class User {
   @Prop({ required: true })
   name: string;
 

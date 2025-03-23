@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../registerAuth/register.schema';
-import { UpdateUserDto } from '../updateUserInfo/dto/updateUserInfo.dto';
+import { UpdateUserDto } from './dto/updateUserInfo.dto';
 import { bcryptService } from 'src/common/bcrypt.service';
 import { OtpService } from 'src/common/otp.service';
 import { Response } from 'express';
@@ -82,14 +82,14 @@ export class RegisterService {
       const updatedUser = await user.save();
       console.log('✅ User updated successfully:', updatedUser);
 
-      res.status(200).json({
+    res.status(200).json({
         statusCode: 200,
         message: '✅ User updated successfully',
         success: true,
         data: updatedUser,
       });
     } catch (error) {
-      console.error('❌ Error updating user:');
+    //  console.error('❌ Error updating user:');
        res.status(500).json({
         statusCode: 500,
         message: '❌ Something went wrong. User not updated.',
@@ -150,3 +150,10 @@ export class RegisterService {
     await this.otpService.setVerifiedMobile(mobile);
   }
 }
+
+
+
+
+
+
+

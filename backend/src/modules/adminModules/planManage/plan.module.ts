@@ -17,4 +17,4 @@ import jwtConfing from 'src/config/jwt.confing';
     controllers: [PlanController],
     providers: [PlanService],
 })
-export class PlanModule { }
+export class AdminPlanModule { }

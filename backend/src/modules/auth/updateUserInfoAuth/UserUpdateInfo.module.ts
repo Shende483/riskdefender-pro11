@@ -1,6 +1,6 @@
 // src/module/users/users.module.ts
 import { Module } from '@nestjs/common';
-import { RegisterService } from '../updateUserInfo/UserUpdateInfo.service';
+import { RegisterService } from './UserUpdateInfo.service';
 import { RegisterController } from './UserUpdateInfo.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './UserUpdateInfo.schema';

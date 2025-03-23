@@ -5,8 +5,6 @@ import {
   Post,
   Res,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { CreateBrokerDto } from './dto/broker.dto';
 import { BrokersService } from './broker.service';
@@ -19,7 +17,6 @@ export class BrokerController {
 
   @Post('createBroker')
   @UseGuards(JwtAuthGuard)
-  @UsePipes(new ValidationPipe())
   async createBroker(
     @Body() createBrokerDto: CreateBrokerDto,
     @Res() res: Response,

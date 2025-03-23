@@ -1,2 +1,17 @@
 node_modules
 /dist
+src/modules/auth/updateUserInfo/UserUpdateInfo.controller.ts
+src/modules/auth/updateUserInfo/UserUpdateInfo.module.ts
+src/modules/auth/updateUserInfo/UserUpdateInfo.schema.ts
+src/modules/auth/updateUserInfo/UserUpdateInfo.service.ts
+src/modules/auth/updateUserInfo/dto/updateUserInfo.dto.ts
+src/modules/TradingRules/tradingRules.controller.ts
+src/modules/TradingRules/tradingRules.module.ts
+src/modules/TradingRules/tradingRules.schema.ts
+src/modules/TradingRules/tradingRules.service.ts
+src/modules/TradingRules/dto/tradingRules.dto.ts
+src/modules/TradingRules/tradingRules.controller.ts
+src/modules/TradingRules/tradingRules.module.ts
+src/modules/TradingRules/tradingRules.schema.ts
+src/modules/TradingRules/tradingRules.service.ts
+src/modules/TradingRules/dto/tradingRules.dto.ts

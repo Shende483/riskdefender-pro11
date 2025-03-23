@@ -13,11 +13,13 @@ const redis_config_1 = require("./config/redis.config");
 const login_module_1 = require("./modules/auth/loginAuth/login.module");
 const register_module_1 = require("./modules/auth/registerAuth/register.module");
 const database_config_1 = require("./config/database.config");
-const tradingRules_module_1 = require("./modules/TradingRules/tradingRules.module");
 const subcription_module_1 = require("./modules/subcriptionDetails/subcription.module");
 const forgetPassword_Module_1 = require("./modules/auth/forgetPasswordAuth/forgetPassword.Module");
 const payment_module_1 = require("./modules/recordPayment/payment.module");
-const UserUpdateInfo_module_1 = require("./modules/auth/updateUserInfo/UserUpdateInfo.module");
+const UserUpdateInfo_module_1 = require("./modules/auth/updateUserInfoAuth/UserUpdateInfo.module");
+const plan_module_1 = require("./modules/adminModules/planManage/plan.module");
+const broker_module_1 = require("./modules/adminModules/BrokerManagment/broker.module");
+const marketType_module_1 = require("./modules/adminModules/MarketType/marketType.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -29,10 +31,12 @@ exports.AppModule = AppModule = __decorate([
             login_module_1.LoginModule,
             register_module_1.RegisterModule,
             forgetPassword_Module_1.ForgetPasswordModule,
-            tradingRules_module_1.TradingRulesModule,
             subcription_module_1.SubscriptionDetailsModule,
             payment_module_1.recordPaymnetModule,
-            UserUpdateInfo_module_1.UpdateUserInfoModule
+            UserUpdateInfo_module_1.UpdateUserInfoModule,
+            plan_module_1.AdminPlanModule,
+            marketType_module_1.AdminMarketTypeModule,
+            broker_module_1.AdminBrokersModule,
         ],
         providers: [redis_config_1.RedisService],
         exports: [redis_config_1.RedisService],
