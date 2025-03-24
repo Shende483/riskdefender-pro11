@@ -68,7 +68,7 @@ export class SubscriptionDetailsController {
 
 import { Controller, Post, Body, Res, Req, UseGuards } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { SubscriptionService } from './subcription.service';
+import { SubscriptionService } from '../SubcriptionDetails/subcription.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('subscription-details')
@@ -121,7 +121,7 @@ export class SubscriptionDetailsController {
 
     // Simulate Razorpay data fetching
     const razorpayData = {
-      startDate: new Date(),         
+      startDate: new Date(),
       status: 'active'                    // Example status
     };
 
