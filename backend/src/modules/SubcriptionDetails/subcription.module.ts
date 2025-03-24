@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SubscriptionDetailsController } from './subcription.controller';
-import { SubscriptionService } from '../subcriptionDetails/subcription.service';
-import {Subscription, SubscriptionSchema} from '../subcriptionDetails/subcription.schema';
+import { SubscriptionService } from './subcription.service';
+import {Subscription, SubscriptionSchema} from './subcription.schema';
 import jwtConfing from 'src/config/jwt.confing';
 import { JwtModule } from '@nestjs/jwt';
 
