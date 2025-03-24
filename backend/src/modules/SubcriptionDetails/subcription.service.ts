@@ -2,7 +2,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Subscription, SubscriptionDocument } from '../subcriptionDetails/subcription.schema';
+import { Subscription, SubscriptionDocument } from './subcription.schema';
 
 @Injectable()
 export class SubscriptionService {

@@ -66,9 +66,9 @@ export class SubscriptionDetailsController {
 */
 
 
-import { Controller, Post, Body, Res, Req, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Res, Req, UseGuards } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { SubscriptionService } from '../subcriptionDetails/subcription.service';
+import { SubscriptionService } from './subcription.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('subscription-details')
