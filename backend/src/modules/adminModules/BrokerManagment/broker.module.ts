@@ -17,4 +17,4 @@ import jwtConfing from 'src/config/jwt.confing';
   controllers: [BrokerController],
   providers: [BrokersService],
 })
-export class BrokersModule { }
+export class AdminBrokersModule { }

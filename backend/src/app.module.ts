@@ -4,13 +4,14 @@ import { RedisService } from './config/redis.config';
 import { LoginModule } from './modules/auth/loginAuth/login.module';
 import { RegisterModule } from './modules/auth/registerAuth/register.module';
 import { DatabaseConfig } from './config/database.config';
-import { TradingRulesModule } from './modules/TradingRules/tradingRules.module';
-import { SubscriptionDetailsModule } from './modules/SubcriptionDetails/subcription.module';
+import { SubscriptionDetailsModule } from './modules/subcriptionDetails/subcription.module';
 import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPassword.Module';
-import { PlanModule } from './modules/adminModules/planManage/plan.module';
+import { recordPaymnetModule } from './modules/recordPayment/payment.module';
+import { UpdateUserInfoModule } from './modules/auth/updateUserInfoAuth/UserUpdateInfo.module';
+import { AdminPlanModule } from './modules/adminModules/planManage/plan.module';
+import { AdminBrokersModule } from './modules/adminModules/BrokerManagment/broker.module';
+import { AdminMarketTypeModule } from './modules/adminModules/MarketType/marketType.module';
 
-import { BrokersModule } from './modules/adminModules/BrokerManagment/broker.module';
-import { MarketTypeModule } from './modules/adminModules/MarketType/marketType.module';
 
 @Module({
   imports: [
@@ -19,11 +20,13 @@ import { MarketTypeModule } from './modules/adminModules/MarketType/marketType.m
     LoginModule,
     RegisterModule,
     ForgetPasswordModule,
-    TradingRulesModule,
     SubscriptionDetailsModule,
-    PlanModule,
-    MarketTypeModule,
-    BrokersModule,
+    recordPaymnetModule,
+    UpdateUserInfoModule,
+   AdminPlanModule,
+    AdminMarketTypeModule,
+    AdminBrokersModule,
+
 
   ],
   providers: [RedisService],

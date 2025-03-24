@@ -7,7 +7,7 @@ export class MarketType {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true, enum: ['active', 'inactive'] })
+  @Prop({ default: 'active', enum: ['active', 'inactive'] })
   status: string;
 
   @Prop({ type: Date, default: Date.now })

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { SelectChangeEvent } from '@mui/material';
 import {
@@ -22,13 +22,8 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { COUNTRIES, OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
-import {
-    sendOtpEmail,
-    sendOtpMobile,
-    verifyOtpEmail,
-    verifyOtpMobile,
-    registerUser,
-} from '../Apis/AuthApi/registerApi';
+import axios from 'axios';
+import { getToken } from "../utils/getTokenFn";
 
 interface UserCredentials {
     firstName: string;
@@ -45,6 +40,15 @@ interface UserCredentials {
 
 export default function ProfileUpdate() {
     const navigate = useNavigate();
+    const [token, setToken] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Retrieve the token from local storage
+        const storedToken = getToken();
+        if (storedToken) {
+            setToken(storedToken);
+        }
+    }, []);
 
     const [formData, setFormData] = useState<UserCredentials>({
         firstName: '',
@@ -95,7 +99,7 @@ export default function ProfileUpdate() {
 
         switch (name) {
             case 'firstName':
-                if (!value || value.trim() === '') {
+                if (value && value.trim() === '') {
                     newErrors.firstName = 'First name is required';
                     isValid = false;
                 } else {
@@ -104,7 +108,7 @@ export default function ProfileUpdate() {
                 break;
 
             case 'lastName':
-                if (!value || value.trim() === '') {
+                if (value && value.trim() === '') {
                     newErrors.lastName = 'Last name is required';
                     isValid = false;
                 } else {
@@ -113,10 +117,7 @@ export default function ProfileUpdate() {
                 break;
 
             case 'email':
-                if (!value) {
-                    newErrors.email = 'Email is required';
-                    isValid = false;
-                } else if (!/\S+@\S+\.\S+/.test(value) || value.length > MAX_EMAIL_LENGTH) {
+                if (value && (!/\S+@\S+\.\S+/.test(value) || value.length > MAX_EMAIL_LENGTH)) {
                     newErrors.email = 'Please enter a valid email address';
                     isValid = false;
                 } else {
@@ -125,10 +126,7 @@ export default function ProfileUpdate() {
                 break;
 
             case 'mobile':
-                if (!value) {
-                    newErrors.mobile = 'Mobile number is required';
-                    isValid = false;
-                } else if (!/^\d+$/.test(value) || value.length !== MOBILE_LENGTH) {
+                if (value && (!/^\d+$/.test(value) || value.length !== MOBILE_LENGTH)) {
                     newErrors.mobile = 'Please enter a valid 10-digit mobile number';
                     isValid = false;
                 } else {
@@ -136,48 +134,12 @@ export default function ProfileUpdate() {
                 }
                 break;
 
-            case 'emailOtp':
-                if (!value) {
-                    newErrors.emailOtp = 'Email OTP is required';
-                    isValid = false;
-                } else if (!/^\d+$/.test(value) || value.length !== OTP_LENGTH) {
-                    newErrors.emailOtp = 'Please enter a valid 6-digit OTP';
-                    isValid = false;
-                } else {
-                    delete newErrors.emailOtp;
-                }
-                break;
-
-            case 'mobileOtp':
-                if (!value) {
-                    newErrors.mobileOtp = 'Mobile OTP is required';
-                    isValid = false;
-                } else if (!/^\d+$/.test(value) || value.length !== OTP_LENGTH) {
-                    newErrors.mobileOtp = 'Please enter a valid 6-digit OTP';
-                    isValid = false;
-                } else {
-                    delete newErrors.mobileOtp;
-                }
-                break;
-
             case 'password':
-                if (!value) {
-                    newErrors.password = 'Password is required';
-                    isValid = false;
-                } else if (value.length < 8) {
+                if (value && value.length < 8) {
                     newErrors.password = 'Password must be at least 8 characters';
                     isValid = false;
                 } else {
                     delete newErrors.password;
-                }
-                break;
-
-            case 'agreeTnC':
-                if (!value) {
-                    newErrors.agreeTnC = 'You must agree to Terms & Conditions';
-                    isValid = false;
-                } else {
-                    delete newErrors.agreeTnC;
                 }
                 break;
 
@@ -189,29 +151,19 @@ export default function ProfileUpdate() {
         return isValid;
     };
 
-    const validateForm = (): boolean => {
-        let isValid = true;
-
-        const fieldsToValidate = ['firstName', 'lastName', 'email', 'mobile', 'password', 'agreeTnC'];
-
-        if (emailSent) fieldsToValidate.push('emailOtp');
-        if (mobileSent) fieldsToValidate.push('mobileOtp');
-
-        fieldsToValidate.forEach((field) => {
-            const value = field === 'agreeTnC' ? formData.agreeTnC : formData[field as keyof UserCredentials];
-            if (!validateField(field, value)) {
-                isValid = false;
-            }
-        });
-
-        return isValid;
-    };
-
     const handleSendEmailOTP = async () => {
         if (validateField('email', formData.email)) {
             try {
-                const response = await sendOtpEmail(formData.email);
-                console.log('Email OTP sent:', response);
+                const response = await axios.post(
+                    'http://localhost:3040/auth/update-user/send-otp-email',
+                    { email: formData.email },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                console.log('Email OTP sent:', response.data);
                 setEmailSent(true);
                 startTimer();
             } catch (error) {
@@ -224,8 +176,19 @@ export default function ProfileUpdate() {
     const handleVerifyEmailOTP = async () => {
         if (validateField('emailOtp', formData.emailOtp)) {
             try {
-                const response = await verifyOtpEmail(formData.email, formData.emailOtp);
-                console.log('Email OTP verified:', response);
+                const response = await axios.post(
+                    'http://localhost:3040/auth/update-user/verify-otp-email',
+                    {
+                        email: formData.email,
+                        otp: formData.emailOtp,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                console.log('Email OTP verified:', response.data);
                 setEmailVerified(true);
             } catch (error) {
                 console.error('Error verifying email OTP:', error);
@@ -237,8 +200,16 @@ export default function ProfileUpdate() {
     const handleSendMobileOTP = async () => {
         if (validateField('mobile', formData.mobile)) {
             try {
-                const response = await sendOtpMobile(formData.mobile);
-                console.log('Mobile OTP sent:', response);
+                const response = await axios.post(
+                    'http://localhost:3040/auth/update-user/send-otp-mobile',
+                    { mobile: formData.mobile },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                console.log('Mobile OTP sent:', response.data);
                 setMobileSent(true);
                 startTimer();
             } catch (error) {
@@ -251,8 +222,19 @@ export default function ProfileUpdate() {
     const handleVerifyMobileOTP = async () => {
         if (validateField('mobileOtp', formData.mobileOtp)) {
             try {
-                const response = await verifyOtpMobile(formData.mobile, formData.mobileOtp);
-                console.log('Mobile OTP verified:', response);
+                const response = await axios.post(
+                    'http://localhost:3040/auth/update-user/verify-otp-mobile',
+                    {
+                        mobile: formData.mobile,
+                        otp: formData.mobileOtp,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                console.log('Mobile OTP verified:', response.data);
                 setMobileVerified(true);
             } catch (error) {
                 console.error('Error verifying mobile OTP:', error);
@@ -277,28 +259,63 @@ export default function ProfileUpdate() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (validateForm()) {
-            try {
-                const createUserDto = {
-                    firstName: formData.firstName,
-                    lastName: formData.lastName,
-                    email: formData.email,
-                    mobile: formData.mobile,
-                    password: formData.password,
-                    country: formData.country,
-                    countryCode: formData.countryCode,
-                    agreeTnC: formData.agreeTnC,
-                };
+        // Create an object to hold only the modified fields
+        const updateUserDto: Partial<UserCredentials> = {};
 
-                const response = await registerUser(createUserDto);
-                console.log('User registered:', response);
+        // Check which fields have been modified and add them to updateUserDto
+        if (formData.firstName.trim() !== '') {
+            if (!validateField('firstName', formData.firstName)) return;
+            updateUserDto.firstName = formData.firstName;
+        }
 
-                alert('Account created successfully!');
-                navigate('/sign-in');
-            } catch (error) {
-                console.error('Error registering user:', error);
-                alert('Registration failed. Please try again.');
-            }
+        if (formData.lastName.trim() !== '') {
+            if (!validateField('lastName', formData.lastName)) return;
+            updateUserDto.lastName = formData.lastName;
+        }
+
+        if (formData.email.trim() !== '') {
+            if (!validateField('email', formData.email)) return;
+            updateUserDto.email = formData.email;
+        }
+
+        if (formData.mobile.trim() !== '') {
+            if (!validateField('mobile', formData.mobile)) return;
+            updateUserDto.mobile = formData.mobile;
+        }
+
+        if (formData.password.trim() !== '') {
+            if (!validateField('password', formData.password)) return;
+            updateUserDto.password = formData.password;
+        }
+
+        if (formData.country.trim() !== '') {
+            updateUserDto.country = formData.country;
+            updateUserDto.countryCode = formData.countryCode;
+        }
+
+        // Ensure at least one field is being updated
+        if (Object.keys(updateUserDto).length === 0) {
+            alert('No fields to update.');
+            return;
+        }
+
+        try {
+            const response = await axios.put(
+                'http://localhost:3040/auth/update-user',
+                updateUserDto,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            console.log('User updated:', response.data);
+
+            alert('Profile updated successfully!');
+            navigate('/profile');
+        } catch (error) {
+            console.error('Error updating user:', error);
+            alert('Update failed. Please try again.');
         }
     };
 
@@ -329,6 +346,7 @@ export default function ProfileUpdate() {
 
                 <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
                     <Grid container spacing={2}>
+                        {/* First Name Field */}
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 variant="outlined"
@@ -344,6 +362,7 @@ export default function ProfileUpdate() {
                             />
                         </Grid>
 
+                        {/* Last Name Field */}
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 variant="outlined"
@@ -359,6 +378,7 @@ export default function ProfileUpdate() {
                             />
                         </Grid>
 
+                        {/* Email Field */}
                         <Grid item xs={9}>
                             <TextField
                                 variant="outlined"
@@ -386,6 +406,7 @@ export default function ProfileUpdate() {
                             />
                         </Grid>
 
+                        {/* Send Email OTP Button */}
                         <Grid item xs={3}>
                             <Button
                                 variant="outlined"
@@ -399,6 +420,7 @@ export default function ProfileUpdate() {
                             </Button>
                         </Grid>
 
+                        {/* Email OTP Field */}
                         <Grid item xs={9}>
                             <TextField
                                 variant="outlined"
@@ -426,6 +448,7 @@ export default function ProfileUpdate() {
                             />
                         </Grid>
 
+                        {/* Verify Email OTP Button */}
                         <Grid item xs={3}>
                             <Button
                                 variant="outlined"
@@ -439,6 +462,7 @@ export default function ProfileUpdate() {
                             </Button>
                         </Grid>
 
+                        {/* Country Field */}
                         <Grid item xs={12}>
                             <FormControl fullWidth>
                                 <InputLabel>Select Country</InputLabel>
@@ -457,6 +481,7 @@ export default function ProfileUpdate() {
                             </FormControl>
                         </Grid>
 
+                        {/* Mobile Field */}
                         <Grid item xs={9}>
                             <TextField
                                 variant="outlined"
@@ -486,6 +511,7 @@ export default function ProfileUpdate() {
                             />
                         </Grid>
 
+                        {/* Send Mobile OTP Button */}
                         <Grid item xs={3}>
                             <Button
                                 variant="outlined"
@@ -499,6 +525,7 @@ export default function ProfileUpdate() {
                             </Button>
                         </Grid>
 
+                        {/* Mobile OTP Field */}
                         <Grid item xs={9}>
                             <TextField
                                 variant="outlined"
@@ -527,6 +554,7 @@ export default function ProfileUpdate() {
                             />
                         </Grid>
 
+                        {/* Verify Mobile OTP Button */}
                         <Grid item xs={3}>
                             <Button
                                 variant="outlined"
@@ -540,6 +568,7 @@ export default function ProfileUpdate() {
                             </Button>
                         </Grid>
 
+                        {/* Password Field */}
                         <Grid item xs={12}>
                             <FormControl fullWidth variant="outlined">
                                 <InputLabel htmlFor="password">Enter Password</InputLabel>
@@ -569,55 +598,55 @@ export default function ProfileUpdate() {
                                             letterSpacing: '2px',
                                         },
                                     }}
+                                    inputProps={{
+                                        maxLength: 20,
+                                        placeholder: 'Enter your password',
+                                    }}
                                 />
-                                {errors.password && (
-                                    <FormHelperText error>{errors.password}</FormHelperText>
-                                )}
+                                <FormHelperText error={!!errors.password}>
+                                    {errors.password}
+                                </FormHelperText>
                             </FormControl>
                         </Grid>
 
+                        {/* Terms & Conditions Checkbox */}
                         <Grid item xs={12}>
                             <FormControlLabel
                                 control={
                                     <Checkbox
                                         name="agreeTnC"
-                                        color="primary"
                                         checked={formData.agreeTnC}
                                         onChange={handleChange}
+                                        color="primary"
                                     />
                                 }
-                                label={
-                                    <Typography variant="body2">
-                                        I Agree with{' '}
-                                        <Link to="#" style={{ textDecoration: 'none', fontWeight: 'bold' }}>
-                                            Terms & Conditions.
-                                        </Link>
-                                    </Typography>
-                                }
+                                label="I agree to the Terms & Conditions"
                             />
                             {errors.agreeTnC && (
                                 <FormHelperText error>{errors.agreeTnC}</FormHelperText>
                             )}
                         </Grid>
 
+                        {/* Submit Button */}
                         <Grid item xs={12}>
                             <Button
                                 type="submit"
                                 fullWidth
                                 variant="contained"
                                 color="primary"
-                                size="large"
-                                sx={{
-                                    mt: 1,
-                                    mb: 2,
-                                    height: '48px',
-                                    borderRadius: '4px',
-                                    fontSize: '16px',
-                                    textTransform: 'none',
-                                }}
+                                sx={{ mt: 2, py: 1.5, fontSize: '1rem' }}
                             >
                                 Update Profile
                             </Button>
+                        </Grid>
+
+                        {/* Back to Profile Link */}
+                        <Grid item xs={12}>
+                            <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
+                                <Link to="/profile" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    Back to Profile
+                                </Link>
+                            </Typography>
                         </Grid>
                     </Grid>
                 </Box>

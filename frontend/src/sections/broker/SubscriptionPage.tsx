@@ -109,7 +109,7 @@ export default function AccountManagement() {
     try {
       const token = getToken();
       const response = await axios.post(
-        "http://localhost:3040/subscription-details/create",
+        "http://localhost:3040/subscription-details/subscribe",
         subscriptionDetails,
         {
           headers: { Authorization: `Bearer ${token}` },

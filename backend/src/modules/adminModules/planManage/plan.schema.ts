@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type PlanDetailsDocument = HydratedDocument<Plan>;
 
 @Schema({ timestamps: { createdAt: 'createdDate', updatedAt: 'modifiedDate' } })
-
-export class Plan extends Document {
+export class Plan {
   @Prop({ required: true })
   name: string;
 
@@ -13,7 +14,7 @@ export class Plan extends Document {
   @Prop({ required: true })
   price: number;
 
-  @Prop({required: true, enum: ['monthly', 'annual'] })
+  @Prop({ required: true, enum: ['monthly', 'annual'] })
   billingCycle: string;
 
   @Prop({ required: true })

@@ -1,19 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+
+export type BrokerDocument = HydratedDocument<Broker>;
 
 @Schema({ timestamps: { createdAt: 'createdDate', updatedAt: 'modifiedDate' } })
-export class Broker extends Document {
+export class Broker {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ default: 'active' })
+  @Prop({ default: 'active', enum: ['active', 'inactive'] })
   status?: string;
 
-  @Prop({
-    type: MongooseSchema.Types.ObjectId,
-    ref: 'MarketType',
-    required: true,
-  })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'MarketType', required: true})
   marketTypeId: MongooseSchema.Types.ObjectId;
 
   @Prop()

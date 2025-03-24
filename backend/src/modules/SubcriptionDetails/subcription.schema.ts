@@ -1,14 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 
-export type SubscriptionDetailsDocument = HydratedDocument<SubscriptionDetails>;
+export type SubscriptionDocument = HydratedDocument<Subscription>;
 
 @Schema({ timestamps: true })
-export class SubscriptionDetails {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+export class Subscription {
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+  userId: MongooseSchema.Types.ObjectId;
 
-  
+  @Prop({ type:  MongooseSchema.Types.ObjectId, ref: 'Plan', required: true })
+  planId: MongooseSchema.Types.ObjectId;
+
   @Prop({ required: true })
   planName: string;
 
@@ -16,19 +18,11 @@ export class SubscriptionDetails {
   numberOfBroker: number;
 
   @Prop({ required: true })
-  activeDateTime: Date;
+  startDate: Date;
 
-  @Prop({ required: true })
-  expireDateTime: Date;
+  endDate: Date;
 
-  @Prop({ required: true })
-  transactionId: string;
-
-  @Prop({ required: true })
-  transactionDate: Date;
-
-  @Prop({ required: true })
   status: string;
 }
 
-export const SubscriptionDetailsSchema = SchemaFactory.createForClass(SubscriptionDetails);
+export const SubscriptionSchema = SchemaFactory.createForClass(Subscription);

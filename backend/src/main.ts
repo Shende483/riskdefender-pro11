@@ -45,6 +45,9 @@ async function bootstrap() {
     credentials: true,
   });
 
+
+  app.useGlobalPipes(new ValidationPipe());
+
   // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('API Documentation')

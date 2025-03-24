@@ -16,4 +16,4 @@ import { MarketTypeService } from './marketType.service';
   controllers: [MarketTypeController],
   providers: [MarketTypeService],
 })
-export class MarketTypeModule {}
+export class AdminMarketTypeModule {}
