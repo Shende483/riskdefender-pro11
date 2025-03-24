@@ -8,7 +8,7 @@ export class Subscription {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   userId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ type:  MongooseSchema.Types.ObjectId, ref: 'Plan', required: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Plan', required: true })
   planId: MongooseSchema.Types.ObjectId;
 
   @Prop({ required: true })

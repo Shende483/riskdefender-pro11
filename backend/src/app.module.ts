@@ -4,7 +4,7 @@ import { RedisService } from './config/redis.config';
 import { LoginModule } from './modules/auth/loginAuth/login.module';
 import { RegisterModule } from './modules/auth/registerAuth/register.module';
 import { DatabaseConfig } from './config/database.config';
-import { SubscriptionDetailsModule } from './modules/subcriptionDetails/subcription.module';
+import { SubscriptionDetailsModule } from './modules/SubcriptionDetails/subcription.module';
 import { ForgetPasswordModule } from './modules/auth/forgetPasswordAuth/forgetPassword.Module';
 import { recordPaymnetModule } from './modules/recordPayment/payment.module';
 import { UpdateUserInfoModule } from './modules/auth/updateUserInfoAuth/UserUpdateInfo.module';
@@ -23,7 +23,7 @@ import { AdminMarketTypeModule } from './modules/adminModules/MarketType/marketT
     SubscriptionDetailsModule,
     recordPaymnetModule,
     UpdateUserInfoModule,
-   AdminPlanModule,
+    AdminPlanModule,
     AdminMarketTypeModule,
     AdminBrokersModule,
 

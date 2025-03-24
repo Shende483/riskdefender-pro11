@@ -1,5 +1,4 @@
-
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Subscription, SubscriptionDocument } from './subcription.schema';
@@ -51,12 +50,12 @@ export class SubscriptionService {
     });
 
     // Save the new subscription to the database
-   const savedSubscription = await newSubscription.save();
+    const savedSubscription = await newSubscription.save();
 
     // Return a success response
     return res.status(201).json({
       statusCode: 201,
-     message: "Plan subscribed successfully.",
+      message: 'Plan subscribed successfully.',
       success: true,
       subscriptionId: savedSubscription._id.toString(),
     });
