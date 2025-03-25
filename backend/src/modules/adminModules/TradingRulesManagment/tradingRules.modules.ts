@@ -1,7 +1,3 @@
-
-
-
-
 import { Module } from '@nestjs/common';
 import { MarketType, MarketTypeSchema } from '../MarketType/marketType.schema';
 import { MongooseModule } from '@nestjs/mongoose';
