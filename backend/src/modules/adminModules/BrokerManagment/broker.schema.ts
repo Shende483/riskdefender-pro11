@@ -11,7 +11,11 @@ export class Broker {
   @Prop({ default: 'active', enum: ['active', 'inactive'] })
   status?: string;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'MarketType', required: true})
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'MarketType',
+    required: true,
+  })
   marketTypeId: MongooseSchema.Types.ObjectId;
 
   @Prop()

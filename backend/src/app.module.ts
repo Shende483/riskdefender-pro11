@@ -12,6 +12,7 @@ import { AdminPlanModule } from './modules/adminModules/planManage/plan.module';
 import { AdminBrokersModule } from './modules/adminModules/BrokerManagment/broker.module';
 import { AdminMarketTypeModule } from './modules/adminModules/MarketType/marketType.module';
 import { TradingRulesModule } from './modules/adminModules/TradingRulesManagment/tradingRules.modules';
+import { BrokerAccountModule } from './modules/adminModules/BrokerAccountManagement/brokerAccount.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { TradingRulesModule } from './modules/adminModules/TradingRulesManagment
     AdminMarketTypeModule,
     AdminBrokersModule,
     TradingRulesModule,
+    BrokerAccountModule,
   ],
   providers: [RedisService],
   exports: [RedisService],
