@@ -11,7 +11,7 @@ import { UpdateUserInfoModule } from './modules/auth/updateUserInfoAuth/UserUpda
 import { AdminPlanModule } from './modules/adminModules/planManage/plan.module';
 import { AdminBrokersModule } from './modules/adminModules/BrokerManagment/broker.module';
 import { AdminMarketTypeModule } from './modules/adminModules/MarketType/marketType.module';
-
+import { TradingRulesModule } from './modules/adminModules/TradingRulesManagment/tradingRules.modules';
 
 @Module({
   imports: [
@@ -26,10 +26,9 @@ import { AdminMarketTypeModule } from './modules/adminModules/MarketType/marketT
     AdminPlanModule,
     AdminMarketTypeModule,
     AdminBrokersModule,
-
-
+    TradingRulesModule,
   ],
   providers: [RedisService],
-  exports: [RedisService ],
+  exports: [RedisService],
 })
 export class AppModule {}
