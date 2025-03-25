@@ -24,10 +24,8 @@ export class SubscriptionService {
     req: any,
     res: any,
   ) {
-    const { userId, email } = details; // Extract `userId` and `email` from details
-
-    // Log user details for confirmation
-    console.log(`🟠 Received UserId: ${userId}, 🔵 Email: ${email}`);
+    const { userId, email,endDate } = details; // Extract `userId` and `email` from details
+    console.log(`🟠 Received enddate: ${endDate}, 🔵 Email: ${email}`);
 
     // Check if a subscription with the same plan name already exists for the user
     const existingSubscription = await this.subscriptionModel.findOne({
@@ -58,6 +56,7 @@ export class SubscriptionService {
       message: 'Plan subscribed successfully.',
       success: true,
       subscriptionId: savedSubscription._id.toString(),
+      endDate: savedSubscription.endDate,
     });
   }
 }

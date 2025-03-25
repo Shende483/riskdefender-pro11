@@ -4,20 +4,20 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Response } from 'express';
 import { TradingRulesDto } from './dto/tradingRules.dto';
-import { TradingRules } from './tradingRules.schema';
+import { TradingRules, TradingRulesDocument } from './tradingRules.schema'; // Added TradingRulesDocument
 
 @Injectable()
 export class TradingRulesService {
   constructor(
     @InjectModel(TradingRules.name)
-    private tradingRulesModel: Model<TradingRules>,
+    private tradingRulesModel: Model<TradingRulesDocument>, // Updated to TradingRulesDocument
     @InjectModel(MarketType.name) private marketTypeModel: Model<MarketType>,
   ) {}
 
   async createTradingRules(
     tradingRulesDto: TradingRulesDto,
     res: Response,
-  ): Promise<TradingRules | void> {
+  ): Promise<TradingRulesDocument | void> { // Updated return type
     const { marketTypeId, rules } = tradingRulesDto;
 
     const marketType = await this.marketTypeModel.findById(marketTypeId);
@@ -27,6 +27,7 @@ export class TradingRulesService {
         message: '❌ Market type does not exist.',
         success: false,
       });
+      return; // Explicit return to avoid further execution
     }
 
     try {
@@ -53,7 +54,7 @@ export class TradingRulesService {
     }
   }
 
-  async getRules(): Promise<TradingRules[]> {
+  async getRules(): Promise<TradingRulesDocument[]> { // Updated return type
     try {
       return this.tradingRulesModel.find().exec();
     } catch (error) {

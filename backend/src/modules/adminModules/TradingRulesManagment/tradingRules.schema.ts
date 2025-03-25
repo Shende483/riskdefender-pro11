@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Schema as MongooseSchema, Document } from 'mongoose';
+import { Schema as MongooseSchema, HydratedDocument } from 'mongoose';
 
 @Schema()
-export class TradingRules extends Document {
+export class TradingRules {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'MarketType',
@@ -25,4 +25,5 @@ export class TradingRules extends Document {
   };
 }
 
+export type TradingRulesDocument = HydratedDocument<TradingRules>;
 export const TradingRulesSchema = SchemaFactory.createForClass(TradingRules);
