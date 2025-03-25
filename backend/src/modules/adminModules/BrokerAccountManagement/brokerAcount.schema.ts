@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Schema as MongooseSchema } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 
+export type BrokerAccountDocument = HydratedDocument<BrokerAccount>;
 @Schema({ timestamps: true })
 export class BrokerAccount {
   @Prop({
