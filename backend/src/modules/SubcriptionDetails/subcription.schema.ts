@@ -20,8 +20,10 @@ export class Subscription {
   @Prop({ required: true })
   startDate: Date;
 
+  @Prop({ required: true })
   endDate: Date;
 
+  @Prop({ required: true })
   status: string;
 }
 
