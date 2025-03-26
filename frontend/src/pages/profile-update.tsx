@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import type { SelectChangeEvent } from '@mui/material';
 import {
@@ -22,7 +23,6 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { COUNTRIES, OTP_LENGTH, MOBILE_LENGTH, MAX_EMAIL_LENGTH } from '../layouts/Constant';
-import axios from 'axios';
 import { getToken } from "../utils/getTokenFn";
 
 interface UserCredentials {

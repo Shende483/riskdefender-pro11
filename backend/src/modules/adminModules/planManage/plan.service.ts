@@ -44,7 +44,24 @@ export class PlanService {
         }
     }
 
-    async getActivePlan(): Promise<Plan[]> {
-        return this.planModel.find({ status: 'active' }).exec();
+
+
+    async getActivePlan(res: Response): Promise<Plan[] | void> {
+        try {
+            const activePlan = await this.planModel.find({ status: 'active' });
+            console.log('🔍 Fetching active plans...', activePlan);
+            res.status(200).json({
+                statusCode: 200,
+                message: '✅ Plan created successfully.',
+                success: true,
+                data: activePlan,
+
+            }
+            )
+        } catch (error) {
+            console.error('❌ Error fetching active plans:', error);
+            throw error;
+        }
     }
+
 }
