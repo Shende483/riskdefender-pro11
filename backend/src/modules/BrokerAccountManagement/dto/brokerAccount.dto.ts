@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class BrokerAccountDto {
   @IsNotEmpty()
@@ -9,9 +9,8 @@ export class BrokerAccountDto {
   @IsString()
   marketTypeId: string;
 
-  @IsNotEmpty()
-  @IsString()
-  userId: string;
+  @IsOptional()
+  userId?: string;
 
   @IsNotEmpty()
   @IsString()

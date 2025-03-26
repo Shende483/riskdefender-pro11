@@ -68,9 +68,7 @@ export class SubscriptionDetailsController {
 
 import { Controller, Post, Body, Res, Req, UseGuards } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { ApiTags, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { SubscriptionService } from '../SubcriptionDetails/subcription.service';
-import { CreateSubscriptionDetailsDto } from '../SubcriptionDetails/dto/subcription.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('subscription-details')
@@ -78,7 +76,6 @@ export class SubscriptionDetailsController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
   @Post('subscribe')
-  @ApiBody({ type: CreateSubscriptionDetailsDto })
   @UseGuards(JwtAuthGuard)
   async createSubscription(
     @Body() body: {
@@ -93,8 +90,9 @@ export class SubscriptionDetailsController {
     console.log('Received Body:', body);
     console.log('User from Token:', req['user']);
 
-    const { userId, email } = req['user'];
-   // console.log(`UserId: ${userId}, Email: ${email}`);
+    const {userId,email} = req['user'];
+
+    console.log(`UserId: ${userId}, Email: ${email}`);
 
     if (!userId) {
       return res.status(400).json({
