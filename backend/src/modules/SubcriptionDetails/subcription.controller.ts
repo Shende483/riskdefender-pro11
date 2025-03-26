@@ -90,7 +90,8 @@ export class SubscriptionDetailsController {
     console.log('Received Body:', body);
     console.log('User from Token:', req['user']);
 
-    const { userId, email } = req['user'];
+    const {userId,email} = req['user'];
+
     console.log(`UserId: ${userId}, Email: ${email}`);
 
     if (!userId) {

@@ -1,26 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BrokerAccount } from './brokerAcount.schema';
+import { BrokerAccount, BrokerAccountDocument } from './brokerAcount.schema';
 import { Model } from 'mongoose';
-import { Broker, BrokerDocument } from '../BrokerManagment/broker.schema';
-import { MarketType, MarketTypeSchema } from '../MarketType/marketType.schema';
 import {
   Subscription,
   SubscriptionDocument,
 } from 'src/modules/SubcriptionDetails/subcription.schema';
 import { Response } from 'express';
 import { BrokerAccountDto } from './dto/brokerAccount.dto';
-import { User } from 'src/modules/auth/updateUserInfoAuth/UserUpdateInfo.schema';
+import {
+  User,
+  UserDocument,
+} from 'src/modules/auth/updateUserInfoAuth/UserUpdateInfo.schema';
+import {
+  Broker,
+  BrokerDocument,
+} from '../adminModules/BrokerManagment/broker.schema';
+import {
+  MarketType,
+  MarketTypeSchema,
+} from '../adminModules/MarketType/marketType.schema';
 
 @Injectable()
 export class BrokerAccountService {
   constructor(
     @InjectModel(BrokerAccount.name)
-    private readonly brokerAccountModel: Model<BrokerAccount>,
+    private readonly brokerAccountModel: Model<BrokerAccountDocument>,
     @InjectModel(Broker.name)
     private readonly brokerModel: Model<BrokerDocument>,
     @InjectModel(User.name)
-    private userModel: Model<User>,
+    private userModel: Model<UserDocument>,
     @InjectModel(MarketType.name)
     private readonly marketTypeModel: Model<MarketTypeSchema>,
     @InjectModel(Subscription.name)

@@ -27,7 +27,7 @@ export class BrokerAccount {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    red: 'Subscription',
+    ref: 'Subscription',
     required: true,
   })
   subscriptionId: MongooseSchema.Types.ObjectId;

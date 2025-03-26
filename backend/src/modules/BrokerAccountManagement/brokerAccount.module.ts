@@ -5,7 +5,6 @@ import { JwtModule } from '@nestjs/jwt';
 import jwtConfing from 'src/config/jwt.confing';
 import { BrokerAccountController } from './brokerAccount.controller';
 import { BrokerAccountService } from './brokerAccount.service';
-import { Broker, BrokerSchema } from '../BrokerManagment/broker.schema';
 import {
   User,
   UserSchema,
@@ -14,7 +13,14 @@ import {
   Subscription,
   SubscriptionSchema,
 } from 'src/modules/SubcriptionDetails/subcription.schema';
-import { MarketType, MarketTypeSchema } from '../MarketType/marketType.schema';
+import {
+  Broker,
+  BrokerSchema,
+} from '../adminModules/BrokerManagment/broker.schema';
+import {
+  MarketType,
+  MarketTypeSchema,
+} from '../adminModules/MarketType/marketType.schema';
 
 @Module({
   imports: [
