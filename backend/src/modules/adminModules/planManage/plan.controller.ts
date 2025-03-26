@@ -30,7 +30,9 @@ export class PlanController {
 
     @Get('getPlan')
     @UseGuards(JwtAuthGuard)
-    async getActivePlan() {
-        return this.planService.getActivePlan();
+
+    async getActivePlan(@Res() res: Response) {
+        console.log('getPlan')
+        return this.planService.getActivePlan(res);
     }
 }

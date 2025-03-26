@@ -6,7 +6,7 @@ export class TradingRulesDto {
   marketTypeId: string;
 
   @IsObject()
-  @IsNotEmpty()
+
   rules: {
     cash: string[];
     option: string[];

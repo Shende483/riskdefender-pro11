@@ -11,6 +11,7 @@ export interface ApiResponse<T> {
   data: T;
   status: string;
   statusCode: number;
+  subscriptionId: string;
 }
 
 export default class BaseService {
@@ -81,7 +82,7 @@ export default class BaseService {
     return this.handleRequest<T>(this.api.post(url, null, { params: reqParam }));
   }
 
-  protected static get<T>(url: string) {
+  public static get<T>(url: string) {
     return this.handleRequest<T>(this.api.get(url));
   }
 
