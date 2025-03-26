@@ -1,6 +1,5 @@
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
   Box,
@@ -14,37 +13,48 @@ import {
   Typography,
   InputLabel,
   FormControl,
+  Alert,
+  Snackbar,
 } from "@mui/material";
-
-import { getToken } from "../../utils/getTokenFn";
+import SubscriptionService from "../../Services/SubscriptionService";
+import PlanService from "../../Services/PlanService";
+import { PlanType } from "../../Types/SubscriptionTypes";
 
 interface SubscriptionDetails {
   planName: string;
   numberOfBroker: number;
   expireDateTime: string;
   duration: string;
+  status: string;
+}
+
+interface StatusMessage {
+  text: string;
+  type: 'success' | 'error' | 'info' | 'warning';
+  field?: string;
 }
 
 export default function AccountManagement() {
   const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails>({
     planName: "",
-    numberOfBroker: 1,
+    numberOfBroker: 0,
     expireDateTime: "",
-    duration: "1 month", // Set a default duration to avoid issues
+    duration: "1 month",
+    status: "active",
   });
 
-  const [responseMessage, setResponseMessage] = useState<string>("");
+  const [responseMessage, setResponseMessage] = useState<StatusMessage | null>(null);
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
   const [totalCost, setTotalCost] = useState<number>(0);
   const [totalGst, setTotalGst] = useState<number>(0);
   const [totalPayment, setTotalPayment] = useState<number>(0);
   const [discountPrice, setDiscountPrice] = useState<number>(0);
   const [netPayment, setNetPayment] = useState<number>(0);
   const [couponCode, setCouponCode] = useState<string>("");
+  const [plan, setPlan] = useState<PlanType[]>([]);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-  const [datasendnew, setDatasendnew] = useState<any>(null);
   const navigate = useNavigate();
 
- 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
     const { name, value } = e.target;
     setSubscriptionDetails((prevDetails) => ({
@@ -77,7 +87,7 @@ export default function AccountManagement() {
       return; // Exit if duration is invalid
     }
 
-    const pricePerBroker = 1990; // ₹1990 per broker per month
+    const pricePerBroker = plan[0].price; // ₹ per broker per month
     const total = pricePerBroker * numberOfBrokers * durationInMonths[duration as keyof typeof durationInMonths];
     const gst = total * 0.18; // 18% GST
     const totalWithGST = total + gst;
@@ -105,22 +115,78 @@ export default function AccountManagement() {
     }));
   };
 
-  const handleCreateSubscriptionDetails = async () => {
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const planData = await PlanService.GetPlan();
+        setPlan(planData.data);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    };
+    loadData();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      const token = getToken();
-      const response = await axios.post(
-        "http://localhost:3040/subscription-details/subscribe",
-        subscriptionDetails,
-        {
-          headers: { Authorization: `Bearer ${token}` },
+      const subscribeDto = {
+        planId: plan[0]._id,
+        planName: subscriptionDetails.planName,
+        numberOfBroker: subscriptionDetails.numberOfBroker,
+        startDate: new Date(),
+        endDate: subscriptionDetails.expireDateTime,
+        duration: subscriptionDetails.duration,
+        status: subscriptionDetails.status,
+      };
+
+      const response = await SubscriptionService.CreateSubscription(subscribeDto);
+      setResponseMessage({
+        text: response.message || 'Subscription created successfully.',
+        type: 'success'
+      });
+      setShowSnackbar(true);
+
+      setTimeout(async () => {
+        try {
+          const paymentDto = {
+            planId: plan[0]._id,
+            subscriptionId: response.subscriptionId,
+            amount: totalPayment,
+            paymentMethod: "razorpay",
+            transactionId: "rzp_test_XDs2l99hiHFieS",
+            status: "success",
+          };
+
+          const paymentresponse = await SubscriptionService.SubscriptionPayment(paymentDto);
+          setResponseMessage({
+            text: paymentresponse.message || 'Payment recorded successfully.',
+            type: 'success'
+          });
+          setShowSnackbar(true);
+          setTimeout(async () => {
+            navigate('/broker');
+          }, 2000);
+        } catch (error: any) {
+          setResponseMessage({
+            text: error.message || 'Failed to recorded payment.',
+            type: 'error'
+          });
+          setShowSnackbar(true);
         }
-      );
-      setResponseMessage(response.data.message || "Subscription created successfully.");
-      navigate("/broker");
+      }, 2000);
+
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "Failed to create subscription.";
-      setResponseMessage(errorMessage);
+      setResponseMessage({
+        text: error.message || 'Failed to create subscription.',
+        type: 'error'
+      });
+      setShowSnackbar(true);
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setShowSnackbar(false);
   };
 
   return (
@@ -134,6 +200,21 @@ export default function AccountManagement() {
             1 BROKER = ₹1990/month + GST
           </Typography>
         </Box>
+        <Snackbar
+          open={showSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          sx={{ mt: 8 }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={responseMessage?.type || 'info'}
+            sx={{ width: '100%' }}
+          >
+            {responseMessage?.text}
+          </Alert>
+        </Snackbar>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <TextField
@@ -143,6 +224,7 @@ export default function AccountManagement() {
               onChange={handleInputChange}
               variant="outlined"
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={6}>
@@ -154,16 +236,37 @@ export default function AccountManagement() {
               onChange={handleInputChange}
               variant="outlined"
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={6}>
             <FormControl fullWidth>
               <InputLabel>Duration</InputLabel>
-              <Select name="duration" value={subscriptionDetails.duration} onChange={handleInputChange}>
+              <Select name="duration" value={subscriptionDetails.duration} onChange={handleInputChange} required>
                 <MenuItem value="1 month">1 Month</MenuItem>
                 <MenuItem value="3 months">3 Months</MenuItem>
                 <MenuItem value="6 months">6 Months</MenuItem>
                 <MenuItem value="1 year">1 Year</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Expiry Date"
+              name="expireDateTime"
+              value={subscriptionDetails.expireDateTime}
+              onChange={handleInputChange}
+              variant="outlined"
+              fullWidth
+              disabled
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Select name="status" value={subscriptionDetails.status} onChange={handleInputChange}>
+                <MenuItem value="active">Active</MenuItem>
+                <MenuItem value="inactive">Inactive</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -186,22 +289,18 @@ export default function AccountManagement() {
           <Typography variant="h6">Net Payment: ₹{netPayment}</Typography>
         </Box>
 
-        <Box display="flex" alignItems="center">
-          <Checkbox checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
-          <Typography variant="body2">
-            I agree to the <a href="#">Terms and Conditions</a>
-          </Typography>
+        <Box sx={{ mt: 2 }} display="flex" justifyContent="space-between" alignItems="center" gap={2}>
+          <Box width="100%" display="flex" alignItems="center">
+            <Checkbox checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
+            <Typography variant="body2">
+              I agree to the <a href="#">Terms and Conditions</a>
+            </Typography>
+          </Box>
+
+          <Button fullWidth onClick={handleSubmit} variant="contained" disabled={!termsAccepted}>
+            Make Payment
+          </Button>
         </Box>
-
-        <Button onClick={handleCreateSubscriptionDetails} variant="contained" sx={{ mt: 2 }}>
-          Make Payment
-        </Button>
-        {responseMessage && (
-          <Typography variant="body1" color="error" sx={{ mt: 2 }}>
-            {responseMessage}
-          </Typography>
-        )}
-
         {/* <RazorpayPayment onClick={handleCreateSubscriptionDetails} totalPayment={netPayment} datasend={datasendnew} disabled={!termsAccepted} /> */}
       </Box>
     </Card>
