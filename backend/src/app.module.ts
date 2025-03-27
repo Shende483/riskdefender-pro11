@@ -14,6 +14,7 @@ import { TradingRulesModule } from './modules/adminModules/TradingRulesManagment
 import { RedisService } from './config/redis.config';
 import { BrokerAccountModule } from './modules/BrokerAccountManagement/brokerAccount.module';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot(), // Load .env
@@ -28,7 +29,6 @@ import { BrokerAccountModule } from './modules/BrokerAccountManagement/brokerAcc
     AdminMarketTypeModule,
     AdminBrokersModule,
     TradingRulesModule,
-    BrokerAccountModule,
   ],
   providers: [RedisService],
   exports: [RedisService],
