@@ -17,9 +17,9 @@ export class BrokersService {
     createBrokerDto: CreateBrokerDto,
     res: Response,
   ): Promise<Broker | void> {
-    const { marketId, name, status = 'active' } = createBrokerDto;
+    const { marketTypeId, name, status = 'active' } = createBrokerDto;
 
-    const marketType = await this.marketTypeModel.findById(marketId);
+    const marketType = await this.marketTypeModel.findById(marketTypeId);
     if (!marketType) {
       res.status(400).json({
         statusCode: 400,
@@ -32,7 +32,7 @@ export class BrokersService {
       const newBroker = new this.brokerModel({
         name,
         status,
-        marketTypeId: marketId,
+        marketTypeId: marketTypeId,
       });
       const savedBroker = await newBroker.save();
       console.log('✅ Broker created successfully:', savedBroker);

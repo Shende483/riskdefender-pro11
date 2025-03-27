@@ -41,7 +41,7 @@ export class MarketTypeController {
       // Call service to create market type
       await this.marketTypeService.createMarketType({ name, status });
 
-      return res.status(201).json({
+      return res.status(200).json({
         message: 'Market Type created successfully',
         success: true,
       });

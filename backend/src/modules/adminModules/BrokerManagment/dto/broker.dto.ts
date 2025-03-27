@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateBrokerDto {
   @IsNotEmpty()
   @IsString()
-  marketId: string;
+  marketTypeId: string;
 
   @IsNotEmpty()
   @IsString()
