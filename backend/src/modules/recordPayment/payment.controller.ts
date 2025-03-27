@@ -2,6 +2,9 @@ import { Controller, Post, Body, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PaymentService } from './payment.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { v4 as uuidv4 } from 'uuid';
+
+
 
 @Controller('payment-details')
 export class PaymentDetailsController {
@@ -17,7 +20,7 @@ export class PaymentDetailsController {
       subscriptionId: string;
       amount: number;
       paymentMethod: string;
-      transactionId: string;
+     // transactionId: string;
       status: string;
     },
     @Req() req: Request,
@@ -54,7 +57,9 @@ export class PaymentDetailsController {
       });
     }
 
-    const finalData = { ...body, userId, email };
+
+    const transactionId = uuidv4();
+    const finalData = { ...body, userId, email,transactionId };
 
     return this.paymentService.createPayment(finalData, req, res);
   }

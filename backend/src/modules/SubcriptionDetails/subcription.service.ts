@@ -21,7 +21,6 @@ export class SubscriptionService {
       userId: object; // Added `userId` to receive it directly from the controller
       email: string; // Added `email` to receive it directly from the controller
     },
-    req: any,
     res: any,
   ) {
     const { userId, email,endDate } = details; // Extract `userId` and `email` from details
@@ -49,7 +48,6 @@ export class SubscriptionService {
 
     // Save the new subscription to the database
     const savedSubscription = await newSubscription.save();
-
     // Return a success response
     return res.status(201).json({
       statusCode: 201,
@@ -59,4 +57,48 @@ export class SubscriptionService {
       endDate: savedSubscription.endDate,
     });
   }
+
+
+  async getUserSubscriptions(
+    userId: object,
+    res: any,
+  ) {
+    try {
+      const subscriptions = await this.subscriptionModel.find({ userId }).exec();
+      
+      if (!subscriptions || subscriptions.length === 0) {
+        return res.status(404).json({
+          statusCode: 404,
+          message: 'No subscriptions found for this user',
+          success: false,
+        });
+      }
+console.log("user Subcriptions Data",subscriptions)
+      return res.status(200).json({
+        statusCode: 200,
+        message: 'Subscriptions retrieved successfully',
+        success: true,
+        data: subscriptions,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        statusCode: 500,
+        message: 'Error retrieving subscriptions',
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
 }
