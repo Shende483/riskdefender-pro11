@@ -1,10 +1,8 @@
+import { v4 as uuidv4 } from 'uuid';
 import { Controller, Post, Body, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PaymentService } from './payment.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { v4 as uuidv4 } from 'uuid';
-
-
 
 @Controller('payment-details')
 export class PaymentDetailsController {
@@ -12,19 +10,18 @@ export class PaymentDetailsController {
 
   @Post('payment')
   @UseGuards(JwtAuthGuard)
-
-  
   async createPayment(
-    @Body() body: {
+    @Body()
+    body: {
       userId: string;
       subscriptionId: string;
       amount: number;
       paymentMethod: string;
-     // transactionId: string;
+      // transactionId: string;
       status: string;
     },
     @Req() req: Request,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     console.log('Received Body:', body);
     console.log('User from Token:', req['user']);
@@ -45,7 +42,7 @@ export class PaymentDetailsController {
       'amount',
       'paymentMethod',
       'transactionId',
-      'status'
+      'status',
     ];
 
     const missingFields = requiredFields.filter((field) => !body[field]);
@@ -57,9 +54,8 @@ export class PaymentDetailsController {
       });
     }
 
-
     const transactionId = uuidv4();
-    const finalData = { ...body, userId, email,transactionId };
+    const finalData = { ...body, userId, email, transactionId };
 
     return this.paymentService.createPayment(finalData, req, res);
   }

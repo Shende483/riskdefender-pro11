@@ -3,11 +3,12 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { CreateBrokerDto } from './dto/broker.dto';
-import { BrokersService } from './broker.service';
+import { BrokerResponse, BrokersService } from './broker.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
@@ -29,5 +30,12 @@ export class BrokerController {
   @UseGuards(JwtAuthGuard)
   async getActiveBrokers() {
     return this.brokerService.getActiveBrokers();
+  }
+
+  @Get('by-market-type')
+  async getBrokersByMarketTypeId(
+    @Query('marketTypeId') marketTypeId: string,
+  ): Promise<BrokerResponse[]> {
+    return this.brokerService.getBrokersByMarketTypeId(marketTypeId);
   }
 }

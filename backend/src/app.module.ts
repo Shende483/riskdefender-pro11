@@ -1,4 +1,3 @@
-import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseConfig } from './config/database.config';
 import { LoginModule } from './modules/auth/loginAuth/login.module';
@@ -11,9 +10,9 @@ import { AdminPlanModule } from './modules/adminModules/planManage/plan.module';
 import { AdminMarketTypeModule } from './modules/adminModules/MarketType/marketType.module';
 import { AdminBrokersModule } from './modules/adminModules/BrokerManagment/broker.module';
 import { TradingRulesModule } from './modules/adminModules/TradingRulesManagment/tradingRules.modules';
-import { RedisService } from './config/redis.config';
 import { BrokerAccountModule } from './modules/BrokerAccountManagement/brokerAccount.module';
-
+import { RedisService } from './config/redis.config';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
@@ -29,6 +28,7 @@ import { BrokerAccountModule } from './modules/BrokerAccountManagement/brokerAcc
     AdminMarketTypeModule,
     AdminBrokersModule,
     TradingRulesModule,
+    BrokerAccountModule,
   ],
   providers: [RedisService],
   exports: [RedisService],

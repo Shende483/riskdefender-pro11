@@ -1,5 +1,6 @@
-import { Box, Button } from "@mui/material";
 import { useCallback } from "react";
+
+import { Box, Button } from "@mui/material";
 
 function loadScript(src: string): Promise<boolean> {
   return new Promise((resolve) => {
