@@ -10,7 +10,7 @@ export class BrokerAccount {
     required: true,
   })
   brokerId: MongooseSchema.Types.ObjectId;
-
+  
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'MarketType',
@@ -21,9 +21,9 @@ export class BrokerAccount {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: false,
   })
-  userId: MongooseSchema.Types.ObjectId;
+  userId?: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,

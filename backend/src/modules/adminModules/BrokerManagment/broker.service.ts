@@ -5,13 +5,19 @@ import { Broker } from './broker.schema';
 import { CreateBrokerDto } from './dto/broker.dto';
 import { Response } from 'express';
 import { MarketType } from '../MarketType/marketType.schema';
+import { Types } from 'mongoose';
+const ObjectId = Types.ObjectId;
 
+export interface BrokerResponse {
+  _id: string;
+  name: string;
+}
 @Injectable()
 export class BrokersService {
   constructor(
     @InjectModel(Broker.name) private brokerModel: Model<Broker>,
     @InjectModel(MarketType.name) private marketTypeModel: Model<MarketType>,
-  ) { }
+  ) {}
 
   async createBroker(
     createBrokerDto: CreateBrokerDto,
@@ -62,5 +68,24 @@ export class BrokersService {
       return { messege: ' No active broker found' };
     }
     return activebroker;
+  }
+
+  async getBrokersByMarketTypeId(
+    marketTypeId: string,
+  ): Promise<BrokerResponse[]> {
+    try {
+      const brokers = await this.brokerModel
+        .find({ marketTypeId: new ObjectId(marketTypeId), status: 'active' })
+        .select('_id name') 
+        .exec();
+
+      return brokers.map((broker) => ({
+        _id: broker._id.toString(),
+        name: broker.name,
+      }));
+    } catch (error) {
+      console.error('Error fetching brokers:', error);
+      throw error;
+    }
   }
 }

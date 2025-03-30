@@ -54,6 +54,7 @@ export class SubscriptionService {
       message: 'Plan subscribed successfully.',
       success: true,
       subscriptionId: savedSubscription._id.toString(),
+      planName: savedSubscription.planName.toString(),
       endDate: savedSubscription.endDate,
     });
   }
