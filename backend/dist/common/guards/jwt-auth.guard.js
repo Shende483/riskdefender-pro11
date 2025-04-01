@@ -43,7 +43,8 @@ let JwtAuthGuard = class JwtAuthGuard {
             console.log("✅ Decoded Token:", decoded);
             request['user'] = {
                 userId: decoded.id,
-                email: decoded.email
+                email: decoded.email,
+                mobile: decoded.mobile
             };
             return true;
         }

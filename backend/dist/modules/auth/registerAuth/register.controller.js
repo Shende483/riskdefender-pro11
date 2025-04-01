@@ -25,9 +25,9 @@ let RegisterController = class RegisterController {
         console.log("we received email", email);
         await this.RegisterService.sendOtpEmail(email, res);
     }
-    async sendOtpMobile(mobileNo, res) {
-        console.log("mofbb", mobileNo);
-        await this.RegisterService.sendOtpMobile(mobileNo, res);
+    async sendOtpMobile(mobile, res) {
+        console.log("mofbb", mobile);
+        await this.RegisterService.sendOtpMobile(mobile, res);
     }
     async verifyOtpEmail(email, otp, res) {
         return this.RegisterService.verifyOtpEmail(email, otp, res);

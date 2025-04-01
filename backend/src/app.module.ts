@@ -29,6 +29,7 @@ import { BrokerAccountModule } from './modules/BrokerAccountManagement/brokerAcc
     AdminMarketTypeModule,
     AdminBrokersModule,
     TradingRulesModule,
+    BrokerAccountModule,
   ],
   providers: [RedisService],
   exports: [RedisService],

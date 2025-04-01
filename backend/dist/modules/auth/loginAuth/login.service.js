@@ -25,7 +25,7 @@ let LoginService = class LoginService {
         this.otpService = otpService;
     }
     async generateToken(user) {
-        const payload = { id: user._id, email: user.email };
+        const payload = { id: user._id, email: user.email, mobile: user.mobile };
         return this.jwtService.sign(payload);
     }
     async login(loginUserDto, res) {
