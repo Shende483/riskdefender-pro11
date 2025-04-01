@@ -109,7 +109,7 @@ export class BrokerAccountService {
         statusCode: 200,
         message: '✅ Broker Account created successfully.',
         success: true,
-        data: savedBrokerAccount,
+        data: savedBrokerAccount._id,
       });
     } catch (error) {
       console.error('❌ Error saving broker:', error);

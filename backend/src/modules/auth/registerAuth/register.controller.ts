@@ -15,9 +15,9 @@ export class RegisterController {
   }
 
   @Post('register/verify-mobile')
-  async sendOtpMobile(@Body('mobile') mobileNo: string, @Res() res: Response) {
-    console.log("mofbb", mobileNo);
-    await this.RegisterService.sendOtpMobile(mobileNo,res);
+  async sendOtpMobile(@Body('mobile') mobile: string, @Res() res: Response) {
+    console.log("mofbb", mobile);
+    await this.RegisterService.sendOtpMobile(mobile,res);
   }
 
   @Post('register/verify-otp-email')

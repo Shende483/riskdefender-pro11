@@ -7,6 +7,10 @@ export interface SubscriptionType {
     status: string;
 }
 
+export interface SubscriptionUpdateType {
+    status: string;
+}
+
 export interface PaymentType{
     subscriptionId: string;
     amount: number;

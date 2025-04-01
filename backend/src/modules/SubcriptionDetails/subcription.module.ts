@@ -5,7 +5,7 @@ import { SubscriptionService } from '../SubcriptionDetails/subcription.service';
 import {
   Subscription,
   SubscriptionSchema,
-} from '../SubcriptionDetails/subcription.schema';
+} from './subcription.schema';
 import jwtConfing from 'src/config/jwt.confing';
 import { JwtModule } from '@nestjs/jwt';
 

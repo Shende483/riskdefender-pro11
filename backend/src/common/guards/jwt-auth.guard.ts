@@ -87,7 +87,8 @@ export class JwtAuthGuard implements CanActivate {
       console.log("✅ Decoded Token:", decoded); // Confirm token decoding success
       request['user'] = {
         userId: decoded.id,
-        email: decoded.email
+        email: decoded.email,
+        mobile:decoded.mobile
       };
 
       return true;

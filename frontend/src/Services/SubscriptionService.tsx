@@ -1,4 +1,4 @@
-import { PaymentType, SubscriptionType } from "../Types/SubscriptionTypes";
+import { SubscriptionType, SubscriptionUpdateType } from "../Types/SubscriptionTypes";
 import BaseService from "./BaseService";
 
 export default class SubscriptionService {
@@ -25,8 +25,8 @@ export default class SubscriptionService {
         return BaseService.post<{ message: string }>('subscription-details/subscribe', subscriptionType);
     }
     
-    static async SubscriptionPayment(paymentType: PaymentType) {
-        return BaseService.post<{ message: string }>('payment-details/payment', paymentType);
-    }
+    static async UpdateSubscription(UpdatesubscriptionType: SubscriptionUpdateType, id: string) {
+        return BaseService.put<{ message: string }>(`subscription-details/update/${id}`, UpdatesubscriptionType);
+    }
 
 }

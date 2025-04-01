@@ -109,7 +109,7 @@ export default class BaseService {
     return this.handleRequest<T>(this.api.get(url, { params: reqParam }));
   }
 
-  protected static put<T>(url: string, body: object) {
+  public static put<T>(url: string, body: object) {
     return this.handleRequest<T>(this.api.put(url, body));
   }
 
