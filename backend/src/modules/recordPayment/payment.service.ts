@@ -104,17 +104,16 @@ export class PaymentService {
       }
 
      const razorpayStatus = await this.razorpay.orders.fetchPayments(details.razorpayOrderId);
-     
- console.log("raz",razorpayStatus)
+    console.log("raz",razorpayStatus)
+     if (razorpayStatus.items.length > 0 && razorpayStatus.items[0].status === 'captured') {
       const newPayment = new this.paymentModel({
         userId: details.userId, // ✅ Taken from details
         subscriptionId: details.subscriptionId, // ✅ Taken from details
-        amount:details.amount,
-        transactionId: details.razorpayPaymentId,
+        amount:razorpayStatus.items[0].amount,
+        transactionId: razorpayStatus.items[0].order_id,
         status: 'success',
-        paymentMethod:"upi"
+        paymentMethod: razorpayStatus.items[0].method
       });
-console.log("paymernety details ",newPayment)
       const savedPayment = await newPayment.save();
       console.log('✅ Payment Verified and Saved:', savedPayment);
 
@@ -124,6 +123,9 @@ console.log("paymernety details ",newPayment)
         success: true,
         paymentId: savedPayment._id.toString(),
       });
+    }
+
+
     } catch (error) {
       console.error('❌ Error verifying payment:', error);
       return res.status(400).json({
@@ -134,4 +136,5 @@ console.log("paymernety details ",newPayment)
       });
     }
   }
+
 }

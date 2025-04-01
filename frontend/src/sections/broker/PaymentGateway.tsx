@@ -1,10 +1,8 @@
-
-
-
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { useNavigate } from "react-router-dom";
+import SubscriptionService from '../../Services/SubscriptionService';
 
 
 declare global {
@@ -18,7 +16,7 @@ interface PaymentGatewayProps {
   amount: number;
 }
 
-const PaymentGateway: React.FC<PaymentGatewayProps> = ({ subscriptionId, amount }) => {
+export default function PaymentGateway({ subscriptionId, amount }: PaymentGatewayProps) {
   const [loading, setLoading] = useState(true); // Start in loading state
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -44,7 +42,7 @@ const PaymentGateway: React.FC<PaymentGatewayProps> = ({ subscriptionId, amount 
       setRazorpayLoaded(true);
       initiatePayment(); // Initiate immediately if already loaded
     }
-  }, []); // Empty dependency array - runs only once
+  }, [setRazorpayLoaded]); // Empty dependency array - runs only once
 
   const initiatePayment = async () => {
     try {
@@ -52,7 +50,7 @@ const PaymentGateway: React.FC<PaymentGatewayProps> = ({ subscriptionId, amount 
       const orderResponse = await axios.post(
         'http://localhost:3040/payment-details/create-payment',
         { subscriptionId, amount, currency: 'INR' },
-        { headers: { Authorization: `Bearer ${accessToken}` } }
+        { headers: { Authorization:` Bearer ${accessToken}` } }
       );
 
       const options = {
@@ -73,9 +71,23 @@ const PaymentGateway: React.FC<PaymentGatewayProps> = ({ subscriptionId, amount 
                 amount: orderResponse.data.amount,
                 subscriptionId: orderResponse.data.subscriptionId
               },
-              { headers: { Authorization: `Bearer ${accessToken}` } }
+              { headers: { Authorization:` Bearer ${accessToken}` } }
             );
             setStatusMessage('Payment successful!');
+
+            try {
+              await axios.post(
+                'http://localhost:3040/subscription-details/update',
+                {
+                   status: "active",
+                  subscriptionId: orderResponse.data.subscriptionId
+                },
+                { headers: { Authorization:` Bearer ${accessToken}` } }
+              );
+            } catch (error: any) {
+              setStatusMessage('Failed to update subscription.',);
+              // setShowSnackbar(true);
+            }
             navigate("/broker");
           } catch (error) {
             setStatusMessage('Payment verification failed');
@@ -89,8 +101,22 @@ const PaymentGateway: React.FC<PaymentGatewayProps> = ({ subscriptionId, amount 
       };
 
       const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (response: any) => {
+      rzp.on('payment.failed', async (response: any) => {
         setStatusMessage(`Payment failed: ${response.error.description}`);
+       
+          try {
+            await axios.post(
+              'http://localhost:3040/subscription-details/update',
+              {
+                 status: "inactive",
+                subscriptionId: orderResponse.data.subscriptionId
+              },
+              { headers: { Authorization:` Bearer ${accessToken}` } }
+            );
+        } catch (error: any) {
+          setStatusMessage('Failed to update subscription.',);
+          // setShowSnackbar(true);
+        }
       });
       rzp.open();
     } catch (error) {
@@ -108,9 +134,6 @@ const PaymentGateway: React.FC<PaymentGatewayProps> = ({ subscriptionId, amount 
           {statusMessage}
         </Alert>
       )}
-    </Box>
-  );
+    </Box>
+  );
 };
-
-export default PaymentGateway;
-

@@ -42,9 +42,9 @@ interface StatusMessage {
 export default function AccountManagement() {
   const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails>({
     planName: "",
-    numberOfBroker: 2,
+    numberOfBroker: 0,
     expireDateTime: "",
-    duration: "select plan",
+    duration: "1 month",
     status: "active",
   });
 
