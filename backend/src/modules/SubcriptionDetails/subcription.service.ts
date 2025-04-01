@@ -68,35 +68,34 @@ export class SubscriptionService {
 
   async getUserSubscriptions(userId: object, res: any) {
     try {
-      const subscriptions = await this.subscriptionModel.find({ userId }).exec();
-
+      const subscriptions = await this.subscriptionModel.find({ userId, status: "active" }).exec();
+  
       if (!subscriptions || subscriptions.length === 0) {
         return res.status(404).json({
           statusCode: 404,
-          message: 'No subscriptions found for this user.',
+          message: 'No active subscriptions found for this user.',
           success: false,
         });
       }
-
-      console.log('User Subscriptions Data:', subscriptions);
-
+  
+      console.log('User Active Subscriptions Data:', subscriptions);
+  
       return res.status(200).json({
         statusCode: 200,
-        message: 'Subscriptions retrieved successfully.',
+        message: 'Active subscriptions retrieved successfully.',
         success: true,
         data: subscriptions,
       });
     } catch (error) {
       return res.status(500).json({
         statusCode: 500,
-        message: 'Error retrieving subscriptions.',
+        message: 'Error retrieving active subscriptions.',
         success: false,
         error: error.message,
       });
     }
   }
-
-
+  
 
 
   async updateSubscription(
