@@ -57,20 +57,20 @@ export class SubscriptionService {
         message: 'Plan subscribed successfully.',
         success: true,
         subscriptionId: savedSubscription._id.toString(),
-        endDate: savedSubscription.endDate,
+        planName: savedSubscription.planName.toString(),endDate: savedSubscription.endDate,
       });
     } catch (error) {
-      
+
       return res.status(201).json({
         statusCode: 401,
         message: "something is wrong , Plan failed to subcribe",
         success: false,
-      
+
       });
 
     }
     // Save the new subscription to the database
-  
+
   }
 
 

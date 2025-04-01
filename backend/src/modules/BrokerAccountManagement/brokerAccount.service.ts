@@ -52,7 +52,9 @@ export class BrokerAccountService {
       tradingRuleData,
     } = brokerAcoountdto;
 
-    const brokerType = await this.brokerModel.findById(brokerId);
+    const brokerType = await this.brokerModel.findById(
+      brokerAcoountdto.brokerId,
+    );
     if (!brokerType) {
       res.status(400).json({
         statusCode: 400,
@@ -90,7 +92,6 @@ export class BrokerAccountService {
       const newBrokerAcc = new this.brokerAccountModel({
         brokerId,
         marketTypeId,
-        userId,
         subscriptionId,
         brokerAccountName,
         apiKey,

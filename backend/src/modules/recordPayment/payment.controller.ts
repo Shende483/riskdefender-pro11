@@ -6,7 +6,6 @@ import { Controller, Post, Body, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PaymentService } from './payment.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { v4 as uuidv4 } from 'uuid';
 
 @Controller('payment-details')
 export class PaymentDetailsController {
@@ -15,7 +14,8 @@ export class PaymentDetailsController {
   @Post('create-payment')
   @UseGuards(JwtAuthGuard)
   async createPayment(
-    @Body() body: {
+    @Body()
+    body: {
       subscriptionId: string;
       amount: number;
       currency: string;
@@ -40,7 +40,7 @@ export class PaymentDetailsController {
 
     // Generate a unique transaction ID
    // const transactionId = uuidv4();
-    
+
     // Call service to initiate Razorpay payment
     return this.paymentService.initiatePayment(
       { ...body, userId, email, mobile},
@@ -61,11 +61,11 @@ export class PaymentDetailsController {
     },
     @Req() req: Request,
     @Res() res: Response,
-  ) {  
-    
+  ) {
+
     const { userId, email } = req['user'];
   console.log(`UserId: ${userId}, Email: ${email}`);
- 
+
   const finalData = { ...body, userId, };
     console.log('Verifying Payment:', body);
     return this.paymentService.verifyPayment(finalData,res);

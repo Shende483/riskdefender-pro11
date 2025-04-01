@@ -16,7 +16,7 @@ export class BrokerAccountController {
     @Res() res: Response,
   ) {
     console.log('User from Token:', req['user']);
-    
+
     const { userId, email } = req['user'];
     console.log(`UserId: ${userId}, Email: ${email}`);
 
@@ -30,7 +30,7 @@ export class BrokerAccountController {
 
     // Add the userId from the token to the DTO
     const updatedDto = { ...brokeraccountdto, userId };
-
+    console.log('updatedDto', updatedDto);
     await this.brokerAccService.createBrokerAccount(updatedDto, res);
     return { message: 'Broker Account created successfully.' };
   }

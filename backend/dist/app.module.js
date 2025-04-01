@@ -7,7 +7,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
-const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const database_config_1 = require("./config/database.config");
 const login_module_1 = require("./modules/auth/loginAuth/login.module");
@@ -20,8 +19,9 @@ const plan_module_1 = require("./modules/adminModules/planManage/plan.module");
 const marketType_module_1 = require("./modules/adminModules/MarketType/marketType.module");
 const broker_module_1 = require("./modules/adminModules/BrokerManagment/broker.module");
 const tradingRules_modules_1 = require("./modules/adminModules/TradingRulesManagment/tradingRules.modules");
-const redis_config_1 = require("./config/redis.config");
 const brokerAccount_module_1 = require("./modules/BrokerAccountManagement/brokerAccount.module");
+const redis_config_1 = require("./config/redis.config");
+const common_1 = require("@nestjs/common");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
