@@ -1,9 +1,14 @@
+import type {
+  AxiosError,
+  AxiosHeaders,
+  AxiosInstance,
+  AxiosResponse,
+  AxiosRequestConfig,
+} from 'axios';
 
-import type { AxiosError, AxiosHeaders, AxiosInstance, AxiosResponse } from "axios";
+import axios from 'axios';
 
-import axios from "axios";
-
-const API_BASE_URL = `http://${import.meta.env.VITE_BACKEND_IP}:${import.meta.env.VITE_BACKEND_PORT}`;
+export const API_BASE_URL = `http://${import.meta.env.VITE_BACKEND_IP}:${import.meta.env.VITE_BACKEND_PORT}`;
 
 export interface ApiResponse<T> {
   access_token: any;
@@ -21,12 +26,12 @@ export default class BaseService {
 
   static header = {
     Authorization: `Bearer ${this.accessToken}`,
-    'Accept-Language': "en"
-  }
+    'Accept-Language': 'en',
+  };
 
   private static api: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
-    headers: this.header
+    headers: this.header,
   });
 
   static getApi() {
@@ -37,34 +42,44 @@ export default class BaseService {
     return this.userId;
   }
 
-  protected static async handleRequest<T>(request: Promise<AxiosResponse<ApiResponse<T>>>) {
+  // In BaseService.ts
+  protected static async handleRequest<T>(
+    request: Promise<AxiosResponse<ApiResponse<T>>>
+  ): Promise<ApiResponse<T>> {
     try {
       const response = await request;
-      // Accept any 2xx status code as success
-      if (response.status >= 200 && response.status < 400) {
+      console.log('API Success:', {
+        url: response.config.url,
+        status: response.status,
+        data: response.data,
+      });
+      if (response.status >= 200 && response.status < 300) {
         return response.data;
       }
-      throw new Error(response.data.message || 'Request failed');
+      throw new Error(response.data?.message || `Request failed with status ${response.status}`);
     } catch (error: any) {
       const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        throw new Error(axiosError.response?.data?.message || 'Request failed');
-      } else {
-        throw new Error('Network error');
-      }
+      console.error('API Error:', {
+        url: axiosError.config?.url,
+        status: axiosError.response?.status,
+        data: axiosError.response?.data,
+        message: axiosError.message,
+      });
+      throw error;
     }
   }
 
   // Add this to BaseService class
   public static postLogin(url: string, body: object) {
-    return this.api.post(url, body)
-      .then(response => {
+    return this.api
+      .post(url, body)
+      .then((response) => {
         if (response.status >= 200 && response.status < 300) {
           return response.data; // Return the raw data without further processing
         }
         throw new Error(response.data.message || 'Request failed');
       })
-      .catch(error => {
+      .catch((error) => {
         const axiosError = error;
         if (axiosError.response) {
           throw new Error(axiosError.response?.data?.message || 'Request failed');
@@ -82,8 +97,8 @@ export default class BaseService {
     return this.handleRequest<T>(this.api.post(url, null, { params: reqParam }));
   }
 
-  public static get<T>(url: string) {
-    return this.handleRequest<T>(this.api.get(url));
+  protected static async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    return this.handleRequest<T>(this.api.get(url, config));
   }
 
   protected static getHeaders<T>(url: string, headers: AxiosHeaders) {

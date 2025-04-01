@@ -14,12 +14,16 @@ import {
   InputLabel,
   Typography,
   FormControl,
+  FormHelperText,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 
 import { getToken } from '../../utils/getTokenFn';
 import MarketTypeService from '../../Services/MarketTypeService';
 
 import type { MarketTypeList } from '../../Types/MarketTypes';
+import BrokerAccountService from '../../Services/BrokerAccountService';
 
 type TradingRuleData = {
   cash: string[];
@@ -38,6 +42,20 @@ type Plan = {
 type Broker = {
   _id: string;
   name: string;
+};
+
+type FormErrors = {
+  planName?: string;
+  marketType?: string;
+  brokerId?: string;
+  brokerAccountName?: string;
+  apiKey?: string;
+  secretKey?: string;
+  tradingRuleData?: {
+    cash?: string[];
+    option?: string[];
+    future?: string[];
+  };
 };
 
 export default function ConnectBrokerPage() {
@@ -62,6 +80,12 @@ export default function ConnectBrokerPage() {
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [tradingRules, setTradingRules] = useState<TradingRuleData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'info' | 'warning',
+  });
 
   // Fetch plans and market types on component mount
   useEffect(() => {
@@ -69,16 +93,19 @@ export default function ConnectBrokerPage() {
       try {
         setIsLoading(true);
         const [plansResponse, marketTypesResponse] = await Promise.all([
-          axios.get('http://localhost:3040/subscription-details/get-user-subscriptions', {
-            headers: { Authorization: `Bearer ${getToken()}` },
-          }),
+          BrokerAccountService.getUserSubscriptionPlans(),
           MarketTypeService.getAllActiveMarketTypes(),
         ]);
 
-        setPlans(plansResponse.data.data);
+        setPlans(plansResponse.data);
         setMarketTypes(marketTypesResponse.data);
       } catch (error) {
         console.error('Error fetching initial data:', error);
+        setSnackbar({
+          open: true,
+          message: 'Failed to load initial data',
+          severity: 'error',
+        });
       } finally {
         setIsLoading(false);
       }
@@ -86,6 +113,70 @@ export default function ConnectBrokerPage() {
 
     fetchInitialData();
   }, []);
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+  
+    // Validate main form fields using switch-case
+    const fieldsToValidate = [
+      { field: 'planName', value: formData.planName, message: 'Plan is required' },
+      { field: 'marketType', value: formData.marketType, message: 'Market type is required' },
+      { field: 'brokerId', value: formData.brokerId, message: 'Broker is required' },
+      { field: 'brokerAccountName', value: formData.brokerAccountName, message: 'Broker account name is required' },
+      { field: 'apiKey', value: formData.apiKey, message: 'API key is required' },
+      { field: 'secretKey', value: formData.secretKey, message: 'API secret is required' },
+    ];
+  
+    fieldsToValidate.forEach(({ field, value, message }) => {
+      switch (field) {
+        case 'planName':
+          if (!value) newErrors.planName = message;
+          break;
+        case 'marketType':
+          if (!value) newErrors.marketType = message;
+          break;
+        case 'brokerId':
+          if (!value) newErrors.brokerId = message;
+          break;
+        case 'brokerAccountName':
+          if (!value) newErrors.brokerAccountName = message;
+          break;
+        case 'apiKey':
+          if (!value) newErrors.apiKey = message;
+          break;
+        case 'secretKey':
+          if (!value) newErrors.secretKey = message;
+          break;
+        default:
+          break;
+      }
+    });
+  
+    if (tradingRules) {
+      const ruleErrors: any = {};
+      let hasRuleErrors = false;
+  
+      (Object.keys(tradingRules) as Array<keyof TradingRuleData>).forEach((tradeType) => {
+        tradingRules[tradeType].forEach((template, index) => {
+          if (!formData.tradingRuleData[tradeType][index]) {
+            if (!ruleErrors[tradeType]) {
+              ruleErrors[tradeType] = [];
+            }
+            const [fieldName] = template.split(':').map((s) => s.trim());
+            ruleErrors[tradeType][index] = `${fieldName} is required`;
+            hasRuleErrors = true;
+          }
+        });
+      });
+  
+      if (hasRuleErrors) {
+        newErrors.tradingRuleData = ruleErrors;
+      }
+    }
+  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleMarketTypeChange = async (event: SelectChangeEvent<string>) => {
     const marketTypeId = event.target.value;
@@ -95,6 +186,7 @@ export default function ConnectBrokerPage() {
       brokerId: '',
       tradingRuleData: { cash: [], option: [], future: [] },
     }));
+    setErrors((prev) => ({ ...prev, marketType: undefined, brokerId: undefined }));
 
     try {
       setIsLoading(true);
@@ -136,6 +228,11 @@ export default function ConnectBrokerPage() {
       console.error('Error fetching market type data:', error);
       setBrokers([]);
       setTradingRules(null);
+      setSnackbar({
+        open: true,
+        message: 'Failed to load market type data',
+        severity: 'error',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -151,14 +248,18 @@ export default function ConnectBrokerPage() {
       brokerId: '',
       tradingRuleData: { cash: [], option: [], future: [] },
     }));
+    setErrors((prev) => ({ ...prev, planName: undefined, marketType: undefined, brokerId: undefined }));
     setBrokers([]);
     setTradingRules(null);
   };
 
   const handleSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const token = getToken();
 
       const payload = {
         brokerAccountName: formData.brokerAccountName,
@@ -175,14 +276,14 @@ export default function ConnectBrokerPage() {
         },
       };
 
-      const response = await axios.post(
-        'http://localhost:3040/brokerAcc/createBrokerAcc',
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      console.log('Broker account created:', response.data);
-      alert('Broker account created successfully!');
+      const response = await BrokerAccountService.createBrokerAccount(payload);
+      console.log('Broker account created:', response);
+      
+      setSnackbar({
+        open: true,
+        message: response.message || 'Broker account created successfully!',
+        severity: 'success',
+      });
 
       // Reset form
       setFormData({
@@ -197,9 +298,22 @@ export default function ConnectBrokerPage() {
         tradingRuleData: { cash: [], option: [], future: [] },
       });
       setTradingRules(null);
+      setErrors({});
     } catch (error: any) {
       console.error('Error creating broker account:', error);
-      alert(error.response?.data?.message || 'Failed to create broker account');
+      
+      let errorMessage = 'Failed to create broker account';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: 'error',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -209,6 +323,24 @@ export default function ConnectBrokerPage() {
     setFormData((prev) => {
       const newRules = [...prev.tradingRuleData[tradeType]];
       newRules[index] = value;
+      
+      // Clear error for this field if it exists
+      if (errors.tradingRuleData?.[tradeType]?.[index]) {
+        setErrors(prevErrors => {
+          const newErrors = { ...prevErrors };
+          if (newErrors.tradingRuleData?.[tradeType]) {
+            newErrors.tradingRuleData[tradeType]![index] = '';
+            if (newErrors.tradingRuleData[tradeType]!.every(e => !e)) {
+              delete newErrors.tradingRuleData[tradeType];
+            }
+            if (Object.keys(newErrors.tradingRuleData).length === 0) {
+              delete newErrors.tradingRuleData;
+            }
+          }
+          return newErrors;
+        });
+      }
+      
       return {
         ...prev,
         tradingRuleData: {
@@ -218,6 +350,11 @@ export default function ConnectBrokerPage() {
       };
     });
   };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Card sx={{ p: 3, mb: 3 }}>
@@ -225,7 +362,7 @@ export default function ConnectBrokerPage() {
           Create Broker Account
         </Typography>
 
-        <FormControl fullWidth sx={{ mb: 3 }}>
+        <FormControl fullWidth sx={{ mb: 3 }} error={!!errors.planName}>
           <InputLabel id="plan-label">Select Plan</InputLabel>
           <Select
             labelId="plan-label"
@@ -247,9 +384,10 @@ export default function ConnectBrokerPage() {
               </MenuItem>
             ))}
           </Select>
+          {errors.planName && <FormHelperText>{errors.planName}</FormHelperText>}
         </FormControl>
 
-        <FormControl fullWidth sx={{ mb: 3 }}>
+        <FormControl fullWidth sx={{ mb: 3 }} error={!!errors.marketType}>
           <InputLabel id="market-type-label">Market Type</InputLabel>
           <Select
             labelId="market-type-label"
@@ -265,15 +403,19 @@ export default function ConnectBrokerPage() {
               </MenuItem>
             ))}
           </Select>
+          {errors.marketType && <FormHelperText>{errors.marketType}</FormHelperText>}
         </FormControl>
 
-        <FormControl fullWidth sx={{ mb: 3 }}>
+        <FormControl fullWidth sx={{ mb: 3 }} error={!!errors.brokerId}>
           <InputLabel id="broker-label">Broker</InputLabel>
           <Select
             labelId="broker-label"
             id="broker"
             value={formData.brokerId}
-            onChange={(e) => setFormData((prev) => ({ ...prev, brokerId: e.target.value }))}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, brokerId: e.target.value }));
+              setErrors(prev => ({ ...prev, brokerId: undefined }));
+            }}
             label="Broker"
             disabled={!formData.marketType || isLoading}
           >
@@ -283,13 +425,19 @@ export default function ConnectBrokerPage() {
               </MenuItem>
             ))}
           </Select>
+          {errors.brokerId && <FormHelperText>{errors.brokerId}</FormHelperText>}
         </FormControl>
 
         <TextField
           fullWidth
           label="Broker Account Name"
           value={formData.brokerAccountName}
-          onChange={(e) => setFormData((prev) => ({ ...prev, brokerAccountName: e.target.value }))}
+          onChange={(e) => {
+            setFormData((prev) => ({ ...prev, brokerAccountName: e.target.value }));
+            setErrors(prev => ({ ...prev, brokerAccountName: undefined }));
+          }}
+          error={!!errors.brokerAccountName}
+          helperText={errors.brokerAccountName}
           sx={{ mb: 3 }}
           disabled={isLoading}
         />
@@ -298,7 +446,12 @@ export default function ConnectBrokerPage() {
           fullWidth
           label="API Key"
           value={formData.apiKey}
-          onChange={(e) => setFormData((prev) => ({ ...prev, apiKey: e.target.value }))}
+          onChange={(e) => {
+            setFormData((prev) => ({ ...prev, apiKey: e.target.value }));
+            setErrors(prev => ({ ...prev, apiKey: undefined }));
+          }}
+          error={!!errors.apiKey}
+          helperText={errors.apiKey}
           sx={{ mb: 3 }}
           disabled={isLoading}
         />
@@ -307,7 +460,12 @@ export default function ConnectBrokerPage() {
           fullWidth
           label="API Secret"
           value={formData.secretKey}
-          onChange={(e) => setFormData((prev) => ({ ...prev, secretKey: e.target.value }))}
+          onChange={(e) => {
+            setFormData((prev) => ({ ...prev, secretKey: e.target.value }));
+            setErrors(prev => ({ ...prev, secretKey: undefined }));
+          }}
+          error={!!errors.secretKey}
+          helperText={errors.secretKey}
           sx={{ mb: 3 }}
           disabled={isLoading}
         />
@@ -347,6 +505,8 @@ export default function ConnectBrokerPage() {
 
                     {ruleTemplates.map((template, index) => {
                       const [fieldName] = template.split(':').map((s) => s.trim());
+                      const errorMessage = errors.tradingRuleData?.[tradeType]?.[index];
+                      
                       return (
                         <TextField
                           key={`${tradeType}-${index}`}
@@ -354,6 +514,8 @@ export default function ConnectBrokerPage() {
                           label={fieldName}
                           value={formData.tradingRuleData[tradeType][index] || ''}
                           onChange={(e) => handleRuleChange(tradeType, index, e.target.value)}
+                          error={!!errorMessage}
+                          helperText={errorMessage}
                           sx={{ mb: 2 }}
                           disabled={isLoading}
                         />
@@ -377,6 +539,21 @@ export default function ConnectBrokerPage() {
           {isLoading ? 'Creating...' : 'Create Broker Account'}
         </Button>
       </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
