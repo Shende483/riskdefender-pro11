@@ -1,5 +1,5 @@
 export interface BrokerManagement {
-    id: number;
+   _id: string;
     name: string;
     status: string;
     marketTypeId: string;
@@ -8,7 +8,7 @@ export interface BrokerManagement {
   }
   
   export interface BrokerManagmentdetails {
-    _id: number;
+    _id: string;
     name: string;
     status: string;
     marketTypeId: string;

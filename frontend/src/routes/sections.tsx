@@ -18,10 +18,9 @@ export const ForgetPassword = lazy(() => import('../pages/forget-password'));
 export const ProductsPage = lazy(() => import('../pages/products'));
 export const Page404 = lazy(() => import('../pages/page-not-found'));
 export const ConnectBrokerPage = lazy(() => import('../sections/broker/ConnectBrokerPage'));
-export const MarketForm = lazy(() => import('../Admin/component/marketType/MarketTypeForm'));
 export const MarketTypeDetails = lazy(() => import('../Admin/component/marketType/MarketTypeDetails'));
-export const BrokerForm = lazy(() => import('../Admin/component/brokermanagement/BrokerManagementForm'));
 export const BrokerDetails = lazy(() => import('../Admin/component/brokermanagement/BrokerManagementDetails'));
+export const PlanManage = lazy(() => import('../Admin/component/plan/PlanForm'));
 
 const renderFallback = (
   <Box display="flex" alignItems="center" justifyContent="center" flex="1 1 auto">
@@ -52,10 +51,9 @@ export function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'broker', element: <ConnectBrokerPage /> },
-        {path:  'marketform', element: <MarketForm />,},
-        {path: 'marketdetails', element: <MarketTypeDetails />},
-        {path: 'brokerform', element: <BrokerForm />},
-        {path: 'brokerdetails', element: <BrokerDetails />}
+        {path: 'admin/marketdetails', element: <MarketTypeDetails />},
+        {path: 'admin/brokerdetails', element: <BrokerDetails />},
+        {path: 'admin/plan', element: <PlanManage /> }
       ],
     },
     {

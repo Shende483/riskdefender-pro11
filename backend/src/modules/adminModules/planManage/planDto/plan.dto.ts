@@ -1,28 +1,36 @@
-import { IsString, IsNumber, IsNotEmpty, IsArray, ArrayNotEmpty, IsEnum, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsNotEmpty,
+  IsArray,
+  ArrayNotEmpty,
+  IsEnum,
+  IsOptional,
+} from 'class-validator';
 
 export class PlanDto {
-    @IsNotEmpty()
-    @IsString()
-    name: string;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 
-    @IsNotEmpty()
-    @IsString()
-    description: string;
+  @IsNotEmpty()
+  @IsString()
+  description: string;
 
-    @IsNotEmpty()
-    @IsNumber()
-    price: number;
+  @IsNotEmpty()
+  @IsNumber()
+  price: number;
 
-    @IsNotEmpty()
-    @IsString()
-    billingCycle: string;
+  @IsNotEmpty()
+  @IsString()
+  billingCycle: string;
 
-    @IsArray()
-    @ArrayNotEmpty()
-    @IsString({ each: true })
-    features: string[];
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  features: string[];
 
-    @IsOptional()
-    @IsString()
-    status?: string;// Default: "active"
+  @IsOptional()
+  @IsString()
+  status?: string; 
 }
