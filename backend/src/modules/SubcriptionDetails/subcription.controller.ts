@@ -91,13 +91,13 @@ export class SubscriptionDetailsController {
   async updateSubscription(
     @Body() body: {
      subscriptionId: string,
-    status:string,
+     status:string,
     },
     @Req() req: Request,
     @Res() res: any
   ) {
 
-    const { userId, email } = req['user'];
+    const { userId,} = req['user'];
    // console.log("updatestatus",subscriptionId)
     const details = {...body ,userId}
     return this.subscriptionService.updateSubscription(details,res,req);

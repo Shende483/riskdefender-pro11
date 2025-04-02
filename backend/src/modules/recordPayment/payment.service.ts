@@ -41,7 +41,7 @@ export class PaymentService {
 
     try {
       const options = {
-        amount: details.amount*100, // Amount should already be in paise
+        amount: details.amount, // Amount should already be in paise
         currency: details.currency,
       //  receipt: details.transactionId,
         payment_capture: 1,
@@ -70,7 +70,7 @@ export class PaymentService {
       console.error('❌ Error creating Razorpay order:', error);
       return res.status(500).json({
         statusCode: 500,
-        message: 'Error creating payment order',
+        message: `Error creating payment order due to ,${error}`,
         success: false,
         error: error.message,
       });
