@@ -7,20 +7,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
-const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
-const redis_config_1 = require("./config/redis.config");
+const database_config_1 = require("./config/database.config");
 const login_module_1 = require("./modules/auth/loginAuth/login.module");
 const register_module_1 = require("./modules/auth/registerAuth/register.module");
-const database_config_1 = require("./config/database.config");
-const subcription_module_1 = require("./modules/SubcriptionDetails/subcription.module");
 const forgetPassword_Module_1 = require("./modules/auth/forgetPasswordAuth/forgetPassword.Module");
+const subcription_module_1 = require("./modules/SubcriptionDetails/subcription.module");
 const payment_module_1 = require("./modules/recordPayment/payment.module");
 const UserUpdateInfo_module_1 = require("./modules/auth/updateUserInfoAuth/UserUpdateInfo.module");
 const plan_module_1 = require("./modules/adminModules/planManage/plan.module");
-const broker_module_1 = require("./modules/adminModules/BrokerManagment/broker.module");
 const marketType_module_1 = require("./modules/adminModules/MarketType/marketType.module");
+const broker_module_1 = require("./modules/adminModules/BrokerManagment/broker.module");
 const tradingRules_modules_1 = require("./modules/adminModules/TradingRulesManagment/tradingRules.modules");
+const brokerAccount_module_1 = require("./modules/BrokerAccountManagement/brokerAccount.module");
+const redis_config_1 = require("./config/redis.config");
+const common_1 = require("@nestjs/common");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -39,6 +40,7 @@ exports.AppModule = AppModule = __decorate([
             marketType_module_1.AdminMarketTypeModule,
             broker_module_1.AdminBrokersModule,
             tradingRules_modules_1.TradingRulesModule,
+            brokerAccount_module_1.BrokerAccountModule,
         ],
         providers: [redis_config_1.RedisService],
         exports: [redis_config_1.RedisService],
