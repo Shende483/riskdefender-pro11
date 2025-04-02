@@ -10,6 +10,7 @@ export class BrokerAccountDto {
   marketTypeId: string;
 
   @IsOptional()
+  @IsString()
   userId?: string;
 
   @IsNotEmpty()

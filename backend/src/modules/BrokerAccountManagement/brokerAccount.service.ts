@@ -52,7 +52,9 @@ export class BrokerAccountService {
       tradingRuleData,
     } = brokerAcoountdto;
 
-    const brokerType = await this.brokerModel.findById(brokerId);
+    const brokerType = await this.brokerModel.findById(
+      brokerAcoountdto.brokerId,
+    );
     if (!brokerType) {
       res.status(400).json({
         statusCode: 400,
@@ -90,8 +92,8 @@ export class BrokerAccountService {
       const newBrokerAcc = new this.brokerAccountModel({
         brokerId,
         marketTypeId,
-        userId,
         subscriptionId,
+        userId,
         brokerAccountName,
         apiKey,
         secretKey,
@@ -108,7 +110,7 @@ export class BrokerAccountService {
         statusCode: 200,
         message: '✅ Broker Account created successfully.',
         success: true,
-        data: savedBrokerAccount,
+        data: savedBrokerAccount._id,
       });
     } catch (error) {
       console.error('❌ Error saving broker:', error);

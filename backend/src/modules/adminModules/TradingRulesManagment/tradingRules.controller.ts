@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { TradingRulesService } from './tradingRules.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { TradingRulesDto } from './dto/tradingRules.dto';
+import { TradingRulesDocument } from './tradingRules.schema';
 
 @Controller('trading-rules')
 export class TradingRulesController {
@@ -37,5 +46,12 @@ export class TradingRulesController {
         message: 'Error retrieving trading rules.',
       });
     }
+  }
+
+  @Get('rulesByMarketTypeId') 
+  async getRulesByMarketTypeId(
+    @Query('marketTypeId') marketTypeId: string,
+  ): Promise<TradingRulesDocument[]> {
+    return this.tradingRulesService.getRulesByMarketTypeId(marketTypeId);
   }
 }

@@ -6,6 +6,17 @@ import { CreateBrokerDto } from './dto/broker.dto';
 import { Response } from 'express';
 import { MarketType } from '../MarketType/marketType.schema';
 import { UpdateBrokerDto } from './dto/updatebroker.dto';
+import { Types } from 'mongoose';
+import {
+  BrokerAccount,
+  BrokerAccountDocument,
+} from 'src/modules/BrokerAccountManagement/brokerAcount.schema';
+const ObjectId = Types.ObjectId;
+
+export interface BrokerResponse {
+  _id: string;
+  name: string;
+}
 
 @Injectable()
 export class BrokersService {
@@ -15,6 +26,8 @@ export class BrokersService {
   constructor(
     @InjectModel(Broker.name) private brokerModel: Model<Broker>,
     @InjectModel(MarketType.name) private marketTypeModel: Model<MarketType>,
+    @InjectModel(BrokerAccount.name)
+    private brokerAccountModel: Model<BrokerAccountDocument>,
   ) {}
 
   async createBroker(
@@ -125,6 +138,73 @@ export class BrokersService {
         message: '❌ Something went wrong.',
         success: false,
       });
+    }
+  }
+
+
+  // get market types
+  async getBrokersByMarketTypeId(
+    marketTypeId: string,
+  ): Promise<BrokerResponse[]> {
+    try {
+      const brokers = await this.brokerModel
+        .find({ marketTypeId: new ObjectId(marketTypeId), status: 'active' })
+        .select('_id name')
+        .exec();
+
+      return brokers.map((broker) => ({
+        _id: broker._id.toString(),
+        name: broker.name,
+      }));
+    } catch (error) {
+      console.error('Error fetching brokers:', error);
+      throw error;
+    }
+  }
+
+  async getBrokerDetailsByUserIdAndMarketType(
+    userId: string,
+    marketTypeId: string,
+  ) {
+    try {
+      const brokerAccounts = await this.brokerAccountModel
+        .find({
+          marketTypeId: new ObjectId(marketTypeId),
+          userId: new ObjectId(userId),
+          brokerId: { $exists: true, $ne: null },
+        })
+        .populate<{ brokerId: Pick<Broker, 'name'> | null }>('brokerId', 'name')
+        .select('brokerAccountName')
+        .exec();
+
+      return brokerAccounts.map((account) => {
+        if (!account.brokerId) {
+          console.log(
+            `Broker account ${account._id} has no valid broker reference`,
+          );
+          return {
+            statusCode: 401,
+            brokerAccountName: account.brokerAccountName,
+            brokerName: 'Unknown Broker',
+            message: 'Broker reference missing',
+            success: false,
+          };
+        }
+        console.log('brokerAccounts', brokerAccounts);
+        return {
+          statusCode: 200,
+          brokerAccountName: account.brokerAccountName,
+          brokerName: account.brokerId.name,
+          success: true,
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching broker details:', error);
+      return {
+        statusCode: 401,
+        message: 'Error fetching broker details',
+        success: false,
+      };
     }
   }
 }

@@ -1,5 +1,5 @@
 node_modules
-/dist
+**/dist
 src/modules/auth/updateUserInfo/UserUpdateInfo.controller.ts
 src/modules/auth/updateUserInfo/UserUpdateInfo.module.ts
 src/modules/auth/updateUserInfo/UserUpdateInfo.schema.ts
