@@ -1,7 +1,11 @@
 // BrokerAccountService.ts
-import BaseService, {API_BASE_URL } from './BaseService';
+import BaseService from './BaseService';
 
-import type { BrokerAccountPayload, BrokerAccountResponse, Plan } from '../Types/BrokerAccountTypes';
+import type {
+  Plan,
+  BrokerAccountPayload,
+  BrokerAccountResponse,
+} from '../Types/BrokerAccountTypes';
 
 export interface ApiResponse<T> {
   statusCode: number;
@@ -15,8 +19,21 @@ export interface Broker {
   name: string;
 }
 
-class BrokerAccountService extends BaseService {
-  static API_BASE_URL: any;
+export default class BrokerAccountService extends BaseService {
+  public static setAccessToken(authData: { accessToken: string; appUser: string; userId: string }) {
+    localStorage.setItem('appUser', JSON.stringify(authData.appUser));
+    localStorage.setItem('accessToken', authData.accessToken);
+    localStorage.setItem('userId', authData.userId);
+  }
+
+  public static getAccessToken() {
+    return localStorage.getItem('accessToken');
+  }
+
+  public static getUserId(): string {
+    const userId = localStorage.getItem('userId');
+    return userId ?? ''; // return an empty string if userId is null
+  }
 
   static async createBrokerAccount(payload: BrokerAccountPayload): Promise<BrokerAccountResponse> {
     return this.post<BrokerAccountResponse>('brokerAcc/createBrokerAcc', payload);
@@ -30,8 +47,6 @@ class BrokerAccountService extends BaseService {
   // }
 
   static async getUserSubscriptionPlans() {
-      return this.get<Plan[]>('subscription-details/get-user-subscriptions');
-    }
+    return this.get<Plan[]>('subscription-details/get-user-subscriptions');
+  }
 }
-
-export default BrokerAccountService;
