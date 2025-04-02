@@ -1,15 +1,17 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Post,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { CreateBrokerDto } from './dto/broker.dto';
 import { BrokerResponse, BrokersService } from './broker.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('broker')
@@ -37,5 +39,31 @@ export class BrokerController {
     @Query('marketTypeId') marketTypeId: string,
   ): Promise<BrokerResponse[]> {
     return this.brokerService.getBrokersByMarketTypeId(marketTypeId);
+  }
+
+  @Get('broker-details')
+  @UseGuards(JwtAuthGuard)
+  async getBrokerDetails(
+    @Query('marketTypeId') marketTypeId: string,
+    @Req() req: Request,
+  ) {
+    const { userId } = req['user'];
+
+    if (!userId) {
+      throw new BadRequestException('UserId is required');
+    }
+
+    const brokerDetails =
+      await this.brokerService.getBrokerDetailsByUserIdAndMarketType(
+        userId,
+        marketTypeId,
+      );
+
+    return {
+      statusCode: 200,
+      message: 'Broker details retrieved successfully',
+      success: true,
+      data: brokerDetails,
+    };
   }
 }

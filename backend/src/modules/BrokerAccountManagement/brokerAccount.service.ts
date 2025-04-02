@@ -93,6 +93,7 @@ export class BrokerAccountService {
         brokerId,
         marketTypeId,
         subscriptionId,
+        userId,
         brokerAccountName,
         apiKey,
         secretKey,
