@@ -1,5 +1,8 @@
-import { useNavigate } from "react-router-dom";
+
+
+
 import React, { useEffect, useMemo, useState } from "react";
+
 
 import {
   Box,
@@ -19,12 +22,14 @@ import {
 import SubscriptionService from "../../Services/SubscriptionService";
 import PlanService from "../../Services/PlanService";
 import { PlanType } from "../../Types/SubscriptionTypes";
+import PaymentGateway from "./PaymentGateway";
+
 
 interface SubscriptionDetails {
   planName: string;
   numberOfBroker: number;
   expireDateTime: string;
-  duration: string;
+ duration: string;
   status: string;
 }
 
@@ -53,7 +58,8 @@ export default function AccountManagement() {
   const [couponCode, setCouponCode] = useState<string>("");
   const [plan, setPlan] = useState<PlanType[]>([]);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-  const navigate = useNavigate();
+  const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+ 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
     const { name, value } = e.target;
@@ -88,7 +94,7 @@ export default function AccountManagement() {
     }
 
     const pricePerBroker = plan[0].price; // ₹ per broker per month
-    const total = pricePerBroker * numberOfBrokers * durationInMonths[duration as keyof typeof durationInMonths];
+    const total = 100*pricePerBroker * numberOfBrokers * durationInMonths[duration as keyof typeof durationInMonths];
     const gst = total * 0.18; // 18% GST
     const totalWithGST = total + gst;
 
@@ -136,46 +142,27 @@ export default function AccountManagement() {
         numberOfBroker: subscriptionDetails.numberOfBroker,
         startDate: new Date(),
         endDate: subscriptionDetails.expireDateTime,
-        duration: subscriptionDetails.duration,
-        status: subscriptionDetails.status,
+        status:subscriptionDetails.status
       };
 
       const response = await SubscriptionService.CreateSubscription(subscribeDto);
-      setResponseMessage({
-        text: response.message || 'Subscription created successfully.',
-        type: 'success'
-      });
-      setShowSnackbar(true);
 
-      setTimeout(async () => {
-        try {
-          const paymentDto = {
-            planId: plan[0]._id,
-            subscriptionId: response.subscriptionId,
-            amount: totalPayment,
-            paymentMethod: "razorpay",
-            transactionId: "rzp_test_XDs2l99hiHFieS",
-            status: "success",
-          };
-
-          const paymentresponse = await SubscriptionService.SubscriptionPayment(paymentDto);
-          setResponseMessage({
-            text: paymentresponse.message || 'Payment recorded successfully.',
-            type: 'success'
-          });
-          setShowSnackbar(true);
-          setTimeout(async () => {
-            navigate('/broker');
-          }, 2000);
-        } catch (error: any) {
-          setResponseMessage({
-            text: error.message || 'Failed to recorded payment.',
-            type: 'error'
-          });
-          setShowSnackbar(true);
-        }
-      }, 2000);
-
+      if (response.statusCode === 201) {
+        setSubscriptionId(response.subscriptionId);
+        setResponseMessage({
+          text: response.message,
+          type: 'success'
+        
+        });
+        setShowSnackbar(true);
+      } else {
+        setResponseMessage({
+          text: response.message,
+          type: 'error'
+        });
+        setShowSnackbar(true);
+        return;
+      }
     } catch (error: any) {
       setResponseMessage({
         text: error.message || 'Failed to create subscription.',
@@ -188,6 +175,7 @@ export default function AccountManagement() {
   const handleCloseSnackbar = () => {
     setShowSnackbar(false);
   };
+
 
   return (
     <Card sx={{ py: 3, my: 3, width: "100%", maxWidth: 800, mx: "auto", boxShadow: 3, borderRadius: 3 }}>
@@ -215,6 +203,7 @@ export default function AccountManagement() {
             {responseMessage?.text}
           </Alert>
         </Snackbar>
+
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <TextField
@@ -297,12 +286,30 @@ export default function AccountManagement() {
             </Typography>
           </Box>
 
-          <Button fullWidth onClick={handleSubmit} variant="contained" disabled={!termsAccepted}>
-            Make Payment
+
+          {subscriptionId ? (
+          <PaymentGateway
+            subscriptionId={subscriptionId}
+            amount={netPayment}
+          />
+        ) : (
+          <Button 
+            fullWidth 
+            onClick={handleSubmit} 
+            variant="contained" 
+            disabled={!termsAccepted}
+          >
+            Create Subscription
           </Button>
+        )}
+
+
         </Box>
-        {/* <RazorpayPayment onClick={handleCreateSubscriptionDetails} totalPayment={netPayment} datasend={datasendnew} disabled={!termsAccepted} /> */}
+       
       </Box>
     </Card>
   );
+  
 }
+
+

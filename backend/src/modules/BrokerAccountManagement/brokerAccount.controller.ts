@@ -4,11 +4,11 @@ import { BrokerAccountDto } from './dto/brokerAccount.dto';
 import { Response, Request } from 'express';
 import { BrokerAccountService } from './brokerAccount.service';
 
-@Controller('brokerAcc')
+@Controller('brokerAccount')
 export class BrokerAccountController {
   constructor(private readonly brokerAccService: BrokerAccountService) {}
 
-  @Post('createBrokerAcc')
+  @Post('createBrokerAccount')
   @UseGuards(JwtAuthGuard)
   async createBrokerAccount(
     @Body() brokeraccountdto: BrokerAccountDto,

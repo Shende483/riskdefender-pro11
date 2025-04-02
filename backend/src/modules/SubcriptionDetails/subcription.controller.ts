@@ -1,6 +1,6 @@
 
 
-import { Controller, Post,Get, Body, Res, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post,Get, Body, Res, Req, UseGuards, Put, Param } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { SubscriptionService } from '../SubcriptionDetails/subcription.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
@@ -84,6 +84,24 @@ export class SubscriptionDetailsController {
 
     return this.subscriptionService.getUserSubscriptions(userId, res);
   }
+
+
+  @Post('update')
+  @UseGuards(JwtAuthGuard)
+  async updateSubscription(
+    @Body() body: {
+     subscriptionId: string,
+    status:string,
+    },
+    @Req() req: Request,
+    @Res() res: any
+  ) {
+
+    const { userId, email } = req['user'];
+   // console.log("updatestatus",subscriptionId)
+    const details = {...body ,userId}
+    return this.subscriptionService.updateSubscription(details,res,req);
+  }
 }
 
 
