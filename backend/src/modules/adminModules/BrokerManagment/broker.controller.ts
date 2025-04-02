@@ -34,12 +34,19 @@ export class BrokerController {
     return this.brokerService.getActiveBrokers();
   }
 
+
+  //Main Dashboard Data fetch 
+  
+// ftech market type like StockMarket,Forex, etc
   @Get('by-market-type')
   async getBrokersByMarketTypeId(
     @Query('marketTypeId') marketTypeId: string,
   ): Promise<BrokerResponse[]> {
     return this.brokerService.getBrokersByMarketTypeId(marketTypeId);
   }
+
+
+
 
   @Get('broker-details')
   @UseGuards(JwtAuthGuard)
@@ -50,9 +57,12 @@ export class BrokerController {
     const { userId } = req['user'];
 
     if (!userId) {
-      throw new BadRequestException('UserId is required');
+      return {
+        statusCode: 401,
+        message: 'User Not Sign In',
+        success: true,
+      };
     }
-
     const brokerDetails =
       await this.brokerService.getBrokerDetailsByUserIdAndMarketType(
         userId,

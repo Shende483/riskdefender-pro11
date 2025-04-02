@@ -77,6 +77,8 @@ export class BrokersService {
     return activebroker;
   }
 
+
+  // get market types
   async getBrokersByMarketTypeId(
     marketTypeId: string,
   ): Promise<BrokerResponse[]> {
@@ -113,24 +115,32 @@ export class BrokersService {
 
       return brokerAccounts.map((account) => {
         if (!account.brokerId) {
-          console.warn(
+          console.log(
             `Broker account ${account._id} has no valid broker reference`,
           );
           return {
+            statusCode: 401,
             brokerAccountName: account.brokerAccountName,
             brokerName: 'Unknown Broker',
-            warning: 'Broker reference missing',
+            message: 'Broker reference missing',
+            success: false,
           };
         }
         console.log('brokerAccounts', brokerAccounts);
         return {
+          statusCode: 200,
           brokerAccountName: account.brokerAccountName,
           brokerName: account.brokerId.name,
+          success: true,
         };
       });
     } catch (error) {
       console.error('Error fetching broker details:', error);
-      throw new Error('Failed to fetch broker details');
+      return {
+        statusCode: 401,
+        message: 'Error fetching broker details',
+        success: false,
+      };
     }
   }
 }
