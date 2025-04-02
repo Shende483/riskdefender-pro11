@@ -33,4 +33,8 @@ export class CreateSubscriptionDetailsDto {
   @ApiProperty({ description: 'Subscription Status', example: 'active' })
   @IsString()
   status: string;
+
+
+  subscriptionId:string;
+
 }

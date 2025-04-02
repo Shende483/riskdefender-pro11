@@ -36,7 +36,7 @@ export default class BrokerAccountService extends BaseService {
   }
 
   static async createBrokerAccount(payload: BrokerAccountPayload): Promise<BrokerAccountResponse> {
-    return this.post<BrokerAccountResponse>('brokerAcc/createBrokerAcc', payload);
+    return this.post<BrokerAccountResponse>('brokerAccount/createBrokerAccount', payload);
   }
 
   // static async getBrokersByMarketTypeId(marketTypeId: string): Promise<Broker[]> {
