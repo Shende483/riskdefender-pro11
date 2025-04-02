@@ -1,5 +1,15 @@
 
-import { Controller, Put, Post, Body, Res, Req, NotFoundException, UseGuards } from '@nestjs/common';
+
+import {
+  Controller,
+  Put,
+  Post,
+  Body,
+  Res,
+  Req,
+  NotFoundException,
+  UseGuards,
+} from '@nestjs/common';
 import { RegisterService } from './UserUpdateInfo.service';
 import { UpdateUserDto } from './dto/updateUserInfo.dto';
 import { Response, Request } from 'express';
@@ -16,19 +26,18 @@ export class RegisterController {
     @Req() req: Request,
     @Res() res: Response,
   ) {
-    
-      // Extract userId from the JWT token
-      const userId = req['user'].userId;
+    // Extract userId from the JWT token
+    const userId = req['user'].userId;
 
-      if (!userId) {
-        return res.status(400).json({
-          statusCode: 400,
-          message: 'UserId is required',
-          success: false,
-        });
-      }
-      // Call the service to update the user
-       await this.registerService.updateUser(userId, updateUserDto, res);
+    if (!userId) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: 'UserId is required',
+        success: false,
+      });
+    }
+    // Call the service to update the user
+    await this.registerService.updateUser(userId, updateUserDto, res);
   }
 
   @Post('update-user/send-otp-email')

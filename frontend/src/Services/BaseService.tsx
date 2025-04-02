@@ -11,6 +11,7 @@ import axios from 'axios';
 export const API_BASE_URL = `http://${import.meta.env.VITE_BACKEND_IP}:${import.meta.env.VITE_BACKEND_PORT}`;
 
 export interface ApiResponse<T> {
+  success: any;
   access_token: any;
   message: string;
   data: T;

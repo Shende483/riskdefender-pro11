@@ -2,8 +2,11 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -13,6 +16,7 @@ import { CreateBrokerDto } from './dto/broker.dto';
 import { BrokerResponse, BrokersService } from './broker.service';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { UpdateBrokerDto } from './dto/updatebroker.dto';
 
 @Controller('broker')
 export class BrokerController {
@@ -34,9 +38,34 @@ export class BrokerController {
     return this.brokerService.getActiveBrokers();
   }
 
+  @Put('updateBroker')
+  async updateBroker(
+    @Body()
+    updateBrokerDto: UpdateBrokerDto,
+    @Res()
+    res: Response,
+  ) {
+    console.log('🔹 Received UpdatePlanDto:', updateBrokerDto);
 
-  //Main Dashboard Data fetch 
-  
+    if (!updateBrokerDto._id) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: '❌ Broker ID is required.',
+        success: false,
+      });
+    }
+    return this.brokerService.updateBroker(updateBrokerDto, res);
+  }
+
+  @Delete(':id/deleteBroker')
+  async deleteBroker(@Param('id') id: string, @Res() response: Response) {
+    await this.brokerService.deleteByIdBroker(id, response);
+    return { message: 'Broker deleted successfully.' };
+  }
+
+
+  //Main Dashboard Data fetch
+
 // ftech market type like StockMarket,Forex, etc
   @Get('by-market-type')
   async getBrokersByMarketTypeId(

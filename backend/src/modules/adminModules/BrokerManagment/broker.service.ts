@@ -5,6 +5,7 @@ import { Broker } from './broker.schema';
 import { CreateBrokerDto } from './dto/broker.dto';
 import { Response } from 'express';
 import { MarketType } from '../MarketType/marketType.schema';
+import { UpdateBrokerDto } from './dto/updatebroker.dto';
 import { Types } from 'mongoose';
 import {
   BrokerAccount,
@@ -19,6 +20,9 @@ export interface BrokerResponse {
 
 @Injectable()
 export class BrokersService {
+  deleteBroker(id: string, res: Response<any, Record<string, any>>) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectModel(Broker.name) private brokerModel: Model<Broker>,
     @InjectModel(MarketType.name) private marketTypeModel: Model<MarketType>,
@@ -75,6 +79,66 @@ export class BrokersService {
       return { messege: ' No active broker found' };
     }
     return activebroker;
+  }
+
+  async updateBroker(updateBrokerDto: UpdateBrokerDto, res: Response) {
+    try {
+      const updatedBrokers = await this.brokerModel.findByIdAndUpdate(
+        updateBrokerDto._id,
+        { name: updateBrokerDto.name, status: updateBrokerDto.status },
+        { new: true },
+      );
+
+      if (!updatedBrokers) {
+        return res.status(404).json({
+          statusCode: 404,
+          message: '❌ Broker not found.',
+          success: false,
+        });
+      }
+
+      res.status(200).json({
+        statusCode: 200,
+        message: '✅ Broker updated successfully.',
+        success: true,
+        data: updatedBrokers,
+      });
+    } catch (error) {
+      console.error('❌ Error updating plan:', error);
+      res.status(500).json({
+        statusCode: 500,
+        message: '❌ Something went wrong.',
+        success: false,
+      });
+    }
+  }
+
+  async deleteByIdBroker(id: string, res: Response) {
+    try {
+      const deletedBroker = await this.brokerModel.findByIdAndDelete(id);
+
+      if (!deletedBroker) {
+        return res.status(404).json({
+          statusCode: 404,
+          message: '❌ Broker not found.',
+          success: false,
+        });
+      }
+
+      res.status(200).json({
+        statusCode: 200,
+        message: '✅ Broker delete successfully.',
+        success: true,
+        data: deletedBroker,
+      });
+    } catch (error) {
+      console.error('❌ Error deleteing  plan:', error);
+      res.status(500).json({
+        statusCode: 500,
+        message: '❌ Something went wrong.',
+        success: false,
+      });
+    }
   }
 
 
