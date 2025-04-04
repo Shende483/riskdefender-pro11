@@ -2,6 +2,7 @@
 
 import { Controller, Post,Get, Body, Res, Req, UseGuards, Put, Param } from '@nestjs/common';
 import { Response, Request } from 'express';
+import { ApiBody } from '@nestjs/swagger';
 import { SubscriptionService } from '../SubcriptionDetails/subcription.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
@@ -9,6 +10,17 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 export class SubscriptionDetailsController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
+ @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        planId: { type: 'string'}, 
+        planName: {type: 'string'},
+        numberOfBroker: {type: 'number'},
+        endDate: {type: 'Date'}
+      },
+    },
+  })
   @Post('subscribe')
   @UseGuards(JwtAuthGuard)
   async createSubscription(
@@ -85,7 +97,15 @@ export class SubscriptionDetailsController {
     return this.subscriptionService.getUserSubscriptions(userId, res);
   }
 
-
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        subscriptionId: { type: 'string'}, 
+        status: {type: 'string'}
+      },
+    },
+  })
   @Post('update')
   @UseGuards(JwtAuthGuard)
   async updateSubscription(

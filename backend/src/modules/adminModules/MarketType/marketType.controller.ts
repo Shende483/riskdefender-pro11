@@ -11,11 +11,21 @@ import {
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { MarketTypeService } from './marketType.service';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('Admin/market-type')
 export class MarketTypeController {
   constructor(private readonly marketTypeService: MarketTypeService) {}
 
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: {type: 'string'},
+        status: {type: 'string'}
+      },
+    },
+  })
   @Post('create')
   @UseGuards(JwtAuthGuard)
   async createMarketType(

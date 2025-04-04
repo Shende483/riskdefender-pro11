@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vite",
     "start": "vite preview",
+    "dev:start": "nest start --watch",
     "build": "tsc && vite build",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
