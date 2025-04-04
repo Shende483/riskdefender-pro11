@@ -1,10 +1,12 @@
-
 /* eslint-disable no-new */
 
+import type { RefObject, MutableRefObject } from 'react';
 
-import { useEffect, useRef, useState, MutableRefObject, RefObject } from 'react';
-import { Box, Button, Grid } from '@mui/material';
+import { useRef, useState, useEffect } from 'react';
+
+import { Box, Grid, Button } from '@mui/material';
 import { Brightness4 } from '@mui/icons-material';
+
 import { initialSymbols } from './tradingview/SymbolDefine';
 
 // Declare TradingView globally to satisfy TypeScript
@@ -24,7 +26,7 @@ export default function TradingviewChartAndData() {
   const [currentSymbol, setCurrentSymbol] = useState<string>(initialSymbols[0]); // Default to BTCUSDT
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({
     width: 850,
-    height: 570
+    height: 570,
   });
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export default function TradingviewChartAndData() {
       if (cardRef.current) {
         setDimensions({
           width: cardRef.current.clientWidth,
-          height: cardRef.current.clientHeight
+          height: cardRef.current.clientHeight,
         });
       }
     };
@@ -50,7 +52,7 @@ export default function TradingviewChartAndData() {
         const script = document.createElement('script');
         script.id = 'tradingview-widget-loading-script';
         script.src = 'https://s3.tradingview.com/tv.js';
-        script.async = true;  // Ensures Vite loads it properly
+        script.async = true; // Ensures Vite loads it properly
         script.defer = true;
         script.type = 'text/javascript';
         script.onload = () => resolve();
@@ -73,9 +75,8 @@ export default function TradingviewChartAndData() {
 
     function createWidget() {
       const widgetContainer = document.getElementById('tradingview_e5aee');
-      
-      if (widgetContainer && window.TradingView) {
 
+      if (widgetContainer && window.TradingView) {
         // eslint-disable-next-line new-cap
         new window.TradingView.widget({
           width: dimensions.width,
@@ -95,7 +96,7 @@ export default function TradingviewChartAndData() {
           hotlist: true,
           calendar: true,
           show_popup_button: true,
-          container_id: 'tradingview_e5aee'
+          container_id: 'tradingview_e5aee',
         });
       } else {
         console.error('TradingView is not available or container is missing.');
@@ -108,7 +109,10 @@ export default function TradingviewChartAndData() {
   };
 
   return (
-    <Box ref={cardRef} sx={{ height: 670, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <Box
+      ref={cardRef}
+      sx={{ height: 670, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+    >
       <Grid
         container
         className="tradingview-widget-container"
@@ -130,18 +134,19 @@ export default function TradingviewChartAndData() {
             boxShadow: 'none',
             outline: 'none',
             border: 'none',
-            minWidth: 'auto'
+            minWidth: 'auto',
           }}
         >
           <Brightness4 fontSize="small" />
         </Button>
 
         <Grid item xs={12} md={12} style={{ width: '100%', height: '100%' }}>
-          <div id="tradingview_e5aee" style={{ width: '100%', height: '100%', position: 'relative' }} />
+          <div
+            id="tradingview_e5aee"
+            style={{ width: '100%', height: '100%', position: 'relative' }}
+          />
         </Grid>
       </Grid>
     </Box>
   );
 }
-
-

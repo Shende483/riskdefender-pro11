@@ -14,8 +14,7 @@ export function OverviewAnalyticsView() {
       <Grid item xs={12}>
         <Grid container spacing={3}>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-            <MyAccountsDetails
-            />
+            <MyAccountsDetails />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
             <MyDefinedRules />
@@ -32,8 +31,8 @@ export function OverviewAnalyticsView() {
               <TradingviewChartAndData />
             </Card>
           </Grid>
-          <Grid item xs={12} md={4} >
-            <Card sx={{ backgroundColor: "white", height: 670 }}  >
+          <Grid item xs={12} md={4}>
+            <Card sx={{ backgroundColor: 'white', height: 670 }}>
               <UserBalanceCard />
               <OrderEntryComponent />
             </Card>

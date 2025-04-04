@@ -52,9 +52,7 @@ export function LayoutSection({
         className={layoutClasses.hasSidebar}
       >
         {headerSection}
-        <Box mx={5}>
-          {children}
-        </Box>
+        <Box mx={5}>{children}</Box>
         {footerSection}
       </Box>
       {/* </Box> */}

@@ -8,8 +8,7 @@ import CardHeader from '@mui/material/CardHeader';
 import { fNumber } from '../../utils/format-number';
 import { Chart, useChart, ChartLegends } from '../../components/chart';
 
-import type { ChartOptions} from '../../components/chart';
-
+import type { ChartOptions } from '../../components/chart';
 
 // ----------------------------------------------------------------------
 

@@ -1,6 +1,7 @@
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
-import { Label } from "../components/label";
-import { SvgColor } from "../components/svg-color";
+
+import { Label } from '../components/label';
+import { SvgColor } from '../components/svg-color';
 
 const icon = (name: string) => (
   <SvgColor width="100%" height="100%" src={`/assets/icons/navbar/${name}.svg`} />
@@ -15,7 +16,7 @@ export const navData = [
   {
     title: 'Subscription',
     path: '/subscription',
-    icon: <SubscriptionsIcon/>,
+    icon: <SubscriptionsIcon />,
   },
   {
     title: 'Add Broker',

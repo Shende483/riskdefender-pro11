@@ -6,7 +6,6 @@ import { useTheme } from '@mui/material/styles';
 
 import { layoutClasses } from '../classes';
 
-
 // ----------------------------------------------------------------------
 
 type MainProps = BoxProps & {

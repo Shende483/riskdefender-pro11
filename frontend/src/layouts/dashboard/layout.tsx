@@ -1,15 +1,17 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
 
 import { useState } from 'react';
+
 import Alert from '@mui/material/Alert';
-import { useTheme } from '@mui/material/styles';
 import { Box, Link } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 import { Main } from './main';
-import { layoutClasses } from '../classes';
 import { NavMobile } from './nav';
+import { layoutClasses } from '../classes';
 import { navData } from '../config-nav-dashboard';
 import { Iconify } from '../../components/iconify';
+import HeaderLogo from '../components/header-logo';
 import { Searchbar } from '../components/searchbar';
 import { _langs, _notifications } from '../../_mock';
 import { _workspaces } from '../config-nav-workspace';
@@ -19,7 +21,6 @@ import { HeaderSection } from '../core/header-section';
 import { AccountPopover } from '../components/account-popover';
 import { LanguagePopover } from '../components/language-popover';
 import { NotificationsPopover } from '../components/notifications-popover';
-import HeaderLogo from '../components/header-logo';
 
 // ----------------------------------------------------------------------
 
@@ -80,7 +81,9 @@ export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) 
               <Box width="100%" display="flex" alignItems="center" justifyContent="space-between">
                 <HeaderLogo />
                 <Box gap={1} display="flex" alignItems="center">
-                <Link href="/sign-in" border={1} p={1} borderRadius={1}>Sign in</Link>
+                  <Link href="/sign-in" border={1} p={1} borderRadius={1}>
+                    Sign in
+                  </Link>
                   <Searchbar />
                   <LanguagePopover data={_langs} />
                   <NotificationsPopover data={_notifications} />
@@ -109,7 +112,6 @@ export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) 
           }}
         />
       }
-
       /** **************************************
        * Footer
        *************************************** */

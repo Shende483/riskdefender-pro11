@@ -17,7 +17,6 @@ import { Iconify } from '../../components/iconify';
 import { Scrollbar } from '../../components/scrollbar';
 import { ColorPicker } from '../../components/color-utils';
 
-
 // ----------------------------------------------------------------------
 
 export type FiltersProps = {

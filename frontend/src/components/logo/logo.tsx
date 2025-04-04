@@ -5,7 +5,6 @@ import { useId, forwardRef } from 'react';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 
-
 import { logoClasses } from './classes';
 import { RouterLink } from '../../routes/components';
 
