@@ -1,10 +1,13 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
+
 import { useEffect } from 'react';
+
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
+
 import { usePathname } from '../../routes/hooks';
 import { RouterLink } from '../../routes/components';
 import { Scrollbar } from '../../components/scrollbar';
@@ -42,7 +45,7 @@ export function NavDesktop({
         px: 2.5,
         top: 70,
         left: 0,
-        height: "100vh",
+        height: '100vh',
         position: 'fixed',
         boxShadow: '2px 1px 1px rgba(0, 0, 0, 0.2)',
         flexDirection: 'column',
@@ -156,8 +159,6 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
       </Scrollbar>
 
       {slots?.bottomArea}
-
-
     </Box>
   );
 }

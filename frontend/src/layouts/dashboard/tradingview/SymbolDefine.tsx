@@ -1,16 +1,31 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { useMemo, useState, useContext, createContext } from 'react';
 
 export const initialSymbols = [
-  'BTCUSDT', 'BTCUSDT.P', 'BINANCE:ETHUSDT.P', 'BINANCE:BNBUSDT.P',
-  'BINANCE:XRPUSDT.P', 'BINANCE:ADAUSDT.P', 'BINANCE:SOLUSDT.P',
-  'BINANCE:DOGEUSDT.P', 'BINANCE:MATICUSDT.P', 'BINANCE:DOTUSDT.P',
-  'BINANCE:AVAXUSDT.P', 'BINANCE:LTCUSDT.P', 'BINANCE:LINKUSDT.P',
-  'BINANCE:QARUSDT.P', 'BINANCE:AEDUSDT.P', 'BINANCE:SARUSDT.P',
-  'BINANCE:KZTUSDT.P', 'BINANCE:NGNUSDT.P', 'BINANCE:UAHUSDT.P',
-  'BINANCE:PKRUSDT.P', 'BINANCE:KESUSDT.P', 'BINANCE:TZSUSDT.P'
+  'BTCUSDT',
+  'BTCUSDT.P',
+  'BINANCE:ETHUSDT.P',
+  'BINANCE:BNBUSDT.P',
+  'BINANCE:XRPUSDT.P',
+  'BINANCE:ADAUSDT.P',
+  'BINANCE:SOLUSDT.P',
+  'BINANCE:DOGEUSDT.P',
+  'BINANCE:MATICUSDT.P',
+  'BINANCE:DOTUSDT.P',
+  'BINANCE:AVAXUSDT.P',
+  'BINANCE:LTCUSDT.P',
+  'BINANCE:LINKUSDT.P',
+  'BINANCE:QARUSDT.P',
+  'BINANCE:AEDUSDT.P',
+  'BINANCE:SARUSDT.P',
+  'BINANCE:KZTUSDT.P',
+  'BINANCE:NGNUSDT.P',
+  'BINANCE:UAHUSDT.P',
+  'BINANCE:PKRUSDT.P',
+  'BINANCE:KESUSDT.P',
+  'BINANCE:TZSUSDT.P',
 ];
 
-const SymbolContext = createContext({ symbol: "", setSymbol: (symbol: string) => {} });
+const SymbolContext = createContext({ symbol: '', setSymbol: (symbol: string) => {} });
 
 export const SymbolProvider = ({ children }: { children: React.ReactNode }) => {
   const [symbol, setSymbol] = useState(initialSymbols[0]);

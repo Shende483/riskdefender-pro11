@@ -2,7 +2,6 @@ import type { Theme } from '@mui/material/styles';
 
 import { varAlpha } from '../theme/styles';
 
-
 // ----------------------------------------------------------------------
 
 export const baseVars = (theme: Theme) => ({

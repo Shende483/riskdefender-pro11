@@ -39,10 +39,13 @@ export function MyAccountsDetails() {
   const [selectedBroker, setSelectedBroker] = useState('');
   const [selectedSubbroker, setSelectedSubbroker] = useState('');
   const [marketTypes, setMarketTypes] = useState<MarketTypeList[]>([]);
-  const [brokers, setBrokers] = useState<Array<{
-    brokerAccountName: string;
-    brokerName: string;
-  }>>([]);  const [loading, setLoading] = useState(false);
+  const [brokers, setBrokers] = useState<
+    Array<{
+      brokerAccountName: string;
+      brokerName: string;
+    }>
+  >([]);
+  const [loading, setLoading] = useState(false);
   const [selectedMarketTypeId, setSelectedMarketTypeId] = useState('');
 
   const fetchMarketTypes = async () => {
@@ -64,9 +67,9 @@ export function MyAccountsDetails() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
-      console.log("MyAccountDetails API Response:", response.data);
-      
+
+      console.log('MyAccountDetails API Response:', response.data);
+
       // Ensure we're setting the data property if the response is wrapped
       const brokersData = response.data.data || response.data;
       setBrokers(Array.isArray(brokersData) ? brokersData : []);
@@ -104,8 +107,8 @@ export function MyAccountsDetails() {
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <FormControl fullWidth variant="filled" sx={{ m: 1, py: 0, minWidth: 120 }}>
           <InputLabel>Broker</InputLabel>
-          <Select 
-            value={selectedBroker} 
+          <Select
+            value={selectedBroker}
             onChange={(e) => setSelectedBroker(e.target.value)}
             disabled={loading || brokers.length === 0}
           >
@@ -119,8 +122,8 @@ export function MyAccountsDetails() {
 
         <FormControl fullWidth variant="filled" sx={{ m: 1, py: 0, minWidth: 140 }}>
           <InputLabel>Subbroker</InputLabel>
-          <Select 
-            value={selectedSubbroker} 
+          <Select
+            value={selectedSubbroker}
             onChange={(e) => setSelectedSubbroker(e.target.value)}
             disabled={loading || brokers.length === 0}
           >

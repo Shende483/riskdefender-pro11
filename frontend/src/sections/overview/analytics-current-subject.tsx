@@ -7,8 +7,7 @@ import CardHeader from '@mui/material/CardHeader';
 
 import { Chart, useChart, ChartLegends } from '../../components/chart';
 
-import type { ChartOptions} from '../../components/chart';
-
+import type { ChartOptions } from '../../components/chart';
 
 // ----------------------------------------------------------------------
 

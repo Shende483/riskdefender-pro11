@@ -8,7 +8,6 @@ import { Label } from '../../components/label';
 import { fCurrency } from '../../utils/format-number';
 import { ColorPreview } from '../../components/color-utils';
 
-
 // ----------------------------------------------------------------------
 
 export type ProductItemProps = {

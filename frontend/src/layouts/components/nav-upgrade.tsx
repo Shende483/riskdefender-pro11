@@ -6,7 +6,6 @@ import Typography from '@mui/material/Typography';
 
 import { textGradient } from '../../theme/styles';
 
-
 // ----------------------------------------------------------------------
 
 export function NavUpgrade({ sx, ...other }: StackProps) {

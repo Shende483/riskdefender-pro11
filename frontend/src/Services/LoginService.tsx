@@ -38,17 +38,14 @@ export default class LoginService {
   }
 
   static async login(loginUserDto: LoginUserDto) {
-    const response = await BaseService.postLogin(
-      'auth/login',
-      loginUserDto,
-    );
+    const response = await BaseService.postLogin('auth/login', loginUserDto);
     console.log('API Response:', response);
-    
+
     if (response.access_token) {
       this.setAccessToken({
         accessToken: response.access_token,
         appUser: response.userId || '',
-        userId: response.userId || ''
+        userId: response.userId || '',
       });
     }
     return response;
