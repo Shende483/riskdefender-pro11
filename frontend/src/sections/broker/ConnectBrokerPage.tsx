@@ -270,6 +270,22 @@ export default function ConnectBrokerPage() {
     try {
       setIsLoading(true);
 
+      const processedTradingRules: TradingRuleData = {
+        cash: [],
+        option: [],
+        future: [],
+      };
+
+      if (tradingRules) {
+        (Object.keys(tradingRules) as Array<keyof TradingRuleData>).forEach((tradeType) => {
+          tradingRules[tradeType].forEach((template: string, index: number) => {
+            const [fieldName] = template.split(':').map(s => s.trim());
+            const value = formData.tradingRuleData[tradeType][index] || '';
+            processedTradingRules[tradeType].push(`${fieldName}: ${value}`);
+          });
+        });
+      }
+
       const payload = {
         brokerAccountName: formData.brokerAccountName,
         marketTypeId: formData.marketType,
@@ -278,14 +294,11 @@ export default function ConnectBrokerPage() {
         apiKey: formData.apiKey,
         secretKey: formData.secretKey,
         status: formData.status,
-        tradingRuleData: {
-          cash: formData.tradingRuleData.cash.filter((rule) => rule.trim() !== ''),
-          option: formData.tradingRuleData.option.filter((rule) => rule.trim() !== ''),
-          future: formData.tradingRuleData.future.filter((rule) => rule.trim() !== ''),
-        },
+        tradingRuleData: processedTradingRules,
       };
 
       const response = await BrokerAccountService.createBrokerAccount(payload);
+
       console.log('Broker account created:', response);
 
       setSnackbar({

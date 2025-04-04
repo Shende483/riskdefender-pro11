@@ -29,55 +29,54 @@ const CardWrapper = ({ theme }: { theme: any }) => ({
   },
 });
 
-interface SubbrokerData {
-  subbrokername?: string;
-  cash?: Record<string, any>;
-  future?: Record<string, any>;
-  option?: Record<string, any>;
-  [key: string]: any;
+interface TradingRule {
+  key: string;
+  value: string;
+}
+
+interface TradingRulesData {
+  brokerAccountName: string;
+  cash: TradingRule[];
+  option: TradingRule[];
+  future: TradingRule[];
 }
 
 interface MyDefinedRulesProps {
-  subbrokerData?: SubbrokerData;
+  tradingRules?: TradingRulesData;
 }
 
-export default function MyDefinedRules({ subbrokerData }: MyDefinedRulesProps) {
+export default function MyDefinedRules({ tradingRules }: MyDefinedRulesProps) {
   const theme = useTheme();
-  const [activeTab, setActiveTab] = useState<string>('Cash');
+  const [activeTab, setActiveTab] = useState<string>('cash');
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue);
   };
 
-  const getSegmentData = () => {
-    const segment = activeTab.toLowerCase();
-    return subbrokerData?.[segment] || {};
+  const getRuleFieldsForTab = () => {
+    if (!tradingRules) return [];
+    const segment = tradingRules[activeTab as keyof TradingRulesData];
+    if (!Array.isArray(segment)) return [];
+    return segment.map((rule) => rule.key);
   };
 
-  const ruleFields: string[] = [
-    'QuickDefenderMode',
-    'DailyRiskControlledPositionMode',
-    'ConsecutiveEntryDuration',
-    'EntryBlockPeriod',
-    'ClosePositionButtonAndDuration',
-    'MaxEntriesInSpecificSymbol',
-    'EntrySide',
-    'MarginType',
-    'MaxEntryPerDay',
-    'MaxRiskEntry',
-    'SLAndTPTrailingDuration',
-  ];
+  const findRuleValue = (key: string): string => {
+    if (!tradingRules) return 'Not defined';
+    const segment = tradingRules[activeTab as keyof TradingRulesData];
+    if (!Array.isArray(segment)) return 'Not defined';
 
+    const rule = segment.find((r) => r.key === key);
+    return rule ? rule.value : 'Not defined';
+  };
   return (
-    <Card sx={{ ...CardWrapper({ theme }), height: '100%' }}>
+    <Card sx={{ ...CardWrapper({ theme }), height: '100%', mb: 1 }}>
       <Box sx={{ pt: 1, pl: 3 }}>
         <List sx={{ py: 0 }}>
           <ListItem alignItems="center" disableGutters sx={{ py: 0 }}>
             <ListItemText
-              sx={{ py: 0, mt: 0.45, mb: 0.45 }}
               primary={
                 <Typography variant="body1">
-                  My Defined Rules For {subbrokerData?.subbrokername || 'Subbroker'}
+                  My Defined Rules For {tradingRules?.brokerAccountName || 'Select a Subbroker'}
                 </Typography>
               }
             />
@@ -91,10 +90,10 @@ export default function MyDefinedRules({ subbrokerData }: MyDefinedRulesProps) {
             variant="fullWidth"
             sx={{ borderBottom: 1, borderColor: 'divider', mb: 1 }}
           >
-            {['Cash', 'Future', 'Option'].map((tab) => (
+            {['cash', 'future', 'option'].map((tab) => (
               <Tab
                 key={tab}
-                label={tab}
+                label={tab.charAt(0).toUpperCase() + tab.slice(1)}
                 value={tab}
                 sx={{
                   fontSize: '0.75rem',
@@ -105,19 +104,25 @@ export default function MyDefinedRules({ subbrokerData }: MyDefinedRulesProps) {
             ))}
           </Tabs>
 
-          {ruleFields.map((field) => (
-            <Typography
-              key={field}
-              style={{
-                marginTop: '1px',
-                fontSize: '9px',
-                color: theme.palette.text.primary,
-                fontWeight: 'bold',
-              }}
-            >
-              {`${field.replace(/([A-Z])/g, ' $1').trim()}: ${getSegmentData()[field] || 'undefined'}`}
+          {getRuleFieldsForTab().length === 0 ? (
+            <Typography sx={{ mt: 2, fontSize: '12px', textAlign: 'center' }}>
+              No trading rules defined for {activeTab} segment
             </Typography>
-          ))}
+          ) : (
+            getRuleFieldsForTab().map((field) => (
+              <Typography
+                key={field}
+                style={{
+                  marginTop: '1px',
+                  fontSize: '9px',
+                  color: theme.palette.text.primary,
+                  fontWeight: 'bold',
+                }}
+              >
+                {`${field.replace(/([A-Z])/g, ' $1').trim()}: ${findRuleValue(field)}`}
+              </Typography>
+            ))
+          )}
         </Box>
       </Box>
     </Card>
