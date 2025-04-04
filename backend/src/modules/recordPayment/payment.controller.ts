@@ -6,11 +6,24 @@ import { Controller, Post, Body, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PaymentService } from './payment.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { ApiBody } from '@nestjs/swagger';
+import { Subscription } from 'rxjs';
 
 @Controller('payment-details')
 export class PaymentDetailsController {
   constructor(private readonly paymentService: PaymentService) {}
 
+    @ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          subscriptionId: {type: 'string'},
+          amount: {type: 'number'},
+          currency: {type: 'string'},
+          paymentMethod: {type: 'string'}
+        },
+      },
+    })
   @Post('create-payment')
   @UseGuards(JwtAuthGuard)
   async createPayment(
@@ -48,6 +61,19 @@ export class PaymentDetailsController {
     );
   }
 
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        razorpayOrderId: {type: 'string'},
+        razorpayPaymentId: {type: 'string'},
+        razorpaySignature: {type: 'string'},
+        userId: {type: 'number'},
+        subscriptionId: {type: 'string'},
+        amount: {type: 'string'}
+      },
+    },
+  })
   @Post('verify-payment')
   @UseGuards(JwtAuthGuard)
   async verifyPayment(
