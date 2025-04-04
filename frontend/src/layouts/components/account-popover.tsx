@@ -15,7 +15,6 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 import { _myAccount } from '../../_mock';
 import { useRouter, usePathname } from '../../routes/hooks';
 
-
 // ----------------------------------------------------------------------
 
 export type AccountPopoverProps = IconButtonProps & {

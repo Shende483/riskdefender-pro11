@@ -7,7 +7,6 @@ import { Iconify } from './components/iconify';
 import { ThemeProvider } from './theme/theme-provider';
 import { useScrollToTop } from './hooks/use-scroll-to-top';
 
-
 // ----------------------------------------------------------------------
 
 export default function App() {

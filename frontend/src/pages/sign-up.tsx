@@ -1,11 +1,11 @@
 import type { SelectChangeEvent } from '@mui/material';
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 
-import { Visibility, VisibilityOff } from '@mui/icons-material';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Box,
   Grid,
@@ -206,7 +206,8 @@ export default function Page() {
     const fieldsToValidate = ['firstName', 'lastName', 'email', 'mobile', 'password', 'agreeTnC'];
 
     fieldsToValidate.forEach((field) => {
-      const value = field === 'agreeTnC' ? formData.agreeTnC : formData[field as keyof UserCredentials];
+      const value =
+        field === 'agreeTnC' ? formData.agreeTnC : formData[field as keyof UserCredentials];
       if (!validateField(field, value)) {
         isValid = false;
       }
@@ -223,9 +224,9 @@ export default function Page() {
 
   const startTimer = (type: 'email' | 'mobile') => {
     const timerDuration = 300; // 5 minutes
-  
+
     const setTimerFunction = type === 'email' ? setEmailTimer : setMobileTimer;
-  
+
     setTimerFunction(timerDuration);
     const interval = setInterval(() => {
       setTimerFunction((prevTimer) => {
@@ -238,13 +239,17 @@ export default function Page() {
     }, 1000);
   };
 
-  const showMessage = (message: string, type: 'success' | 'error' | 'info' | 'warning', field?: string) => {
+  const showMessage = (
+    message: string,
+    type: 'success' | 'error' | 'info' | 'warning',
+    field?: string
+  ) => {
     setStatusMessage({ text: message, type, field });
     setShowSnackbar(true);
-    
+
     // updates field error if it's an error message
     if (type === 'error' && field) {
-      setErrors(prev => ({ ...prev, [field]: message }));
+      setErrors((prev) => ({ ...prev, [field]: message }));
     }
   };
 
@@ -253,15 +258,15 @@ export default function Page() {
       try {
         setEmailOtpLoading(true);
         setEmailSent(false); // Reset email sent state
-        
+
         const response = await AuthService.sendOtpEmail(formData.email);
-        
+
         setEmailSent(true);
         startTimer('email');
         showMessage(response.message || `OTP sent to email: ${formData.email}`, 'success', 'email');
-        
+
         // Clear any previous errors
-        setErrors(prev => ({ ...prev, email: '' }));
+        setErrors((prev) => ({ ...prev, email: '' }));
       } catch (error: any) {
         console.error('Error sending email OTP:', error);
         showMessage(error.message || 'Failed to send OTP. Please try again.', 'error', 'email');
@@ -279,9 +284,9 @@ export default function Page() {
         const response = await AuthService.verifyOtpEmail(formData.email, formData.emailOtp);
         setEmailVerified(true);
         showMessage(response.message || 'Email OTP verified successfully', 'success', 'emailOtp');
-        
+
         // Reset OTP field on successful verification
-        setFormData(prev => ({ ...prev, emailOtp: '' }));
+        setFormData((prev) => ({ ...prev, emailOtp: '' }));
       } catch (error: any) {
         console.error('Error verifying email OTP:', error);
         showMessage(error.message || 'Invalid OTP. Please try again.', 'error', 'emailOtp');
@@ -296,15 +301,19 @@ export default function Page() {
       try {
         setMobileOtpLoading(true);
         setMobileSent(false); // Reset mobile sent state
-        
+
         const response = await AuthService.sendOtpMobile(formData.mobile);
-        
+
         setMobileSent(true);
         startTimer('mobile');
-        showMessage(response.message || `OTP sent to mobile: ${formData.mobile}`, 'success', 'mobile');
-        
+        showMessage(
+          response.message || `OTP sent to mobile: ${formData.mobile}`,
+          'success',
+          'mobile'
+        );
+
         // Clear any previous errors
-        setErrors(prev => ({ ...prev, mobile: '' }));
+        setErrors((prev) => ({ ...prev, mobile: '' }));
       } catch (error: any) {
         console.error('Error sending mobile OTP:', error);
         showMessage(error.message || 'Failed to send OTP. Please try again.', 'error', 'mobile');
@@ -322,9 +331,9 @@ export default function Page() {
         const response = await AuthService.verifyOtpMobile(formData.mobile, formData.mobileOtp);
         setMobileVerified(true);
         showMessage(response.message || 'Mobile OTP verified successfully', 'success', 'mobileOtp');
-        
+
         // Reset OTP field on successful verification
-        setFormData(prev => ({ ...prev, mobileOtp: '' }));
+        setFormData((prev) => ({ ...prev, mobileOtp: '' }));
       } catch (error: any) {
         console.error('Error verifying mobile OTP:', error);
         showMessage(error.message || 'Invalid OTP. Please try again.', 'error', 'mobileOtp');
@@ -337,14 +346,14 @@ export default function Page() {
   const resetEmailVerification = useCallback(() => {
     if (emailTimer === 0 && !emailVerified) {
       setEmailSent(false);
-      setFormData(prev => ({ ...prev, emailOtp: '' }));
+      setFormData((prev) => ({ ...prev, emailOtp: '' }));
     }
   }, [emailTimer, emailVerified, setEmailSent, setFormData]);
 
   const resetMobileVerification = useCallback(() => {
     if (mobileTimer === 0 && !mobileVerified) {
       setMobileSent(false);
-      setFormData(prev => ({ ...prev, mobileOtp: '' }));
+      setFormData((prev) => ({ ...prev, mobileOtp: '' }));
     }
   }, [mobileTimer, mobileVerified, setMobileSent, setFormData]);
 
@@ -360,10 +369,10 @@ export default function Page() {
           password: formData.password,
           countryCode: formData.countryCode,
         };
-        
+
         const response = await AuthService.register(createUserDto);
         showMessage(response.message || 'Registration successful', 'success');
-        
+
         // Navigate to sign-in page after successful registration
         setTimeout(() => {
           navigate('/sign-in');
@@ -521,7 +530,7 @@ export default function Page() {
               </Grid>
 
               {/* Email OTP - Only show when needed and hide after verification */}
-              {(emailSent && !emailVerified) && (
+              {emailSent && !emailVerified && (
                 <>
                   <Grid item xs={9}>
                     <TextField
@@ -599,7 +608,7 @@ export default function Page() {
                   helperText={errors.mobile}
                   disabled={mobileVerified}
                   sx={{
-                    bgcolor: mobileVerified ? '#e0f7fa' : '#f9f9f9', 
+                    bgcolor: mobileVerified ? '#e0f7fa' : '#f9f9f9',
                     borderRadius: 1,
                     '& input': {
                       textAlign: 'center',
@@ -621,7 +630,9 @@ export default function Page() {
                   color="primary"
                   fullWidth
                   onClick={handleSendMobileOTP}
-                  disabled={mobileVerified || mobileTimer > 0 || !formData.mobile || mobileOtpLoading}
+                  disabled={
+                    mobileVerified || mobileTimer > 0 || !formData.mobile || mobileOtpLoading
+                  }
                   sx={{ height: '56px' }}
                 >
                   {mobileOtpLoading ? (
@@ -635,7 +646,7 @@ export default function Page() {
               </Grid>
 
               {/* Mobile OTP - Only show when needed and hide after verification */}
-              {(mobileSent && !mobileVerified) && (
+              {mobileSent && !mobileVerified && (
                 <>
                   <Grid item xs={9}>
                     <TextField
@@ -713,10 +724,7 @@ export default function Page() {
                     error={!!errors.password}
                     endAdornment={
                       <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
                           {showPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
@@ -731,9 +739,7 @@ export default function Page() {
                       },
                     }}
                   />
-                  {errors.password && (
-                    <FormHelperText error>{errors.password}</FormHelperText>
-                  )}
+                  {errors.password && <FormHelperText error>{errors.password}</FormHelperText>}
                 </FormControl>
               </Grid>
 
@@ -757,9 +763,7 @@ export default function Page() {
                     </Typography>
                   }
                 />
-                {errors.agreeTnC && (
-                  <FormHelperText error>{errors.agreeTnC}</FormHelperText>
-                )}
+                {errors.agreeTnC && <FormHelperText error>{errors.agreeTnC}</FormHelperText>}
               </Grid>
 
               {/* Submit Button */}

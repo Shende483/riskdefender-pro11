@@ -6,8 +6,7 @@ import { useTheme, alpha as hexAlpha } from '@mui/material/styles';
 
 import { Chart, useChart } from '../../components/chart';
 
-import type { ChartOptions} from '../../components/chart';
-
+import type { ChartOptions } from '../../components/chart';
 
 // ----------------------------------------------------------------------
 

@@ -10,7 +10,6 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 import { varAlpha } from '../../theme/styles';
 import { Iconify } from '../../components/iconify';
 
-
 // ----------------------------------------------------------------------
 
 type PostSortProps = ButtonProps & {

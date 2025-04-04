@@ -103,20 +103,19 @@ export default function BrokerManagementDetails() {
 
   const handleEdit = (index: number) => {
     const selectedBroker = brokersdetails[index];
-    setBroker({ 
+    setBroker({
       ...selectedBroker,
-     });
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (validateForm()) {
-
       try {
-        if(broker._id){
+        if (broker._id) {
           await BrokerManagmentService.updateBroker(broker);
-        } else{
+        } else {
           await BrokerManagmentService.createBroker(broker);
         }
         setBroker(initialData);
@@ -195,7 +194,7 @@ export default function BrokerManagementDetails() {
             helperText={error.name}
           />
 
-          <FormControl fullWidth sx={{ py: 2 , mt: 4}} error={!!error.marketTypeId}>
+          <FormControl fullWidth sx={{ py: 2, mt: 4 }} error={!!error.marketTypeId}>
             <InputLabel>Market Type</InputLabel>
             <Select
               name="marketTypeId"
@@ -220,7 +219,6 @@ export default function BrokerManagementDetails() {
 
           <Button type="submit" variant="contained" onClick={handleSubmit}>
             {broker._id ? 'Update' : 'Create'}
-
           </Button>
         </form>
 

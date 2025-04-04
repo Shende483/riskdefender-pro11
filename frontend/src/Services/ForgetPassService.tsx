@@ -1,6 +1,6 @@
-import BaseService from "./BaseService";
+import BaseService from './BaseService';
 
-import type { ForgetPasswordDto } from "../Types/AuthTypes";
+import type { ForgetPasswordDto } from '../Types/AuthTypes';
 
 export default class ForgetPasswordService {
   static async sendOtpEmail(email: string) {
@@ -12,11 +12,17 @@ export default class ForgetPasswordService {
   }
 
   static async verifyOtpEmail(email: string, otp: string) {
-    return BaseService.post<{ message: string }>('auth/forget-password/verify-otp-email', { email, otp });
+    return BaseService.post<{ message: string }>('auth/forget-password/verify-otp-email', {
+      email,
+      otp,
+    });
   }
 
   static async verifyOtpMobile(mobile: string, otp: string) {
-    return BaseService.post<{ message: string }>('auth/forget-password/verify-otp-mobile', { mobile, otp });
+    return BaseService.post<{ message: string }>('auth/forget-password/verify-otp-mobile', {
+      mobile,
+      otp,
+    });
   }
 
   static async resetPassword(forgetPasswordDto: ForgetPasswordDto) {
