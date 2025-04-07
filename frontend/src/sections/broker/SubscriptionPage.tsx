@@ -51,6 +51,8 @@ export default function AccountManagement() {
   const [totalGst, setTotalGst] = useState<number>(0);
   const [totalPayment, setTotalPayment] = useState<number>(0);
   const [discountPrice, setDiscountPrice] = useState<number>(0);
+  const [planPrice, setPlanPrice] = useState<number>(0);
+  const [planId, setPlanId] = useState<string>("");
   const [netPayment, setNetPayment] = useState<number>(0);
   const [couponCode, setCouponCode] = useState<string>('');
   const [plan, setPlan] = useState<PlanType[]>([]);
@@ -92,7 +94,7 @@ export default function AccountManagement() {
 
     const days = durationInDays[duration as keyof typeof durationInDays];
     const months = days / 30; // Convert days to 30-day months
-    const pricePerBroker = plan[0].price;
+    const pricePerBroker = planPrice;
     const total = pricePerBroker * numberOfBrokers * months;
     const gst = total * 0.18;
     const totalWithGST = total + gst;
@@ -120,6 +122,7 @@ export default function AccountManagement() {
       try {
         const planData = await PlanService.GetPlan();
         setPlan(planData.data);
+        console.log("planData", planData);
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -160,25 +163,46 @@ export default function AccountManagement() {
 
   const handleCloseSnackbar = () => setShowSnackbar(false);
 
+  const handleSelect = (id: string, price: number) => {
+    setPlanId(id);
+    setPlanPrice(price);
+    setSubscriptionDetails({ ...subscriptionDetails, numberOfBroker: 0 });
+    setNetPayment(0);
+    setDiscountPrice(0);
+    setTotalPayment(0);
+    setTotalCost(0);
+    setTotalGst(0);
+  };
+
   return (
     <Card
-      sx={{ py: 3, my: 3, width: '100%', maxWidth: 800, mx: 'auto', boxShadow: 3, borderRadius: 3 }}
+      sx={{ py: 3, my: 3, width: '100%', mx: 'auto', boxShadow: 3, borderRadius: 3 }}
     >
       <Box marginX={3} marginBottom={3} display="flex" gap={2} flexDirection="column">
-        <Box bgcolor="lightblue" borderRadius={1} marginBottom={3}>
-          <Typography
-            variant="h4"
-            marginBottom={2}
-            marginTop={2}
-            color="#00b0ff"
-            textAlign="center"
-            fontWeight={600}
-          >
-            Subscription Plan
-          </Typography>
-          <Typography variant="h3" marginBottom={3} textAlign="center" color="white" gutterBottom>
-            1 BROKER = ₹1990/month + GST
-          </Typography>
+        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          {plan.map((plans) => (
+            <Box key={plans._id} bgcolor={planId === plans._id ? "lightsalmon" : "lightblue"} borderRadius={1} marginBottom={3}>
+              <MenuItem sx={{ display: "flex", alignItems:"start", flexDirection: "column" }} onClick={() => handleSelect(plans._id, plans.price)}>
+                <Typography variant="h3" marginBottom={2} marginTop={2} color={planId === plans._id ? "salmon" : "#00b0ff"} textAlign="center" fontWeight={600}>
+                  {plans.name}
+                </Typography>
+                <Typography variant="subtitle1" marginBottom={1} color="white" gutterBottom>
+                  {plans.description}
+                </Typography>
+                <Typography variant="h4" color="white" gutterBottom>
+                  1 BROKER = ₹{plans.price}
+                </Typography>
+                <Typography variant="h5" marginBottom={2} color="white" gutterBottom>
+                  INR /{plans.billingCycle} + GST
+                </Typography>
+                {plans.features.map((feature, index) => (
+                  <Typography key={index} variant="h6" color="white" gutterBottom>
+                    • {feature}
+                  </Typography>
+                ))}
+              </MenuItem>
+            </Box>
+          ))}
         </Box>
 
         <Snackbar
