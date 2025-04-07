@@ -21,7 +21,8 @@ export interface PaymentType {
 
 export interface PlanType {
   _id: string;
-  planName: string;
+  name: string;
+  description:string;
   price: number;
   billingCycle: string;
   features: string[];
