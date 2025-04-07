@@ -103,20 +103,19 @@ export default function BrokerManagementDetails() {
 
   const handleEdit = (index: number) => {
     const selectedBroker = brokersdetails[index];
-    setBroker({ 
+    setBroker({
       ...selectedBroker,
-     });
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (validateForm()) {
-
       try {
-        if(broker._id){
+        if (broker._id) {
           await BrokerManagmentService.updateBroker(broker);
-        } else{
+        } else {
           await BrokerManagmentService.createBroker(broker);
         }
         setBroker(initialData);
@@ -182,8 +181,21 @@ export default function BrokerManagementDetails() {
 
   return (
     <Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 2 }}>
-      <Container>
-        <h2>Create Broker</h2>
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          minWidth: { xs: '90%', sm: '50%', md: '30%' },
+          bgcolor: 'white',
+          borderRadius: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
+        <Typography variant="h5" align="center" gutterBottom>
+          Create Broker
+        </Typography>
         <form>
           <TextField
             label="Broker Name"
@@ -195,7 +207,7 @@ export default function BrokerManagementDetails() {
             helperText={error.name}
           />
 
-          <FormControl fullWidth sx={{ py: 2 , mt: 4}} error={!!error.marketTypeId}>
+          <FormControl fullWidth sx={{ py: 2, mt: 4 }} error={!!error.marketTypeId}>
             <InputLabel>Market Type</InputLabel>
             <Select
               name="marketTypeId"
@@ -220,7 +232,6 @@ export default function BrokerManagementDetails() {
 
           <Button type="submit" variant="contained" onClick={handleSubmit}>
             {broker._id ? 'Update' : 'Create'}
-
           </Button>
         </form>
 
@@ -230,7 +241,7 @@ export default function BrokerManagementDetails() {
           autoHideDuration={3000}
           onClose={() => setMessage('')}
         />
-      </Container>
+      </Paper>
 
       {/* =======================broker details ================================== */}
       <FormControl fullWidth sx={{ py: 2, mt: 5 }} error={!!error.marketTypeId}>
@@ -250,7 +261,7 @@ export default function BrokerManagementDetails() {
         </Typography>
         <Table sx={{ minWidth: 600 }}>
           <TableHead>
-            <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+            <TableRow>
               <TableCell>
                 <b>Name</b>
               </TableCell>

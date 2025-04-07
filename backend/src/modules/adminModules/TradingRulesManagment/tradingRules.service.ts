@@ -65,7 +65,6 @@ export class TradingRulesService {
       throw error;
     }
   }
-
   async getRulesByMarketTypeId(
     marketTypeId: string,
   ): Promise<TradingRulesDocument[]> {
@@ -76,6 +75,69 @@ export class TradingRulesService {
     } catch (error) {
       console.error('Error retrieving trading rules by market type ID:', error);
       throw error;
+    }
+  }
+
+  async updateTradingRules(tradingRulesDto: TradingRulesDto, res: Response) {
+    try {
+      const updatedRules = await this.tradingRulesModel.findByIdAndUpdate(
+        tradingRulesDto._id,
+        {
+          rules: tradingRulesDto.rules,
+          marketTypeId: tradingRulesDto.marketTypeId,
+        },
+        { new: true },
+      );
+
+      if (!updatedRules) {
+        return res.status(404).json({
+          statusCode: 404,
+          message: '❌ Trading rules not found.',
+          success: false,
+        });
+      }
+
+      res.status(200).json({
+        statusCode: 200,
+        message: '✅ Trading rules updated successfully.',
+        success: true,
+        data: updatedRules,
+      });
+    } catch (error) {
+      console.error('❌ Error updating trading rules:', error);
+      res.status(500).json({
+        statusCode: 500,
+        message: '❌ Something went wrong.',
+        success: false,
+      });
+    }
+  }
+
+  async deleteTradingRules(id: string, res: Response) {
+    try {
+      const deletedRules = await this.tradingRulesModel.findByIdAndDelete(id);
+
+      if (!deletedRules) {
+        return res.status(404).json({
+          statusCode: 404,  
+          message: '❌ Trading rules not found.',
+          success: false,
+        });
+      }
+
+      res.status(200).json({
+        statusCode: 200,
+        message: '✅ Trading rules deleted successfully.',
+        success: true,
+        data: deletedRules,
+      });
+    } catch (error) {
+      console.error('❌ Error deleting trading rules:', error);
+      res.status(500).json({
+        statusCode: 500,
+        message: '❌ Something went wrong.',
+        success: false,
+      });
     }
   }
 }

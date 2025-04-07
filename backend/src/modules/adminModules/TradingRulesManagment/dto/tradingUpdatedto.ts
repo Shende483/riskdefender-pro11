@@ -1,16 +1,15 @@
 import { IsNotEmpty, IsObject, IsString } from 'class-validator';
 
 export class TradingRulesDto {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
+  _id: string;
   marketTypeId: string;
 
   @IsObject()
-
   rules: {
     cash: string[];
     option: string[];
     future: string[];
   };
-  _id: any;
 }

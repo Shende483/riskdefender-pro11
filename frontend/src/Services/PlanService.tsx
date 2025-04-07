@@ -1,7 +1,7 @@
 import BaseService from "./BaseService";
 
 import type { PlanManagetype } from "../Types/PlanType";
-import type { PlanType } from "../Types/SubscriptionTypes";
+import type { SubscriptionPlan } from "../Admin/component/plan/PlanForm";
 
 export default class PlanService extends BaseService {
     public static setAccessToken(authData: { accessToken: string, appUser: string, userId: string }) {
@@ -28,7 +28,7 @@ export default class PlanService extends BaseService {
     }
 
     static async GetPlan() {
-        return BaseService.get<PlanType[]>('plan/getPlan');
+        return BaseService.get<SubscriptionPlan[]>('plan/getPlan');
     }
 
     static async updatePlan(plan: PlanManagetype) {

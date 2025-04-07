@@ -7,7 +7,6 @@ import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgr
 import { varAlpha } from '../theme/styles';
 import { DashboardLayout } from '../layouts/dashboard';
 
-
 export const HomePage = lazy(() => import('../pages/home'));
 export const BlogPage = lazy(() => import('../pages/blog'));
 export const SubscriptionPage = lazy(() => import('../sections/broker/SubscriptionPage'));
@@ -18,9 +17,14 @@ export const ForgetPassword = lazy(() => import('../pages/forget-password'));
 export const ProductsPage = lazy(() => import('../pages/products'));
 export const Page404 = lazy(() => import('../pages/page-not-found'));
 export const ConnectBrokerPage = lazy(() => import('../sections/broker/ConnectBrokerPage'));
-export const MarketTypeDetails = lazy(() => import('../Admin/component/marketType/MarketTypeDetails'));
-export const BrokerDetails = lazy(() => import('../Admin/component/brokermanagement/BrokerManagementDetails'));
+export const MarketTypeDetails = lazy(
+  () => import('../Admin/component/marketType/MarketTypeDetails')
+);
+export const BrokerDetails = lazy(
+  () => import('../Admin/component/brokermanagement/BrokerManagementDetails')
+);
 export const PlanManage = lazy(() => import('../Admin/component/plan/PlanForm'));
+export const TradingRule = lazy(() => import('../Admin/component/tradingrule/TradingRule'));
 
 const renderFallback = (
   <Box display="flex" alignItems="center" justifyContent="center" flex="1 1 auto">
@@ -51,16 +55,15 @@ export function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'broker', element: <ConnectBrokerPage /> },
-        {path: 'admin/marketdetails', element: <MarketTypeDetails />},
-        {path: 'admin/brokerdetails', element: <BrokerDetails />},
-        {path: 'admin/plan', element: <PlanManage /> }
+        { path: 'admin/marketdetails', element: <MarketTypeDetails /> },
+        { path: 'admin/brokerdetails', element: <BrokerDetails /> },
+        { path: 'admin/plan', element: <PlanManage /> },
+        { path: 'admin/tradingrule', element: <TradingRule /> },
       ],
     },
     {
       path: 'sign-in',
-      element: (
-          <SignInPage />
-      ),
+      element: <SignInPage />,
     },
     {
       path: '/sign-up',

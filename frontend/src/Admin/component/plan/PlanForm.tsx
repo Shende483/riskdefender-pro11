@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import { Edit, Delete } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Box ,
+import {
+  Box,
   Paper,
   Table,
   Button,
@@ -41,7 +42,7 @@ const initialData: PlanManagetype = {
 };
 
 // -----------fetch dubscription plan-------------
-interface Plan {
+export interface SubscriptionPlan {
   name: string;
   description: string;
   price: number;
@@ -58,17 +59,14 @@ export default function PlanForm() {
   const [error, setError] = useState<Partial<Record<keyof PlanManagetype, string>>>({});
 
   //   ------------------- const -------
-  const [plans, setPlans] = useState<Plan[]>([]);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [validationerror, setValidationError] = useState<string>('');
 
-  const [featureDetails, setFeatureDetails] = useState({
-    features: [] as string[], // Store features as an array of strings
-  });
-  const [newFeature, setNewFeature] = useState(""); // For input field
+  const [newFeature, setNewFeature] = useState(''); // For input field
   const [editingIndex, setEditingIndex] = useState<number | null>(null); // Track index for editing
 
-// =============features =================
+  // =============features =================
 
   // Add or update feature
   const handleAddFeature = () => {
@@ -89,7 +87,7 @@ export default function PlanForm() {
         features: [...prev.features, newFeature.trim()],
       }));
     }
-    setNewFeature(""); // Clear input
+    setNewFeature(''); // Clear input
   };
 
   // Edit feature
@@ -110,7 +108,6 @@ export default function PlanForm() {
   const handleFeatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewFeature(event.target.value);
   };
-
 
   const validateForm = () => {
     const tempErrors: Partial<Record<keyof PlanManagetype, string>> = {};
@@ -148,13 +145,12 @@ export default function PlanForm() {
 
   const handlepriceChange = (
     event: React.ChangeEvent<HTMLInputElement | { name?: string; value: any }>
-
   ) => {
     const { name, value } = event.target;
 
     setPlanDetails((prev) => ({
       ...prev,
-      [name!]: name === 'price' && value === "" ? "" :  Number(value)  // Convert price to number
+      [name!]: name === 'price' && value === '' ? '' : Number(value), // Convert price to number
     }));
 
     setError((prev) => ({ ...prev, [name!]: '' }));
@@ -174,61 +170,47 @@ export default function PlanForm() {
     }));
   };
 
-  // const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { value, checked } = event.target;
-  //   setPlanDetails((prev) => ({
-  //     ...prev,
-  //     features: checked
-  //       ? [...prev.features, value]
-  //       : prev.features.filter((feature) => feature !== value),
-  //   }));
-  //   setError((prev) => ({ ...prev, features: '' }));
-  // };
-
   const handleEdit = (index: number) => {
-    const selectedPlan = plans[index]; // Get the selected plan from the plans array
+    const selectedPlan = plans[index];
     setPlanDetails({
       ...selectedPlan,
     });
   };
-  
-    const fetchPlans = async () => {
-      try {
-        const response = await PlanService.GetPlan();
-        if (response.success) {
-          setPlans(response.data);
-        } else {
-          setValidationError('No active plans found.');
-        }
-      } catch (err) {
-        setValidationError('❌ Failed to fetch plans. Please try again later.');
-      } finally {
-        setLoading(false);
+
+  const fetchPlans = async () => {
+    try {
+      const response = await PlanService.GetPlan();
+      if (response.success) {
+        setPlans(response.data as SubscriptionPlan[]);
+      } else {
+        setValidationError('No active plans found.');
       }
-    };
+    } catch (err) {
+      setValidationError('❌ Failed to fetch plans. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-      fetchPlans();
-    }, []);
+  useEffect(() => {
+    fetchPlans();
+  }, []);
 
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (validateForm()) {
       try {
-        if(planDetails._id){
+        if (planDetails._id) {
           await PlanService.updatePlan(planDetails);
-          
-        } else{
+        } else {
           await PlanService.CreatePlan(planDetails);
-        } 
+        }
         setPlanDetails(initialData);
-          setError({});
-          setTimeout(() => {
-            fetchPlans();
-          }, 500);
-
+        setError({});
+        setTimeout(() => {
+          fetchPlans();
+        }, 500);
       } catch (catchError: any) {
         const errorMessage = catchError.response?.data?.message;
         console.error(errorMessage);
@@ -238,46 +220,39 @@ export default function PlanForm() {
 
   const handleDelete = async (id: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this plan?');
-    
+
     if (confirmDelete) {
       try {
         const response = await PlanService.deletePlan(id);
-        
+
         if (response.success) {
-          setPlans(prevPlans => prevPlans.filter(plan => plan._id !== id));
+          setPlans((prevPlans) => prevPlans.filter((plan) => plan._id !== id));
         } else {
           alert('Failed to delete the plan. Please try again later.');
         }
-        
       } catch (catchError: any) {
         console.error('Error deleting the plan:', catchError);
         alert('An error occurred while deleting the plan.');
       }
     }
   };
-  
 
   return (
     <div>
       <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="50vh"
-        bgcolor="#f5f5f5"
-        marginTop="4%"
+       sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 2 }}
       >
         <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            minWidth: { xs: '90%', sm: '50%', md: '30%' },
-            bgcolor: 'white',
-            borderRadius: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-          }}
+         elevation={3}
+         sx={{
+           p: 4,
+           minWidth: { xs: '90%', sm: '50%', md: '30%' },
+           bgcolor: 'white',
+           borderRadius: 2,
+           display: 'flex',
+           flexDirection: 'column',
+           gap: 2,
+         }}
         >
           <Typography variant="h5" align="center" gutterBottom>
             Plan Details
@@ -309,7 +284,7 @@ export default function PlanForm() {
               label="price"
               name="price"
               type="number"
-              value={planDetails.price === 0 ? "" : planDetails.price}
+              value={planDetails.price === 0 ? '' : planDetails.price}
               variant="outlined"
               fullWidth
               onChange={handlepriceChange}
@@ -346,80 +321,58 @@ export default function PlanForm() {
               {error.status && <Typography color="error">{error.status}</Typography>}
             </FormControl>
           </Box>
-          {/* <Box>
-            <FormControl component="fieldset">
-              <Typography variant="body1">Features</Typography>
-              <FormGroup row>
-                {['Feature 1', 'Feature 2', 'Feature 3'].map((feature) => (
-                  <FormControlLabel
-                    key={feature}
-                    control={
-                      <Checkbox
-                        checked={planDetails.features.includes(feature)}
-                        onChange={handleCheckboxChange}
-                        value={feature}
-                        name="features"
-                      />
-                    }
-                    label={feature}
-                  />
-                ))}
-              </FormGroup>
-              {error.features && <Typography color="error">{error.features}</Typography>}
-            </FormControl>
-          </Box> */}
           <Box>
-      <FormControl fullWidth>
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          Features
-        </Typography>
-        {/* Feature Input Field and Button */}
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <TextField
-            label="Add Feature"
-            value={newFeature}
-            onChange={handleFeatureChange}
-            fullWidth
-          />
-          <Button variant="contained" onClick={handleAddFeature}>
-            {editingIndex !== null ? "Update" : "Add"}
-          </Button>
-        </Box>
-
-        {/* Display Added Features */}
-        <Box sx={{ mt: 2 }}>
-          {planDetails.features.map((feature, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                p: 1,
-                borderBottom: "1px solid #ddd",
-              }}
-            >
-              <Typography>{feature}</Typography>
-              <Box>
-                <IconButton onClick={() => handleEditFeature(index)}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleDeleteFeature(index)}>
-                  <Delete />
-                </IconButton>
+            <FormControl fullWidth>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                Features
+              </Typography>
+              {/* Feature Input Field and Button */}
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <TextField
+                  label="Add Feature"
+                  value={newFeature}
+                  onChange={handleFeatureChange}
+                  fullWidth
+                />
+                <Button variant="contained" onClick={handleAddFeature}>
+                  {editingIndex !== null ? 'Update' : 'Add'}
+                </Button>
               </Box>
-            </Box>
-          ))}
-        </Box>
-      </FormControl>
-    </Box>
+
+              {/* Display Added Features */}
+              <Box sx={{ mt: 2 }}>
+                {planDetails.features.map((feature, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      p: 1,
+                      borderBottom: '1px solid #ddd',
+                    }}
+                  >
+                    <Typography>{feature}</Typography>
+                    <Box>
+                      <IconButton onClick={() => handleEditFeature(index)}>
+                        <Edit />
+                      </IconButton>
+                      <IconButton onClick={() => handleDeleteFeature(index)}>
+                        <Delete />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </FormControl>
+          </Box>
           <Button variant="contained" color="primary" fullWidth onClick={handleSubmit}>
-          {planDetails._id ? 'Update' : 'Create'}
+            {planDetails._id ? 'Update' : 'Create'}
           </Button>
         </Paper>
       </Box>
       {/* ========================= plan table details ====================================== */}
-      <Box sx={{mt:9}}>
+      <Box sx={{ mt: 9 }}>
         <Paper sx={{ padding: 3, margin: 3 }}>
           <Typography variant="h5" align="center" gutterBottom>
             Subscription Plans
@@ -436,10 +389,10 @@ export default function PlanForm() {
           ) : plans.length === 0 ? (
             <Typography align="center">No active plans found.</Typography>
           ) : (
-            <TableContainer component={Paper}>
-              <Table>
+            <TableContainer component={Paper} sx={{ mt: 4, mx: 'auto', maxWidth: '1200px' }}>
+              <Table sx={{ minWidth: 600 }}>
                 <TableHead>
-                  <TableRow>
+                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                     <TableCell>
                       <b>Name</b>
                     </TableCell>
@@ -465,7 +418,7 @@ export default function PlanForm() {
                 </TableHead>
                 <TableBody>
                   {plans.map((plan, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={index} sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
                       <TableCell>{plan.name}</TableCell>
                       <TableCell>{plan.description}</TableCell>
                       <TableCell>${plan.price}</TableCell>
@@ -473,12 +426,10 @@ export default function PlanForm() {
                       <TableCell>{plan.features.join(', ')}</TableCell>
                       <TableCell>{plan.status}</TableCell>
                       <TableCell>
-                        <Button><EditIcon
-                        onClick={() => handleEdit(index)}
-                         />
-                         <DeleteIcon 
-                         onClick={() => handleDelete(plan._id)}
-                         /> </Button>
+                        <Button>
+                          <EditIcon onClick={() => handleEdit(index)} />
+                          <DeleteIcon onClick={() => handleDelete(plan._id)} />{' '}
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
