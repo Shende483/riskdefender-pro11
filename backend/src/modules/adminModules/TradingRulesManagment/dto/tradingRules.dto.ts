@@ -22,4 +22,5 @@ export class TradingRulesDto {
     option: string[];
     future: string[];
   };
+  _id: any;
 }
