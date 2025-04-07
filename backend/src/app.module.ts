@@ -14,6 +14,7 @@ import { BrokerAccountModule } from './modules/BrokerAccountManagement/brokerAcc
 import { RedisService } from './config/redis.config';
 import { Module } from '@nestjs/common';
 import { UserAccountDetailModule } from './modules/adminModules/UserAccountDetail/userAccountDetail.module';
+import { UserTradingExistingModule } from './modules/adminModules/UserTradingExistingData/userTradingExistingData.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UserAccountDetailModule } from './modules/adminModules/UserAccountDetai
     TradingRulesModule,
     BrokerAccountModule,
     UserAccountDetailModule,
+    UserTradingExistingModule,
   ],
   providers: [RedisService],
   exports: [RedisService],
