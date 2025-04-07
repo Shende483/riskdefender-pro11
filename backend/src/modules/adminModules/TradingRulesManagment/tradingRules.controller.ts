@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
+  Put,
   Query,
   Res,
   UseGuards,
@@ -48,10 +51,36 @@ export class TradingRulesController {
     }
   }
 
-  @Get('rulesByMarketTypeId') 
+  @Get('rulesByMarketTypeId')
   async getRulesByMarketTypeId(
     @Query('marketTypeId') marketTypeId: string,
   ): Promise<TradingRulesDocument[]> {
     return this.tradingRulesService.getRulesByMarketTypeId(marketTypeId);
+  }
+
+  @Put('updateRules')
+  async updateRules(
+    @Body() updateTradingRulesDto: TradingRulesDto,
+    @Res() res: Response,
+  ) {
+    console.log('🔹 Received UpdateTradingRulesDto:', updateTradingRulesDto);
+    if (!updateTradingRulesDto._id) {
+      {
+        return res.status(400).json({
+          statusCode: 400,
+          message: '❌ Trading rules ID is required.',
+          success: false,
+        });
+      }
+    }
+    return this.tradingRulesService.updateTradingRules(
+      updateTradingRulesDto,
+      res,
+    );
+  }
+
+  @Delete(':id/deleteRules')
+  async deleteRules(@Param('id') id: string, @Res() res: Response) {
+    return this.tradingRulesService.deleteTradingRules(id, res);
   }
 }

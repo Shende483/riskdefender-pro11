@@ -42,7 +42,7 @@ const initialData: PlanManagetype = {
 };
 
 // -----------fetch dubscription plan-------------
-interface Plan {
+export interface SubscriptionPlan {
   name: string;
   description: string;
   price: number;
@@ -59,13 +59,10 @@ export default function PlanForm() {
   const [error, setError] = useState<Partial<Record<keyof PlanManagetype, string>>>({});
 
   //   ------------------- const -------
-  const [plans, setPlans] = useState<Plan[]>([]);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [validationerror, setValidationError] = useState<string>('');
 
-  const [featureDetails, setFeatureDetails] = useState({
-    features: [] as string[], // Store features as an array of strings
-  });
   const [newFeature, setNewFeature] = useState(''); // For input field
   const [editingIndex, setEditingIndex] = useState<number | null>(null); // Track index for editing
 
@@ -173,19 +170,8 @@ export default function PlanForm() {
     }));
   };
 
-  // const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { value, checked } = event.target;
-  //   setPlanDetails((prev) => ({
-  //     ...prev,
-  //     features: checked
-  //       ? [...prev.features, value]
-  //       : prev.features.filter((feature) => feature !== value),
-  //   }));
-  //   setError((prev) => ({ ...prev, features: '' }));
-  // };
-
   const handleEdit = (index: number) => {
-    const selectedPlan = plans[index]; // Get the selected plan from the plans array
+    const selectedPlan = plans[index];
     setPlanDetails({
       ...selectedPlan,
     });
@@ -195,7 +181,7 @@ export default function PlanForm() {
     try {
       const response = await PlanService.GetPlan();
       if (response.success) {
-        setPlans(response.data);
+        setPlans(response.data as SubscriptionPlan[]);
       } else {
         setValidationError('No active plans found.');
       }
@@ -254,24 +240,19 @@ export default function PlanForm() {
   return (
     <div>
       <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="50vh"
-        bgcolor="#f5f5f5"
-        marginTop="4%"
+       sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 2 }}
       >
         <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            minWidth: { xs: '90%', sm: '50%', md: '30%' },
-            bgcolor: 'white',
-            borderRadius: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-          }}
+         elevation={3}
+         sx={{
+           p: 4,
+           minWidth: { xs: '90%', sm: '50%', md: '30%' },
+           bgcolor: 'white',
+           borderRadius: 2,
+           display: 'flex',
+           flexDirection: 'column',
+           gap: 2,
+         }}
         >
           <Typography variant="h5" align="center" gutterBottom>
             Plan Details
@@ -340,28 +321,6 @@ export default function PlanForm() {
               {error.status && <Typography color="error">{error.status}</Typography>}
             </FormControl>
           </Box>
-          {/* <Box>
-            <FormControl component="fieldset">
-              <Typography variant="body1">Features</Typography>
-              <FormGroup row>
-                {['Feature 1', 'Feature 2', 'Feature 3'].map((feature) => (
-                  <FormControlLabel
-                    key={feature}
-                    control={
-                      <Checkbox
-                        checked={planDetails.features.includes(feature)}
-                        onChange={handleCheckboxChange}
-                        value={feature}
-                        name="features"
-                      />
-                    }
-                    label={feature}
-                  />
-                ))}
-              </FormGroup>
-              {error.features && <Typography color="error">{error.features}</Typography>}
-            </FormControl>
-          </Box> */}
           <Box>
             <FormControl fullWidth>
               <Typography variant="body1" sx={{ mb: 1 }}>
@@ -430,10 +389,10 @@ export default function PlanForm() {
           ) : plans.length === 0 ? (
             <Typography align="center">No active plans found.</Typography>
           ) : (
-            <TableContainer component={Paper}>
-              <Table>
+            <TableContainer component={Paper} sx={{ mt: 4, mx: 'auto', maxWidth: '1200px' }}>
+              <Table sx={{ minWidth: 600 }}>
                 <TableHead>
-                  <TableRow>
+                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                     <TableCell>
                       <b>Name</b>
                     </TableCell>
@@ -459,7 +418,7 @@ export default function PlanForm() {
                 </TableHead>
                 <TableBody>
                   {plans.map((plan, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={index} sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
                       <TableCell>{plan.name}</TableCell>
                       <TableCell>{plan.description}</TableCell>
                       <TableCell>${plan.price}</TableCell>

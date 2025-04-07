@@ -24,6 +24,7 @@ export const BrokerDetails = lazy(
   () => import('../Admin/component/brokermanagement/BrokerManagementDetails')
 );
 export const PlanManage = lazy(() => import('../Admin/component/plan/PlanForm'));
+export const TradingRule = lazy(() => import('../Admin/component/tradingrule/TradingRule'));
 
 const renderFallback = (
   <Box display="flex" alignItems="center" justifyContent="center" flex="1 1 auto">
@@ -57,6 +58,7 @@ export function Router() {
         { path: 'admin/marketdetails', element: <MarketTypeDetails /> },
         { path: 'admin/brokerdetails', element: <BrokerDetails /> },
         { path: 'admin/plan', element: <PlanManage /> },
+        { path: 'admin/tradingrule', element: <TradingRule /> },
       ],
     },
     {
