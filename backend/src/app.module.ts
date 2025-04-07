@@ -13,6 +13,7 @@ import { TradingRulesModule } from './modules/adminModules/TradingRulesManagment
 import { BrokerAccountModule } from './modules/BrokerAccountManagement/brokerAccount.module';
 import { RedisService } from './config/redis.config';
 import { Module } from '@nestjs/common';
+import { AdminOrderPlacementModule } from './modules/adminModules/OrderPlacement/orderPlacement.module';
 import { UserAccountDetailModule } from './modules/adminModules/UserAccountDetail/userAccountDetail.module';
 
 @Module({
@@ -30,6 +31,7 @@ import { UserAccountDetailModule } from './modules/adminModules/UserAccountDetai
     AdminBrokersModule,
     TradingRulesModule,
     BrokerAccountModule,
+    AdminOrderPlacementModule,
     UserAccountDetailModule,
   ],
   providers: [RedisService],
