@@ -181,8 +181,21 @@ export default function BrokerManagementDetails() {
 
   return (
     <Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 2 }}>
-      <Container>
-        <h2>Create Broker</h2>
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          minWidth: { xs: '90%', sm: '50%', md: '30%' },
+          bgcolor: 'white',
+          borderRadius: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
+        <Typography variant="h5" align="center" gutterBottom>
+          Create Broker
+        </Typography>
         <form>
           <TextField
             label="Broker Name"
@@ -228,7 +241,7 @@ export default function BrokerManagementDetails() {
           autoHideDuration={3000}
           onClose={() => setMessage('')}
         />
-      </Container>
+      </Paper>
 
       {/* =======================broker details ================================== */}
       <FormControl fullWidth sx={{ py: 2, mt: 5 }} error={!!error.marketTypeId}>
@@ -248,7 +261,7 @@ export default function BrokerManagementDetails() {
         </Typography>
         <Table sx={{ minWidth: 600 }}>
           <TableHead>
-            <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+            <TableRow>
               <TableCell>
                 <b>Name</b>
               </TableCell>
