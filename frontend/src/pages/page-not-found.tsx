@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import { CONFIG } from '../config-global';
 import { NotFoundView } from '../sections/error';
 
-
 // ----------------------------------------------------------------------
 
 export default function Page() {

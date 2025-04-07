@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { Card } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
@@ -8,17 +10,33 @@ import OrderEntryComponent from '../OrderEntryComponent';
 import { MyAccountsDetails } from '../MyAccountsDetails';
 import TradingviewChartAndData from '../../../layouts/dashboard/TradingViewChartCard';
 
+interface TradingRulesData {
+  brokerAccountName: string;
+  cash: { key: string; value: string }[];
+  option: { key: string; value: string }[];
+  future: { key: string; value: string }[];
+}
 export function OverviewAnalyticsView() {
+  const [tradingRules, setTradingRules] = useState<TradingRulesData | undefined>(undefined);
+
+  const handleTradingRulesChange = (rules: TradingRulesData) => {
+    console.log('Trading rules updated:', rules);
+    setTradingRules({
+      brokerAccountName: rules.brokerAccountName,
+      cash: rules.cash,
+      option: rules.option,
+      future: rules.future
+    });
+  };
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
         <Grid container spacing={3}>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-            <MyAccountsDetails
-            />
+            <MyAccountsDetails onTradingRulesChange={handleTradingRulesChange} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-            <MyDefinedRules />
+            <MyDefinedRules tradingRules={tradingRules} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
             <AlertingDetails />
@@ -32,8 +50,8 @@ export function OverviewAnalyticsView() {
               <TradingviewChartAndData />
             </Card>
           </Grid>
-          <Grid item xs={12} md={4} >
-            <Card sx={{ backgroundColor: "white", height: 670 }}  >
+          <Grid item xs={12} md={4}>
+            <Card sx={{ backgroundColor: 'white', height: 670 }}>
               <UserBalanceCard />
               <OrderEntryComponent />
             </Card>

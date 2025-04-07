@@ -7,23 +7,23 @@ import {
   Box,
   Grid,
   Card,
+  Alert,
   Button,
   Select,
   MenuItem,
+  Snackbar,
   TextField,
   InputLabel,
   Typography,
   FormControl,
   FormHelperText,
-  Snackbar,
-  Alert,
 } from '@mui/material';
 
 import { getToken } from '../../utils/getTokenFn';
 import MarketTypeService from '../../Services/MarketTypeService';
+import BrokerAccountService from '../../Services/BrokerAccountService';
 
 import type { MarketTypeList } from '../../Types/MarketTypes';
-import BrokerAccountService from '../../Services/BrokerAccountService';
 
 type TradingRuleData = {
   cash: string[];
@@ -116,17 +116,21 @@ export default function ConnectBrokerPage() {
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-  
+
     // Validate main form fields using switch-case
     const fieldsToValidate = [
       { field: 'planName', value: formData.planName, message: 'Plan is required' },
       { field: 'marketType', value: formData.marketType, message: 'Market type is required' },
       { field: 'brokerId', value: formData.brokerId, message: 'Broker is required' },
-      { field: 'brokerAccountName', value: formData.brokerAccountName, message: 'Broker account name is required' },
+      {
+        field: 'brokerAccountName',
+        value: formData.brokerAccountName,
+        message: 'Broker account name is required',
+      },
       { field: 'apiKey', value: formData.apiKey, message: 'API key is required' },
       { field: 'secretKey', value: formData.secretKey, message: 'API secret is required' },
     ];
-  
+
     fieldsToValidate.forEach(({ field, value, message }) => {
       switch (field) {
         case 'planName':
@@ -151,11 +155,11 @@ export default function ConnectBrokerPage() {
           break;
       }
     });
-  
+
     if (tradingRules) {
       const ruleErrors: any = {};
       let hasRuleErrors = false;
-  
+
       (Object.keys(tradingRules) as Array<keyof TradingRuleData>).forEach((tradeType) => {
         tradingRules[tradeType].forEach((template, index) => {
           if (!formData.tradingRuleData[tradeType][index]) {
@@ -168,12 +172,12 @@ export default function ConnectBrokerPage() {
           }
         });
       });
-  
+
       if (hasRuleErrors) {
         newErrors.tradingRuleData = ruleErrors;
       }
     }
-  
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -248,7 +252,12 @@ export default function ConnectBrokerPage() {
       brokerId: '',
       tradingRuleData: { cash: [], option: [], future: [] },
     }));
-    setErrors((prev) => ({ ...prev, planName: undefined, marketType: undefined, brokerId: undefined }));
+    setErrors((prev) => ({
+      ...prev,
+      planName: undefined,
+      marketType: undefined,
+      brokerId: undefined,
+    }));
     setBrokers([]);
     setTradingRules(null);
   };
@@ -261,6 +270,22 @@ export default function ConnectBrokerPage() {
     try {
       setIsLoading(true);
 
+      const processedTradingRules: TradingRuleData = {
+        cash: [],
+        option: [],
+        future: [],
+      };
+
+      if (tradingRules) {
+        (Object.keys(tradingRules) as Array<keyof TradingRuleData>).forEach((tradeType) => {
+          tradingRules[tradeType].forEach((template: string, index: number) => {
+            const [fieldName] = template.split(':').map(s => s.trim());
+            const value = formData.tradingRuleData[tradeType][index] || '';
+            processedTradingRules[tradeType].push(`${fieldName}: ${value}`);
+          });
+        });
+      }
+
       const payload = {
         brokerAccountName: formData.brokerAccountName,
         marketTypeId: formData.marketType,
@@ -269,16 +294,13 @@ export default function ConnectBrokerPage() {
         apiKey: formData.apiKey,
         secretKey: formData.secretKey,
         status: formData.status,
-        tradingRuleData: {
-          cash: formData.tradingRuleData.cash.filter((rule) => rule.trim() !== ''),
-          option: formData.tradingRuleData.option.filter((rule) => rule.trim() !== ''),
-          future: formData.tradingRuleData.future.filter((rule) => rule.trim() !== ''),
-        },
+        tradingRuleData: processedTradingRules,
       };
 
       const response = await BrokerAccountService.createBrokerAccount(payload);
+
       console.log('Broker account created:', response);
-      
+
       setSnackbar({
         open: true,
         message: response.message || 'Broker account created successfully!',
@@ -301,14 +323,14 @@ export default function ConnectBrokerPage() {
       setErrors({});
     } catch (error: any) {
       console.error('Error creating broker account:', error);
-      
+
       let errorMessage = 'Failed to create broker account';
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       setSnackbar({
         open: true,
         message: errorMessage,
@@ -323,14 +345,14 @@ export default function ConnectBrokerPage() {
     setFormData((prev) => {
       const newRules = [...prev.tradingRuleData[tradeType]];
       newRules[index] = value;
-      
+
       // Clear error for this field if it exists
       if (errors.tradingRuleData?.[tradeType]?.[index]) {
-        setErrors(prevErrors => {
+        setErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
           if (newErrors.tradingRuleData?.[tradeType]) {
             newErrors.tradingRuleData[tradeType]![index] = '';
-            if (newErrors.tradingRuleData[tradeType]!.every(e => !e)) {
+            if (newErrors.tradingRuleData[tradeType]!.every((e) => !e)) {
               delete newErrors.tradingRuleData[tradeType];
             }
             if (Object.keys(newErrors.tradingRuleData).length === 0) {
@@ -340,7 +362,7 @@ export default function ConnectBrokerPage() {
           return newErrors;
         });
       }
-      
+
       return {
         ...prev,
         tradingRuleData: {
@@ -352,7 +374,7 @@ export default function ConnectBrokerPage() {
   };
 
   const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   return (
@@ -414,7 +436,7 @@ export default function ConnectBrokerPage() {
             value={formData.brokerId}
             onChange={(e) => {
               setFormData((prev) => ({ ...prev, brokerId: e.target.value }));
-              setErrors(prev => ({ ...prev, brokerId: undefined }));
+              setErrors((prev) => ({ ...prev, brokerId: undefined }));
             }}
             label="Broker"
             disabled={!formData.marketType || isLoading}
@@ -434,7 +456,7 @@ export default function ConnectBrokerPage() {
           value={formData.brokerAccountName}
           onChange={(e) => {
             setFormData((prev) => ({ ...prev, brokerAccountName: e.target.value }));
-            setErrors(prev => ({ ...prev, brokerAccountName: undefined }));
+            setErrors((prev) => ({ ...prev, brokerAccountName: undefined }));
           }}
           error={!!errors.brokerAccountName}
           helperText={errors.brokerAccountName}
@@ -448,7 +470,7 @@ export default function ConnectBrokerPage() {
           value={formData.apiKey}
           onChange={(e) => {
             setFormData((prev) => ({ ...prev, apiKey: e.target.value }));
-            setErrors(prev => ({ ...prev, apiKey: undefined }));
+            setErrors((prev) => ({ ...prev, apiKey: undefined }));
           }}
           error={!!errors.apiKey}
           helperText={errors.apiKey}
@@ -462,7 +484,7 @@ export default function ConnectBrokerPage() {
           value={formData.secretKey}
           onChange={(e) => {
             setFormData((prev) => ({ ...prev, secretKey: e.target.value }));
-            setErrors(prev => ({ ...prev, secretKey: undefined }));
+            setErrors((prev) => ({ ...prev, secretKey: undefined }));
           }}
           error={!!errors.secretKey}
           helperText={errors.secretKey}
@@ -506,7 +528,7 @@ export default function ConnectBrokerPage() {
                     {ruleTemplates.map((template, index) => {
                       const [fieldName] = template.split(':').map((s) => s.trim());
                       const errorMessage = errors.tradingRuleData?.[tradeType]?.[index];
-                      
+
                       return (
                         <TextField
                           key={`${tradeType}-${index}`}
@@ -546,11 +568,7 @@ export default function ConnectBrokerPage() {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
       </Snackbar>

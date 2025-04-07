@@ -34,14 +34,6 @@ import {
   Box,
   Card,
   Grid,
-  Button,
-  Select,
-  MenuItem,
-  Checkbox,
-  TextField,
-  Typography,
-  InputLabel,
-  FormControl,
   Alert,
   Snackbar,
 } from "@mui/material";
@@ -356,11 +348,11 @@ interface StatusMessage {
 
 export default function AccountManagement() {
   const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails>({
-    planName: "",
+    planName: '',
     numberOfBroker: 0,
-    expireDateTime: "",
-    duration: "1 month",
-    status: "active",
+    expireDateTime: '',
+    duration: '1 month',
+    status: 'active',
   });
 
   const [responseMessage, setResponseMessage] = useState<StatusMessage | null>(null);
@@ -369,30 +361,34 @@ export default function AccountManagement() {
   const [totalGst, setTotalGst] = useState<number>(0);
   const [totalPayment, setTotalPayment] = useState<number>(0);
   const [discountPrice, setDiscountPrice] = useState<number>(0);
+  const [planPrice, setPlanPrice] = useState<number>(0);
+  const [planId, setPlanId] = useState<string>("");
   const [netPayment, setNetPayment] = useState<number>(0);
-  const [couponCode, setCouponCode] = useState<string>("");
+  const [couponCode, setCouponCode] = useState<string>('');
   const [plan, setPlan] = useState<PlanType[]>([]);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
 
   const durationInDays = useMemo(
     () => ({
-      "1 month": 30,
-      "3 months": 90,
-      "6 months": 180,
-      "1 year": 360,
+      '1 month': 30,
+      '3 months': 90,
+      '6 months': 180,
+      '1 year': 360,
     }),
     []
   );
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+  ) => {
     const { name, value } = e.target;
     setSubscriptionDetails((prevDetails) => ({
       ...prevDetails,
       [name!]: value,
     }));
 
-    if (name === "numberOfBroker" || name === "duration") {
+    if (name === 'numberOfBroker' || name === 'duration') {
       calculateTotalCost(value as string | number, name);
     }
   };
@@ -400,32 +396,33 @@ export default function AccountManagement() {
   const calculateTotalCost = (value: string | number, fieldName: string) => {
     if (!plan.length) return;
 
-    const numberOfBrokers = fieldName === "numberOfBroker" ? Number(value) : subscriptionDetails.numberOfBroker;
-    const duration = fieldName === "duration" ? (value as string) : subscriptionDetails.duration;
+    const numberOfBrokers =
+      fieldName === 'numberOfBroker' ? Number(value) : subscriptionDetails.numberOfBroker;
+    const duration = fieldName === 'duration' ? (value as string) : subscriptionDetails.duration;
 
     if (!duration || !durationInDays[duration as keyof typeof durationInDays]) return;
 
     const days = durationInDays[duration as keyof typeof durationInDays];
     const months = days / 30; // Convert days to 30-day months
-    const pricePerBroker = plan[0].price;
-    const total = pricePerBroker * numberOfBrokers * months ;
+    const pricePerBroker = planPrice;
+    const total = pricePerBroker * numberOfBrokers * months;
     const gst = total * 0.18;
     const totalWithGST = total + gst;
 
     // Calculate expiry date with current time
     const currentDate = new Date();
     currentDate.setDate(currentDate.getDate() + days);
-    
+
     setTotalCost(total);
     setTotalGst(gst);
     setTotalPayment(totalWithGST);
-    setSubscriptionDetails(prev => ({
+    setSubscriptionDetails((prev) => ({
       ...prev,
-      expireDateTime: currentDate.toISOString().slice(0, 16) // Preserve time
+      expireDateTime: currentDate.toISOString().slice(0, 16), // Preserve time
     }));
 
     // Apply coupon discount
-    const discountAmount = couponCode === "radha123" ? totalWithGST * 0.1 : 0;
+    const discountAmount = couponCode === 'radha123' ? totalWithGST * 0.1 : 0;
     setDiscountPrice(discountAmount);
     setNetPayment(totalWithGST - discountAmount);
   };
@@ -435,8 +432,9 @@ export default function AccountManagement() {
       try {
         const planData = await PlanService.GetPlan();
         setPlan(planData.data);
+        console.log("planData", planData);
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error('Error loading data:', error);
       }
     };
     loadData();
@@ -451,7 +449,7 @@ export default function AccountManagement() {
         numberOfBroker: subscriptionDetails.numberOfBroker,
         startDate: new Date(),
         endDate: subscriptionDetails.expireDateTime,
-        status: subscriptionDetails.status
+        status: subscriptionDetails.status,
       };
 
       const response = await SubscriptionService.CreateSubscription(subscribeDto);
@@ -467,7 +465,7 @@ export default function AccountManagement() {
     } catch (error: any) {
       setResponseMessage({
         text: error.message || 'Failed to create subscription.',
-        type: 'error'
+        type: 'error',
       });
       setShowSnackbar(true);
     }
@@ -475,21 +473,60 @@ export default function AccountManagement() {
 
   const handleCloseSnackbar = () => setShowSnackbar(false);
 
+  const handleSelect = (id: string, price: number) => {
+    setPlanId(id);
+    setPlanPrice(price);
+    setSubscriptionDetails({ ...subscriptionDetails, numberOfBroker: 0 });
+    setNetPayment(0);
+    setDiscountPrice(0);
+    setTotalPayment(0);
+    setTotalCost(0);
+    setTotalGst(0);
+  };
+
   return (
-    <Card sx={{ py: 3, my: 3, width: "100%", maxWidth: 800, mx: "auto", boxShadow: 3, borderRadius: 3 }}>
+    <Card
+      sx={{ py: 3, my: 3, width: '100%', mx: 'auto', boxShadow: 3, borderRadius: 3 }}
+    >
       <Box marginX={3} marginBottom={3} display="flex" gap={2} flexDirection="column">
-        <Box bgcolor="lightblue" borderRadius={1} marginBottom={3}>
-          <Typography variant="h4" marginBottom={2} marginTop={2} color="#00b0ff" textAlign="center" fontWeight={600}>
-            Subscription Plan
-          </Typography>
-          <Typography variant="h3" marginBottom={3} textAlign="center" color="white" gutterBottom>
-            1 BROKER = ₹1990/month + GST
-          </Typography>
+        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          {plan.map((plans) => (
+            <Box key={plans._id} bgcolor={planId === plans._id ? "lightsalmon" : "lightblue"} borderRadius={1} marginBottom={3}>
+              <MenuItem sx={{ display: "flex", alignItems:"start", flexDirection: "column" }} onClick={() => handleSelect(plans._id, plans.price)}>
+                <Typography variant="h3" marginBottom={2} marginTop={2} color={planId === plans._id ? "salmon" : "#00b0ff"} textAlign="center" fontWeight={600}>
+                  {plans.name}
+                </Typography>
+                <Typography variant="subtitle1" marginBottom={1} color="white" gutterBottom>
+                  {plans.description}
+                </Typography>
+                <Typography variant="h4" color="white" gutterBottom>
+                  1 BROKER = ₹{plans.price}
+                </Typography>
+                <Typography variant="h5" marginBottom={2} color="white" gutterBottom>
+                  INR /{plans.billingCycle} + GST
+                </Typography>
+                {plans.features.map((feature, index) => (
+                  <Typography key={index} variant="h6" color="white" gutterBottom>
+                    • {feature}
+                  </Typography>
+                ))}
+              </MenuItem>
+            </Box>
+          ))}
         </Box>
 
-        <Snackbar open={showSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }} sx={{ mt: 8 }}>
-          <Alert onClose={handleCloseSnackbar} severity={responseMessage?.type || 'info'} sx={{ width: '100%' }}>
+        <Snackbar
+          open={showSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          sx={{ mt: 8 }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={responseMessage?.type || 'info'}
+            sx={{ width: '100%' }}
+          >
             {responseMessage?.text}
           </Alert>
         </Snackbar>
@@ -519,11 +556,15 @@ export default function AccountManagement() {
             />
           </Grid>
 
-          
           <Grid item xs={6}>
             <FormControl fullWidth>
               <InputLabel>Duration</InputLabel>
-              <Select name="duration" value={subscriptionDetails.duration} onChange={handleInputChange} required>
+              <Select
+                name="duration"
+                value={subscriptionDetails.duration}
+                onChange={handleInputChange}
+                required
+              >
                 <MenuItem value="1 month">1 Month (30 days)</MenuItem>
                 <MenuItem value="3 months">3 Months (90 days)</MenuItem>
                 <MenuItem value="6 months">6 Months (180 days)</MenuItem>
@@ -572,7 +613,13 @@ export default function AccountManagement() {
           <Typography variant="h6">Net Payment: ₹{netPayment.toFixed(2)}</Typography>
         </Box>
 
-        <Box sx={{ mt: 2 }} display="flex" justifyContent="space-between" alignItems="center" gap={2}>
+        <Box
+          sx={{ mt: 2 }}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          gap={2}
+        >
           <Box width="100%" display="flex" alignItems="center">
             <Checkbox checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
             <Typography variant="body2">
@@ -586,13 +633,8 @@ export default function AccountManagement() {
               amount={Math.round(netPayment * 100)} // Convert to paise
             />
           ) : (
-            <Button 
-              fullWidth 
-              onClick={handleSubmit} 
-              variant="contained" 
-              disabled={!termsAccepted}
-            >
-             Make Secure Payment
+            <Button fullWidth onClick={handleSubmit} variant="contained" disabled={!termsAccepted}>
+              Make Secure Payment
             </Button>
           )}
         </Box>
@@ -600,6 +642,3 @@ export default function AccountManagement() {
     </Card>
   );
 }
-
-
-

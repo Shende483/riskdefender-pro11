@@ -34,16 +34,72 @@ const CardWrapper = ({ theme }: { theme: any }) => ({
   },
 });
 
-export function MyAccountsDetails() {
+interface BrokerAccount {
+  _id: string;
+  brokerAccountName: string;
+  brokerName: string;
+}
+
+interface TradingRulesData {
+  brokerAccountName: string;
+  cash: { key: string; value: string }[];
+  option: { key: string; value: string }[];
+  future: { key: string; value: string }[];
+}
+
+interface MyAccountsDetailsProps {
+  onTradingRulesChange?: (data: TradingRulesData) => void;
+}
+
+export function MyAccountsDetails({ onTradingRulesChange }: MyAccountsDetailsProps) {
   const theme = useTheme();
   const [selectedBroker, setSelectedBroker] = useState('');
   const [selectedSubbroker, setSelectedSubbroker] = useState('');
   const [marketTypes, setMarketTypes] = useState<MarketTypeList[]>([]);
-  const [brokers, setBrokers] = useState<Array<{
-    brokerAccountName: string;
-    brokerName: string;
-  }>>([]);  const [loading, setLoading] = useState(false);
+  const [brokers, setBrokers] = useState<
+    Array<{
+      _id: string;
+      brokerAccountName: string;
+      brokerName: string;
+    }>
+  >([]);
+  const [loading, setLoading] = useState(false);
   const [selectedMarketTypeId, setSelectedMarketTypeId] = useState('');
+
+  const [selectedBrokerAccount, setSelectedBrokerAccount] = useState<BrokerAccount | null>(null);
+
+  // Add this function to fetch trading rules
+  const fetchTradingRules = async (brokerAccountId: string) => {
+    try {
+      const token = getToken();
+      const response = await axios.get(
+        `http://localhost:3040/brokerAccount/trading-rules/${brokerAccountId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Parse the trading rules into the expected format
+      const parsedRules = {
+        ...response.data.data,
+        option: response.data.data.option.map((rule: string) => {
+          const [key, value] = rule.split(':').map(item => item.trim());
+          return { key, value };
+        }),
+        future: response.data.data.future.map((rule: string) => {
+          const [key, value] = rule.split(':').map(item => item.trim());
+          return { key, value };
+        }),
+        cash: response.data.data.cash.map((rule: string) => {
+          const [key, value] = rule.split(':').map(item => item.trim());
+          return { key, value };
+        })
+      };
+      
+      return parsedRules;
+    } catch (error) {
+      console.error('Error fetching trading rules:', error);
+      return null;
+    }
+  };
 
   const fetchMarketTypes = async () => {
     try {
@@ -59,14 +115,14 @@ export function MyAccountsDetails() {
     try {
       const token = getToken();
       const response = await axios.get(
-        `http://localhost:3040/broker/broker-details?marketTypeId=${marketTypeId}`,
+        `http://localhost:3040/brokerAccount/broker-details?marketTypeId=${marketTypeId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
-      console.log("MyAccountDetails API Response:", response.data);
-      
+
+      console.log('MyAccountDetails API Response:', response.data);
+
       // Ensure we're setting the data property if the response is wrapped
       const brokersData = response.data.data || response.data;
       setBrokers(Array.isArray(brokersData) ? brokersData : []);
@@ -77,6 +133,13 @@ export function MyAccountsDetails() {
       setLoading(false);
     }
   };
+
+  const uniqueBrokers = Array.from(new Set(brokers.map((broker) => broker.brokerName)))
+    .map((brokerName) => brokers.find((broker) => broker.brokerName === brokerName))
+    .filter(
+      (broker): broker is { _id: string; brokerAccountName: string; brokerName: string } =>
+        broker !== undefined
+    );
 
   const handleTabChange = (marketTypeId: string) => {
     setSelectedMarketTypeId(marketTypeId);
@@ -104,12 +167,12 @@ export function MyAccountsDetails() {
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <FormControl fullWidth variant="filled" sx={{ m: 1, py: 0, minWidth: 120 }}>
           <InputLabel>Broker</InputLabel>
-          <Select 
-            value={selectedBroker} 
+          <Select
+            value={selectedBroker}
             onChange={(e) => setSelectedBroker(e.target.value)}
             disabled={loading || brokers.length === 0}
           >
-            {brokers.map((broker, index) => (
+            {uniqueBrokers.map((broker, index) => (
               <MenuItem key={index} value={broker.brokerName}>
                 {broker.brokerName}
               </MenuItem>
@@ -119,16 +182,34 @@ export function MyAccountsDetails() {
 
         <FormControl fullWidth variant="filled" sx={{ m: 1, py: 0, minWidth: 140 }}>
           <InputLabel>Subbroker</InputLabel>
-          <Select 
-            value={selectedSubbroker} 
-            onChange={(e) => setSelectedSubbroker(e.target.value)}
-            disabled={loading || brokers.length === 0}
+          <Select
+            value={selectedSubbroker}
+            onChange={async (e) => {
+              const selectedAccount = brokers.find((b) => b.brokerAccountName === e.target.value);
+              if (selectedAccount) {
+                setSelectedSubbroker(e.target.value);
+                setSelectedBrokerAccount(selectedAccount);
+                const rules = await fetchTradingRules(selectedAccount._id);
+                if (rules && onTradingRulesChange) {
+                  // Check if onSubbrokerSelect exists
+                  onTradingRulesChange({
+                    brokerAccountName: selectedAccount.brokerAccountName,
+                    cash: rules.cash,
+                    option: rules.option,
+                    future: rules.future,
+                  });
+                }
+              }
+            }}
+            disabled={loading || brokers.length === 0 || !selectedBroker}
           >
-            {brokers.map((broker, index) => (
-              <MenuItem key={index} value={broker.brokerAccountName}>
-                {broker.brokerAccountName}
-              </MenuItem>
-            ))}
+            {brokers
+              .filter((broker) => !selectedBroker || broker.brokerName === selectedBroker)
+              .map((broker) => (
+                <MenuItem key={broker._id} value={broker.brokerAccountName}>
+                  {broker.brokerAccountName}
+                </MenuItem>
+              ))}
           </Select>
         </FormControl>
       </div>

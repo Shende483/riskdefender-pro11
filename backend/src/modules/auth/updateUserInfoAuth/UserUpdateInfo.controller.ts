@@ -14,7 +14,9 @@ import { RegisterService } from './UserUpdateInfo.service';
 import { UpdateUserDto } from './dto/updateUserInfo.dto';
 import { Response, Request } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Update User')
 @Controller('auth')
 export class RegisterController {
   constructor(private registerService: RegisterService) {}
@@ -40,6 +42,14 @@ export class RegisterController {
     await this.registerService.updateUser(userId, updateUserDto, res);
   }
 
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string' }
+      },
+    },
+  })
   @Post('update-user/send-otp-email')
   @UseGuards(JwtAuthGuard)
   async sendOtpEmailForUpdate(
@@ -50,6 +60,14 @@ export class RegisterController {
     await this.registerService.sendOtpEmail(email, res);
   }
 
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        mobile: { type: 'string' }
+      },
+    },
+  })
   @Post('update-user/send-otp-mobile')
   @UseGuards(JwtAuthGuard)
   async sendOtpMobileForUpdate(
@@ -60,6 +78,15 @@ export class RegisterController {
     await this.registerService.sendOtpMobile(mobile, res);
   }
 
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string' }, 
+        otp: {type: 'string'}
+      },
+    },
+  })
   @Post('update-user/verify-otp-email')
   @UseGuards(JwtAuthGuard)
   async verifyOtpEmailForUpdate(
@@ -71,6 +98,15 @@ export class RegisterController {
     await this.registerService.verifyOtpEmail(email, otp, res);
   }
 
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        mobile: { type: 'string' }, 
+        otp: {type: 'string'}
+      },
+    },
+  })
   @Post('update-user/verify-otp-mobile')
   @UseGuards(JwtAuthGuard)
   async verifyOtpMobileForUpdate(

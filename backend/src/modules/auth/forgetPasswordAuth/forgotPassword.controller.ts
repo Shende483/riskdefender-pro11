@@ -8,6 +8,7 @@ import { ForgetPasswordUserDto } from './dto/forgetPassword.dto';
 export class ForgetPasswordController {
   constructor(private forgetPasswordService: ForgetPasswordService) {}
 
+
   @Post('forget-password/verify-email')
   @ApiOperation({ summary: 'Send OTP for Forget Password (Email)' })
   @ApiBody({

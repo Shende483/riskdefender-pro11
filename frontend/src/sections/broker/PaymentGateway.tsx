@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Box, CircularProgress, Alert } from '@mui/material';
-import { useNavigate } from "react-router-dom";
-import SubscriptionService from '../../Services/SubscriptionService';
 
+
+import axios from 'axios';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { Box, Alert, CircularProgress } from '@mui/material';
 
 declare global {
   interface Window {
@@ -23,34 +24,14 @@ export default function PaymentGateway({ subscriptionId, amount }: PaymentGatewa
   const navigate = useNavigate();
   const accessToken = localStorage.getItem('accessToken');
 
-  useEffect(() => {
-    const loadRazorpay = () => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.async = true;
-      script.onload = () => {
-        setRazorpayLoaded(true);
-        initiatePayment(); // Initiate payment after script loads
-      };
-      script.onerror = () => setStatusMessage('Failed to load payment gateway. Please refresh.');
-      document.body.appendChild(script);
-    };
-
-    if (!window.Razorpay) {
-      loadRazorpay();
-    } else {
-      setRazorpayLoaded(true);
-      initiatePayment(); // Initiate immediately if already loaded
-    }
-  }, [setRazorpayLoaded]); // Empty dependency array - runs only once
-
-  const initiatePayment = async () => {
+  // ✅ Wrap initiatePayment inside useCallback
+  const initiatePayment = useCallback(async () => {
     try {
       setLoading(true);
       const orderResponse = await axios.post(
         'http://localhost:3040/payment-details/create-payment',
         { subscriptionId, amount, currency: 'INR' },
-        { headers: { Authorization:` Bearer ${accessToken}` } }
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
 
       const options = {
@@ -69,9 +50,9 @@ export default function PaymentGateway({ subscriptionId, amount }: PaymentGatewa
                 razorpayOrderId: response.razorpay_order_id,
                 razorpaySignature: response.razorpay_signature,
                 amount: orderResponse.data.amount,
-                subscriptionId: orderResponse.data.subscriptionId
+                subscriptionId: orderResponse.data.subscriptionId,
               },
-              { headers: { Authorization:` Bearer ${accessToken}` } }
+              { headers: { Authorization: `Bearer ${accessToken}` } }
             );
             setStatusMessage('Payment successful!');
 
@@ -79,16 +60,15 @@ export default function PaymentGateway({ subscriptionId, amount }: PaymentGatewa
               await axios.post(
                 'http://localhost:3040/subscription-details/update',
                 {
-                   status: "active",
-                  subscriptionId: orderResponse.data.subscriptionId
+                  status: 'active',
+                  subscriptionId: orderResponse.data.subscriptionId,
                 },
-                { headers: { Authorization:` Bearer ${accessToken}` } }
+                { headers: { Authorization: `Bearer ${accessToken}` } }
               );
             } catch (error: any) {
-              setStatusMessage('Failed to update subscription.',);
-              // setShowSnackbar(true);
+              setStatusMessage('Failed to update subscription.');
             }
-            navigate("/broker");
+            navigate('/broker');
           } catch (error) {
             setStatusMessage('Payment verification failed');
           }
@@ -103,19 +83,18 @@ export default function PaymentGateway({ subscriptionId, amount }: PaymentGatewa
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', async (response: any) => {
         setStatusMessage(`Payment failed: ${response.error.description}`);
-       
-          try {
-            await axios.post(
-              'http://localhost:3040/subscription-details/update',
-              {
-                 status: "inactive",
-                subscriptionId: orderResponse.data.subscriptionId
-              },
-              { headers: { Authorization:` Bearer ${accessToken}` } }
-            );
+
+        try {
+          await axios.post(
+            'http://localhost:3040/subscription-details/update',
+            {
+              status: 'inactive',
+              subscriptionId: orderResponse.data.subscriptionId,
+            },
+            { headers: { Authorization: `Bearer ${accessToken}` } }
+          );
         } catch (error: any) {
-          setStatusMessage('Failed to update subscription.',);
-          // setShowSnackbar(true);
+          setStatusMessage('Failed to update subscription.');
         }
       });
       rzp.open();
@@ -124,7 +103,28 @@ export default function PaymentGateway({ subscriptionId, amount }: PaymentGatewa
     } finally {
       setLoading(false);
     }
-  };
+  }, [subscriptionId, amount, accessToken, navigate]); // ✅ Dependencies added for stability
+
+  useEffect(() => {
+    const loadRazorpay = () => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => {
+        setRazorpayLoaded(true);
+        initiatePayment(); // ✅ Now safe to call
+      };
+      script.onerror = () => setStatusMessage('Failed to load payment gateway. Please refresh.');
+      document.body.appendChild(script);
+    };
+
+    if (!window.Razorpay) {
+      loadRazorpay();
+    } else {
+      setRazorpayLoaded(true);
+      initiatePayment(); // ✅ Now safe to call
+    }
+  }, [initiatePayment]); // ✅ Fixed missing dependency warning
 
   return (
     <Box>
@@ -134,6 +134,6 @@ export default function PaymentGateway({ subscriptionId, amount }: PaymentGatewa
           {statusMessage}
         </Alert>
       )}
-    </Box>
-  );
-};
+    </Box>
+  );
+}

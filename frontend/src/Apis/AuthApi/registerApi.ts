@@ -1,9 +1,7 @@
 // src/services/api.ts
 
+const API_BASE_URL = `http://${import.meta.env.VITE_BACKEND_IP}:${import.meta.env.VITE_BACKEND_PORT}`;
 
-
-  const API_BASE_URL = `http://${import.meta.env.VITE_BACKEND_IP}:${import.meta.env.VITE_BACKEND_PORT}`;
-  
 /**
  * Send OTP to the provided email
  * @param email - User's email address

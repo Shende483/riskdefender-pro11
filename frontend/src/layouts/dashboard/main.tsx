@@ -8,7 +8,6 @@ import Container from '@mui/material/Container';
 
 import { layoutClasses } from '../classes';
 
-
 // ----------------------------------------------------------------------
 
 export function Main({ children, sx, ...other }: BoxProps) {
