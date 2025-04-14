@@ -38,7 +38,6 @@ interface TradingRulesData {
   option: TradingRule[];
   future: TradingRule[];
 }
-
 interface MyDefinedRulesProps {
   tradingRules?: TradingRulesData;
   activeTab: string;
@@ -81,7 +80,6 @@ export default function MyDefinedRules({ tradingRules,activeTab, setActiveTab }:
             />
           </ListItem>
         </List>
-
         <Box>
           <Tabs
             value={activeTab}
@@ -102,7 +100,6 @@ export default function MyDefinedRules({ tradingRules,activeTab, setActiveTab }:
               />
             ))}
           </Tabs>
-
           {getRuleFieldsForTab().length === 0 ? (
             <Typography sx={{ mt: 2, fontSize: '12px', textAlign: 'center' }}>
               No trading rules defined for {activeTab} segment

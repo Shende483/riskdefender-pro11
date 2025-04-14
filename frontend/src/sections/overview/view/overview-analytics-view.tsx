@@ -10,24 +10,27 @@ import OrderEntryComponent from '../OrderEntryComponent';
 import { MyAccountsDetails } from '../MyAccountsDetails';
 import TradingviewChartAndData from '../../../layouts/dashboard/TradingViewChartCard';
 
-interface TradingRulesData {
+export interface TradingRulesData {
   brokerAccountName: string;
+  marketTypeId: string;
+  brokerId: string;
   cash: { key: string; value: string }[];
   option: { key: string; value: string }[];
   future: { key: string; value: string }[];
 }
 export function OverviewAnalyticsView() {
-  const [tradingRules, setTradingRules] = useState<TradingRulesData | undefined>(undefined);
+  const [tradingRules, setTradingRules] = useState<TradingRulesData>({} as TradingRulesData);
   const [activeTab, setActiveTab] = useState<string>('cash');
   const [selectedMarketTypeId, setSelectedMarketTypeId] = useState('');
 
   const handleTradingRulesChange = (rules: TradingRulesData) => {
-    console.log('Trading rules updated:', rules);
     setTradingRules({
       brokerAccountName: rules.brokerAccountName,
+      marketTypeId: rules.marketTypeId,
+      brokerId: rules.brokerId,
       cash: rules.cash,
       option: rules.option,
-      future: rules.future
+      future: rules.future,
     });
   };
   return (
@@ -38,7 +41,8 @@ export function OverviewAnalyticsView() {
             <MyAccountsDetails onTradingRulesChange={handleTradingRulesChange} selectedMarketTypeId={selectedMarketTypeId} setSelectedMarketTypeId={setSelectedMarketTypeId} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-            <MyDefinedRules tradingRules={tradingRules} activeTab={activeTab} setActiveTab={setActiveTab} />
+            <MyDefinedRules tradingRules={tradingRules} activeTab={activeTab} setActiveTab={setActiveTab}
+            />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
             <AlertingDetails />
@@ -54,7 +58,7 @@ export function OverviewAnalyticsView() {
           </Grid>
           <Grid item xs={12} md={4}>
             <Card sx={{ backgroundColor: 'white', height: 670 }}>
-              <UserBalanceCard />
+              <UserBalanceCard tradingRules={tradingRules} activeTab={activeTab} />
               <OrderEntryComponent tradingRules={tradingRules} activeTab={activeTab} selectedMarketTypeId={selectedMarketTypeId}/>
             </Card>
           </Grid>

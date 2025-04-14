@@ -49,4 +49,10 @@ export default class BrokerAccountService extends BaseService {
   static async getUserSubscriptionPlans() {
     return this.get<Plan[]>('subscription-details/get-user-subscriptions');
   }
+
+  static async fetchBrokersByMarketTypeId(marketTypeId: string) {
+    const response = await this.get<Broker[]>(`broker/by-market-type?marketTypeId=${marketTypeId}`
+    );
+    return response.data;
+  }
 }

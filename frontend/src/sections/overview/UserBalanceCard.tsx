@@ -1,9 +1,72 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Card, Grid, Select, MenuItem, InputLabel, Typography, FormControl } from '@mui/material';
 
-export default function UserBalanceCard() {
+import UserExitService from '../../Services/UserExitService';
+
+import type { TradingRulesData } from './view';
+
+interface MyDefinedRulesProps {
+  tradingRules: TradingRulesData;
+  activeTab: string;
+}
+
+interface NormalizedEntryData {
+  entryToday: number;
+  entryCount: number;
+  nextEntryTime: string;
+  status: string;
+}
+
+export default function UserBalanceCard({ tradingRules, activeTab }: MyDefinedRulesProps) {
   const [symbol, setSymbol] = useState('');
+  const [avaiLableBalance, setAvaiLableBalance] = useState<Partial<NormalizedEntryData>>(
+    {} as NormalizedEntryData
+  );
+
+  const normalizeData = (data: Record<string, any>): Partial<NormalizedEntryData> => {
+    const dynamicKeyMap: Record<string, keyof NormalizedEntryData> = {
+      myEntryToday: 'entryToday',
+      myEntryCountInSymbol: 'entryCount',
+      myNextEntryTime: 'nextEntryTime',
+      status: 'status',
+    };
+
+    const partialData = Object.entries(data).reduce(
+      (normalized: Partial<NormalizedEntryData>, [key, value]) => {
+        const baseKey = key.replace(/-(stock|crypto|forex)-[cof]$/, '');
+        const consistentKey = dynamicKeyMap[baseKey];
+
+        if (consistentKey) {
+          normalized[consistentKey] = value;
+        }
+
+        return normalized;
+      },
+      {}
+    );
+
+    return {
+      entryToday: partialData.entryToday ?? 0,
+      entryCount: partialData.entryCount ?? 0,
+      nextEntryTime: partialData.nextEntryTime ?? '',
+      status: partialData.status ?? '',
+    } as NormalizedEntryData;
+  };
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await UserExitService.getUserExitAccount(
+        tradingRules.marketTypeId,
+        tradingRules?.brokerId,
+        activeTab
+      );
+      console.log('hello', response.data);
+      const normalize = normalizeData(response.data as Record<string, any>);
+      setAvaiLableBalance(normalize);
+    }
+    fetchData();
+  }, [tradingRules, activeTab]);
 
   return (
     <Card sx={{ bgcolor: '#ede7f6', m: 2 }}>
@@ -32,7 +95,21 @@ export default function UserBalanceCard() {
             </Grid>
             <Grid item>
               <Typography variant="h6" sx={{ color: 'grey.800' }}>
-                18
+                {avaiLableBalance?.entryCount}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <Grid container display="flex" alignItems="center" mb={1}>
+            <Grid item>
+              <Typography variant="subtitle1" sx={{ color: 'secondary.dark' }}>
+                Next Entry Time :
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="h6" sx={{ color: 'grey.800' }}>
+                {avaiLableBalance?.nextEntryTime}
               </Typography>
             </Grid>
           </Grid>

@@ -7,6 +7,7 @@ import { Tab, Card, Tabs, Select, MenuItem, InputLabel, FormControl } from '@mui
 import { getToken } from '../../utils/getTokenFn';
 import MarketTypeService from '../../Services/MarketTypeService';
 
+import type { TradingRulesData } from './view';
 import type { MarketTypeList } from '../../Types/MarketTypes';
 
 const CardWrapper = ({ theme }: { theme: any }) => ({
@@ -40,13 +41,6 @@ interface BrokerAccount {
   brokerName: string;
 }
 
-interface TradingRulesData {
-  brokerAccountName: string;
-  cash: { key: string; value: string }[];
-  option: { key: string; value: string }[];
-  future: { key: string; value: string }[];
-}
-
 interface MyAccountsDetailsProps {
   onTradingRulesChange?: (data: TradingRulesData) => void;
   selectedMarketTypeId: string;
@@ -55,7 +49,7 @@ interface MyAccountsDetailsProps {
 
 export function MyAccountsDetails({ onTradingRulesChange, selectedMarketTypeId, setSelectedMarketTypeId }: MyAccountsDetailsProps) {
   const theme = useTheme();
-  const [selectedBroker, setSelectedBroker] = useState('');
+  const [selectedBrokerId, setSelectedBrokerId] = useState('');
   const [selectedSubbroker, setSelectedSubbroker] = useState('');
   const [marketTypes, setMarketTypes] = useState<MarketTypeList[]>([]);
   const [brokers, setBrokers] = useState<
@@ -77,24 +71,23 @@ export function MyAccountsDetails({ onTradingRulesChange, selectedMarketTypeId, 
         `http://localhost:3040/brokerAccount/trading-rules/${brokerAccountId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
       // Parse the trading rules into the expected format
       const parsedRules = {
         ...response.data.data,
         option: response.data.data.option.map((rule: string) => {
-          const [key, value] = rule.split(':').map(item => item.trim());
+          const [key, value] = rule.split(':').map((item) => item.trim());
           return { key, value };
         }),
         future: response.data.data.future.map((rule: string) => {
-          const [key, value] = rule.split(':').map(item => item.trim());
+          const [key, value] = rule.split(':').map((item) => item.trim());
           return { key, value };
         }),
         cash: response.data.data.cash.map((rule: string) => {
-          const [key, value] = rule.split(':').map(item => item.trim());
+          const [key, value] = rule.split(':').map((item) => item.trim());
           return { key, value };
-        })
+        }),
       };
-      
+
       return parsedRules;
     } catch (error) {
       console.error('Error fetching trading rules:', error);
@@ -169,12 +162,12 @@ export function MyAccountsDetails({ onTradingRulesChange, selectedMarketTypeId, 
         <FormControl fullWidth variant="filled" sx={{ m: 1, py: 0, minWidth: 120 }}>
           <InputLabel>Broker</InputLabel>
           <Select
-            value={selectedBroker}
-            onChange={(e) => setSelectedBroker(e.target.value)}
+            value={selectedBrokerId}
+            onChange={(e) => setSelectedBrokerId(e.target.value)}
             disabled={loading || brokers.length === 0}
           >
             {uniqueBrokers.map((broker, index) => (
-              <MenuItem key={index} value={broker.brokerName}>
+              <MenuItem key={index} value={broker._id}>
                 {broker.brokerName}
               </MenuItem>
             ))}
@@ -195,6 +188,8 @@ export function MyAccountsDetails({ onTradingRulesChange, selectedMarketTypeId, 
                   // Check if onSubbrokerSelect exists
                   onTradingRulesChange({
                     brokerAccountName: selectedAccount.brokerAccountName,
+                    marketTypeId: selectedMarketTypeId,
+                    brokerId: selectedBrokerId,
                     cash: rules.cash,
                     option: rules.option,
                     future: rules.future,
@@ -202,10 +197,10 @@ export function MyAccountsDetails({ onTradingRulesChange, selectedMarketTypeId, 
                 }
               }
             }}
-            disabled={loading || brokers.length === 0 || !selectedBroker}
+            disabled={loading || brokers.length === 0 || !selectedBrokerId}
           >
             {brokers
-              .filter((broker) => !selectedBroker || broker.brokerName === selectedBroker)
+              .filter((broker) => !selectedBrokerId || broker._id === selectedBrokerId)
               .map((broker) => (
                 <MenuItem key={broker._id} value={broker.brokerAccountName}>
                   {broker.brokerAccountName}
