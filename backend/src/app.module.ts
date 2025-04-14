@@ -34,7 +34,6 @@ import { UserAccountDetailModule } from './modules/adminModules/UserAccountDetai
     BrokerAccountModule,
     AdminOrderPlacementModule,
     UserAccountDetailModule,
-    UserTradingExistingModule,
     UserExitAccountModule,
   ],
   providers: [RedisService],
