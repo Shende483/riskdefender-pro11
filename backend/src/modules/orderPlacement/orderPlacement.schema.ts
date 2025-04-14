@@ -13,7 +13,7 @@ export class OrderPlacementType {
 
   @Prop({
     type: String,
-    enum: ['Cash', 'Future', 'Option'],
+    enum: ['cash', 'future', 'option'],
     required: true,
   })
   orderType: string;
@@ -28,12 +28,11 @@ export class OrderPlacementType {
   @Prop({ required: true })
   symbol: string;
 
-  @Prop({ type: [String], enum: ['SELL/SHORT', 'BUY/LONG'] })
-  allowedDirection: string;
-
+  @Prop({ type: [String], enum: ['SELL', 'BUY'] })
+  allowedDirection: string
   @Prop({
     type: [String],
-    enum: ['CROSSED', 'ISOLATED'],
+    enum: ['CROSS', 'ISOLATED'],
     required: true,
   })
   marginTypes: string;

@@ -1,6 +1,4 @@
-import type { SelectChangeEvent } from '@mui/material';
-
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   Box,
@@ -15,7 +13,12 @@ import {
   CardContent,
   ButtonGroup,
   FormControl,
+  Snackbar,
+  Alert,
 } from '@mui/material';
+import OrderPlacementService from '../../Services/OrderPlacementService';
+import MarketTypeService from '../../Services/MarketTypeService';
+import { OrderPlacementype } from '../../Types/OrderplacementTypes';
 
 const StyledButtonGroup = styled(ButtonGroup)({
   width: '100%',
@@ -27,81 +30,143 @@ const StyledButtonGroup = styled(ButtonGroup)({
   },
 });
 
-const SubmitButton = styled(Button)({
-  width: '100%',
-  backgroundColor: '#0d6efd',
-  color: 'white',
-  padding: '8px',
-  fontSize: '0.9rem',
-  '&:hover': {
-    backgroundColor: '#0b5ed7',
-  },
-});
+interface TradingRule {
+  key: string;
+  value: string;
+}
 
-interface OrderEntryComponentProps {}
+interface TradingRulesData {
+  brokerAccountName: string;
+  cash: TradingRule[];
+  option: TradingRule[];
+  future: TradingRule[];
+}
 
-const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
-  const [orderType, setOrderType] = useState<string | null>(null);
-  const [positionType, setPositionType] = useState<string>('ISOLATED');
-  const [leverage, setLeverage] = useState<number>(7);
-  const [risk, setRisk] = useState<number>(29.41);
-  const [cardBgColor, setCardBgColor] = useState<string>('secondary.light');
+interface MyDefinedRulesProps {
+  tradingRules?: TradingRulesData;
+  activeTab: string;
+  selectedMarketTypeId: string;
+}
+
+interface MarketType {
+  _id: string;
+  name: string;
+}
+
+interface StatusMessage {
+  text: string;
+  type: 'success' | 'error' | 'info' | 'warning';
+  field?: string;
+}
+
+export default function OrderEntryComponentconst({ tradingRules, activeTab, selectedMarketTypeId }: MyDefinedRulesProps) {
   const [symbol, setSymbol] = useState<string>('');
   const [market, setMarket] = useState<string>('');
   const [stopLoss, setStopLoss] = useState<string>('');
+  const [entryPrice, setEntryPrice] = useState<string>('');
   const [targetPrice, setTargetPrice] = useState<string>('');
+  const [marketTypes, setMarketTypes] = useState<MarketType[]>([]);
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
-  const handleOrderTypeClick = (type: string) => {
-    setOrderType(type);
-    if (type === 'SELL') {
-      setCardBgColor('rgb(255, 133, 133)');
-    } else if (type === 'BUY') {
-      setCardBgColor('rgb(133, 255, 133)');
-    } else {
-      setCardBgColor('secondary.light');
+  const getRuleFieldsForTab = () => {
+    if (!tradingRules) return [];
+    const segment = tradingRules[activeTab as keyof TradingRulesData];
+    if (!Array.isArray(segment)) return [];
+    return segment.map((rule) => rule.key);
+  };
+  console.log('getRuleFieldsForTab', getRuleFieldsForTab());
+  const findRuleValue = (key: string): string => {
+    if (!tradingRules) return 'Not defined';
+    const segment = tradingRules[activeTab as keyof TradingRulesData];
+    if (!Array.isArray(segment)) return 'Not defined';
+
+    const rule = segment.find((r) => r.key === key);
+    return rule ? rule.value : 'Not defined';
+  };
+
+  const MaxLeverage = findRuleValue('MaxLeverage').replace('X', '');
+  const MaxRiskEntry = findRuleValue('MaxRiskEntry').replace('%', '');
+  const EntrySide = findRuleValue('EntrySide').toUpperCase();
+  const MarginTypes = findRuleValue('MarginTypes').toUpperCase();
+
+  const isIsolated = MarginTypes === 'ISOLATED' || MarginTypes === 'ISOLATED, CROSS';
+  const isCross = MarginTypes === 'CROSS' || MarginTypes === 'ISOLATED, CROSS';
+  const isSell = EntrySide === 'SELL' || EntrySide === 'BUY, SELL';
+  const isBuy = EntrySide === 'BUY' || EntrySide === 'BUY, SELL'
+
+  useEffect(() => {
+    const fetchMarketTypes = async () => {
+      const response = await MarketTypeService.getAllActiveMarketTypes();
+      setMarketTypes(Array.from(response.data.values()));
+      console.log('API Response:', response.data.keys);
+    };
+    fetchMarketTypes();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const orderDetails: OrderPlacementype = {
+        marketTypeId: selectedMarketTypeId,
+        orderType: activeTab,
+        orderPlacingType: market,
+        entryPrice: Number(entryPrice) || 0,
+        symbol,
+        allowedDirection: [EntrySide],
+        marginTypes: [MarginTypes],
+        maxLeverage: Number(MaxLeverage) || 0,
+        maxRiskPercentage: Number(MaxRiskEntry) || 0,
+        stopLoss: Number(stopLoss) || 0,
+        targetPrice: Number(targetPrice) || 0,
+        status: "active",
+      };
+
+      const response = await OrderPlacementService.CreateOrder(orderDetails);
+      console.log('Order Template Created Successfully:', response);
+      setStatusMessage({
+        text: response.message || 'Order Template Created Successfully',
+        type: 'success',
+      });
+      setShowSnackbar(true);
+    } catch (error: any) {
+      console.error('Order Template failed:', error);
+      setStatusMessage({
+        text: error.message || 'Invalid credentials. Please try again.',
+        type: 'error',
+      });
+      setShowSnackbar(true);
     }
   };
 
-  const handlePositionTypeClick = (type: string) => {
-    setPositionType(type);
-  };
-
-  const handleSymbolChange = (event: SelectChangeEvent) => {
-    setSymbol(event.target.value as string);
-  };
-
-  const handleMarketChange = (event: SelectChangeEvent) => {
-    setMarket(event.target.value as string);
-  };
-
-  const handleStopLossChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setStopLoss(event.target.value);
-  };
-
-  const handleTargetPriceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTargetPrice(event.target.value);
-  };
-
-  const handleLeverageChange = (event: Event, value: number | number[]) => {
-    if (typeof value === 'number') {
-      setLeverage(value);
-    }
-  };
-
-  const handleRiskChange = (event: Event, value: number | number[]) => {
-    if (typeof value === 'number') {
-      setRisk(value);
-    }
+  const handleCloseSnackbar = () => {
+    setShowSnackbar(false);
   };
 
   return (
     <Card sx={{ m: 2, top: 4, bgcolor: '#ede7f6' }}>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={statusMessage?.type || 'info'}
+          sx={{ width: '100%' }}
+        >
+          {statusMessage?.text}
+        </Alert>
+      </Snackbar>
+
       <CardContent>
         <FormControl fullWidth sx={{ mb: 1 }}>
           <Select
             displayEmpty
             value={symbol}
-            onChange={handleSymbolChange}
+            onChange={(event) => setSymbol(event.target.value as string)}
             size="small"
             sx={{ '& .MuiSelect-select': { color: 'black' } }}
           >
@@ -113,12 +178,12 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
 
         <StyledButtonGroup variant="outlined">
           <Button
-            onClick={() => handleOrderTypeClick('SELL')}
             sx={{
-              backgroundColor: orderType === 'SELL' ? 'red' : 'inherit',
+              backgroundColor: isSell ? 'red' : 'inherit',
+              cursor: isSell ? 'pointer' : 'not-allowed',
               color: 'black',
               '&:hover': {
-                backgroundColor: orderType === 'SELL' ? 'darkred' : 'inherit',
+                backgroundColor: isSell ? 'darkred' : 'inherit',
               },
             }}
             size="small"
@@ -126,12 +191,12 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
             SELL(SHORT)
           </Button>
           <Button
-            onClick={() => handleOrderTypeClick('BUY')}
             sx={{
-              backgroundColor: orderType === 'BUY' ? 'green' : 'inherit',
+              backgroundColor: isBuy ? 'green' : 'inherit',
+              cursor: isBuy ? 'pointer' : 'not-allowed',
               color: 'black',
               '&:hover': {
-                backgroundColor: orderType === 'BUY' ? 'darkgreen' : 'inherit',
+                backgroundColor: isBuy ? 'darkgreen' : 'inherit',
               },
             }}
             size="small"
@@ -142,12 +207,12 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
 
         <StyledButtonGroup variant="outlined" sx={{ mb: 1 }}>
           <Button
-            onClick={() => handlePositionTypeClick('ISOLATED')}
             sx={{
-              backgroundColor: positionType === 'ISOLATED' ? 'purple' : 'inherit',
+              backgroundColor: isIsolated ? 'purple' : 'inherit',
+              cursor: isIsolated ? 'pointer' : 'not-allowed',
               color: 'black',
               '&:hover': {
-                backgroundColor: positionType === 'ISOLATED' ? 'purple' : 'darkpurple',
+                backgroundColor: isIsolated ? 'purple' : 'darkpurple',
               },
             }}
             size="small"
@@ -155,12 +220,12 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
             ISOLATED
           </Button>
           <Button
-            onClick={() => handlePositionTypeClick('CROSSED')}
             sx={{
-              backgroundColor: positionType === 'CROSSED' ? 'purple' : 'inherit',
+              backgroundColor: isCross ? 'purple' : 'inherit',
+              cursor: isCross ? 'pointer' : 'not-allowed',
               color: 'black',
               '&:hover': {
-                backgroundColor: positionType === 'CROSSED' ? 'purple' : 'darkpurple',
+                backgroundColor: isCross ? 'purple' : 'darkpurple',
               },
             }}
             size="small"
@@ -175,14 +240,13 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Slider
-              value={leverage}
-              onChange={handleLeverageChange}
-              max={20}
+              value={Number(MaxLeverage) || 0}
               valueLabelDisplay="off"
+              max={20}
               size="small"
               sx={{ color: '#0d6efd', flexGrow: 1 }}
             />
-            <Typography sx={{ ml: 1, fontWeight: 'bold' }}>{leverage}x</Typography>
+            <Typography sx={{ ml: 1, fontWeight: 'bold' }}>{Number(MaxLeverage) || 0}x</Typography>
           </Box>
         </Box>
 
@@ -192,14 +256,13 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Slider
-              value={risk}
-              onChange={handleRiskChange}
-              max={100}
+              value={Number(MaxRiskEntry) || 0}
               valueLabelDisplay="off"
+              max={100}
               size="small"
               sx={{ color: '#0d6efd', flexGrow: 1 }}
             />
-            <Typography sx={{ ml: 1, fontWeight: 'bold' }}>{risk.toFixed(2)}%</Typography>
+            <Typography sx={{ ml: 1, fontWeight: 'bold' }}>{Number(MaxRiskEntry) || 0}%</Typography>
           </Box>
         </Box>
 
@@ -207,23 +270,32 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
           <Select
             displayEmpty
             value={market}
-            onChange={handleMarketChange}
+            onChange={(e) => setMarket(e.target.value)}
             size="small"
             sx={{ '& .MuiSelect-select': { color: 'black' } }}
           >
             <MenuItem value="">Select Market</MenuItem>
-            <MenuItem value="USDT">USDT</MenuItem>
-            <MenuItem value="BUSD">BUSD</MenuItem>
+            <MenuItem value="Stop">STOP MARKET</MenuItem>
+            <MenuItem value="Market">MARKET</MenuItem>
           </Select>
         </FormControl>
-
+        {market === 'Stop' && (
+          <TextField
+            fullWidth
+            placeholder="Enter Entry Price"
+            sx={{ mb: 1, '& .MuiInputBase-input': { color: 'black' } }}
+            size="small"
+            value={entryPrice}
+            onChange={(e) => setEntryPrice(e.target.value)}
+          />
+        )}
         <TextField
           fullWidth
           placeholder="Enter StopLoss Price"
           sx={{ mb: 1, '& .MuiInputBase-input': { color: 'black' } }}
           size="small"
           value={stopLoss}
-          onChange={handleStopLossChange}
+          onChange={(e) => setStopLoss(e.target.value)}
         />
         <TextField
           fullWidth
@@ -231,13 +303,11 @@ const OrderEntryComponent: React.FC<OrderEntryComponentProps> = () => {
           sx={{ mb: 1, '& .MuiInputBase-input': { color: 'black' } }}
           size="small"
           value={targetPrice}
-          onChange={handleTargetPriceChange}
+          onChange={(e) => setTargetPrice(e.target.value)}
         />
 
-        <SubmitButton variant="contained">SUBMIT ORDER</SubmitButton>
+        <Button variant="contained" fullWidth onClick={handleSubmit}>SUBMIT ORDER</Button>
       </CardContent>
     </Card>
   );
 };
-
-export default OrderEntryComponent;

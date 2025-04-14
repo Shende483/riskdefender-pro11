@@ -4,7 +4,7 @@ import {
   OrderPlacementSchema,
   OrderPlacementType,
 } from './orderPlacement.schema';
-import { MarketType, MarketTypeSchema } from '../MarketType/marketType.schema';
+import { MarketType, MarketTypeSchema } from '../adminModules/MarketType/marketType.schema';
 import { JwtModule } from '@nestjs/jwt';
 import jwtConfing from 'src/config/jwt.confing';
 import { OrderPlacementService } from './orderPlacement.service';
