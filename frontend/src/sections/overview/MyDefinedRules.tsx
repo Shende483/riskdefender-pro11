@@ -40,14 +40,19 @@ interface TradingRulesData {
   option: TradingRule[];
   future: TradingRule[];
 }
-
 interface MyDefinedRulesProps {
   tradingRules?: TradingRulesData;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-export default function MyDefinedRules({ tradingRules }: MyDefinedRulesProps) {
+export default function MyDefinedRules({
+  tradingRules,
+  activeTab,
+  setActiveTab,
+}: MyDefinedRulesProps) {
   const theme = useTheme();
-  const [activeTab, setActiveTab] = useState<string>('cash');
+  // const [activeTab, setActiveTab] = useState<string>('cash');
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue);
@@ -82,7 +87,6 @@ export default function MyDefinedRules({ tradingRules }: MyDefinedRulesProps) {
             />
           </ListItem>
         </List>
-
         <Box>
           <Tabs
             value={activeTab}
@@ -103,7 +107,6 @@ export default function MyDefinedRules({ tradingRules }: MyDefinedRulesProps) {
               />
             ))}
           </Tabs>
-
           {getRuleFieldsForTab().length === 0 ? (
             <Typography sx={{ mt: 2, fontSize: '12px', textAlign: 'center' }}>
               No trading rules defined for {activeTab} segment

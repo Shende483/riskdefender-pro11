@@ -9,6 +9,7 @@ import { UpdateUserInfoModule } from './modules/auth/updateUserInfoAuth/UserUpda
 import { AdminPlanModule } from './modules/adminModules/planManage/plan.module';
 import { AdminMarketTypeModule } from './modules/adminModules/MarketType/marketType.module';
 import { AdminBrokersModule } from './modules/adminModules/BrokerManagment/broker.module';
+import { UserExitAccountModule } from './modules/UserTradingExist/userTrading.module';
 import { TradingRulesModule } from './modules/adminModules/TradingRulesManagment/tradingRules.modules';
 import { BrokerAccountModule } from './modules/BrokerAccountManagement/brokerAccount.module';
 import { RedisService } from './config/redis.config';
@@ -35,6 +36,7 @@ import { UserTradingExistingModule } from './modules/adminModules/UserTradingExi
     AdminOrderPlacementModule,
     UserAccountDetailModule,
     UserTradingExistingModule,
+    UserExitAccountModule,
   ],
   providers: [RedisService],
   exports: [RedisService],
