@@ -49,9 +49,11 @@ interface TradingRulesData {
 
 interface MyAccountsDetailsProps {
   onTradingRulesChange?: (data: TradingRulesData) => void;
+  selectedMarketTypeId: string;
+  setSelectedMarketTypeId: (tab: string) => void;
 }
 
-export function MyAccountsDetails({ onTradingRulesChange }: MyAccountsDetailsProps) {
+export function MyAccountsDetails({ onTradingRulesChange, selectedMarketTypeId, setSelectedMarketTypeId }: MyAccountsDetailsProps) {
   const theme = useTheme();
   const [selectedBroker, setSelectedBroker] = useState('');
   const [selectedSubbroker, setSelectedSubbroker] = useState('');
@@ -64,7 +66,6 @@ export function MyAccountsDetails({ onTradingRulesChange }: MyAccountsDetailsPro
     }>
   >([]);
   const [loading, setLoading] = useState(false);
-  const [selectedMarketTypeId, setSelectedMarketTypeId] = useState('');
 
   const [selectedBrokerAccount, setSelectedBrokerAccount] = useState<BrokerAccount | null>(null);
 

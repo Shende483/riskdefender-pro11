@@ -18,6 +18,8 @@ interface TradingRulesData {
 }
 export function OverviewAnalyticsView() {
   const [tradingRules, setTradingRules] = useState<TradingRulesData | undefined>(undefined);
+  const [activeTab, setActiveTab] = useState<string>('cash');
+  const [selectedMarketTypeId, setSelectedMarketTypeId] = useState('');
 
   const handleTradingRulesChange = (rules: TradingRulesData) => {
     console.log('Trading rules updated:', rules);
@@ -33,10 +35,10 @@ export function OverviewAnalyticsView() {
       <Grid item xs={12}>
         <Grid container spacing={3}>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-            <MyAccountsDetails onTradingRulesChange={handleTradingRulesChange} />
+            <MyAccountsDetails onTradingRulesChange={handleTradingRulesChange} selectedMarketTypeId={selectedMarketTypeId} setSelectedMarketTypeId={setSelectedMarketTypeId} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-            <MyDefinedRules tradingRules={tradingRules} />
+            <MyDefinedRules tradingRules={tradingRules} activeTab={activeTab} setActiveTab={setActiveTab} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
             <AlertingDetails />
@@ -53,7 +55,7 @@ export function OverviewAnalyticsView() {
           <Grid item xs={12} md={4}>
             <Card sx={{ backgroundColor: 'white', height: 670 }}>
               <UserBalanceCard />
-              <OrderEntryComponent />
+              <OrderEntryComponent tradingRules={tradingRules} activeTab={activeTab} selectedMarketTypeId={selectedMarketTypeId}/>
             </Card>
           </Grid>
         </Grid>

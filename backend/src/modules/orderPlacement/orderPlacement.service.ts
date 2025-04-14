@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { MarketType } from '../MarketType/marketType.schema';
 import { Model } from 'mongoose';
-import { OrderPlacementDto } from './dto/orderPlacement.dto';
 import { Response } from 'express';
-import {
-  OrderPlacementDocument,
-  OrderPlacementType,
-} from './orderPlacement.schema';
+import { MarketType } from '../adminModules/MarketType/marketType.schema';
+import { OrderPlacementDto } from './dto/orderPlacement.dto';
+import { OrderPlacementType, OrderPlacementDocument } from './orderPlacement.schema';
 
 @Injectable()
 export class OrderPlacementService {
@@ -58,14 +55,14 @@ export class OrderPlacementService {
         targetPrice,
         status,
       });
-      const savedOrderTemplate = await newOrderTemplate.save();
-      console.log('Order Template Created Successfully', savedOrderTemplate);
+      // const savedOrderTemplate = await newOrderTemplate.save();
+      console.log('Order Template Created Successfully', newOrderTemplate);
 
       res.status(200).json({
         statusCode: 200,
         messege: 'Order Template Created Successfully',
         success: true,
-        data: savedOrderTemplate,
+        data: newOrderTemplate,
       });
     } catch (error) {
       console.error('❌ Error saving Order Template:', error);

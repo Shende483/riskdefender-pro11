@@ -3,9 +3,8 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
-  Max,
-  Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -20,19 +19,19 @@ export class OrderPlacementDto {
 
   @ApiProperty({
     description: 'The type of order',
-    enum: ['Cash', 'Future', 'Option'],
-    example: 'Future',
+    enum: ['cash', 'future', 'option']
   })
-  @IsEnum(['Cash', 'Future', 'Option'])
-  orderType: 'Cash' | 'Future' | 'Option';
+  @IsEnum(['cash', 'future', 'option'])
+  orderType: 'cash' | 'future' | 'option';
 
   @ApiProperty({
     description: 'The type of order placing',
-    enum: ['Market', 'Stop', 'Limit'],
+    enum: ['Market', 'Stop'],
     example: 'Limit',
   })
-  @IsEnum(['Market', 'Stop', 'Limit'])
-  orderPlacingType: 'Market' | 'Stop' | 'Limit';
+  @IsOptional()
+  @IsEnum(['Market', 'Stop'])
+  orderPlacingType: 'Market' | 'Stop';
 
   @ApiProperty({
     description: 'The trading symbol',
@@ -43,44 +42,30 @@ export class OrderPlacementDto {
 
   @ApiProperty({
     description: 'The allowed trading directions',
-    enum: ['SELL/SHORT', 'BUY/LONG'],
-    example: ['BUY/LONG'],
-    isArray: true,
+    enum: ['SELL', 'BUY'],
   })
-  @ArrayNotEmpty()
-  @IsEnum(['SELL/SHORT', 'BUY/LONG'], { each: true })
+  @IsOptional()
+  @IsEnum(['SELL', 'BUY'], { each: true })
   allowedDirection: string[];
 
   @ApiProperty({
     description: 'The margin types allowed',
-    enum: ['CROSSED', 'ISOLATED'],
-    example: ['ISOLATED'],
-    isArray: true,
+    enum: ['CROSS', 'ISOLATED'],
   })
-  @ArrayNotEmpty()
-  @IsEnum(['CROSSED', 'ISOLATED'], { each: true })
+  @IsOptional()
+  @IsEnum(['CROSS', 'ISOLATED'], { each: true })
   marginTypes: string[];
 
   @ApiProperty({
     description: 'The maximum allowed leverage',
-    minimum: 1,
-    maximum: 100,
-    example: 10,
   })
   @IsNumber()
-  @Min(1)
-  @Max(100)
   maxLeverage: number;
 
   @ApiProperty({
     description: 'The maximum allowed risk percentage',
-    minimum: 0.1,
-    maximum: 100,
-    example: 1,
   })
   @IsNumber()
-  @Min(0.1)
-  @Max(100)
   maxRiskPercentage: number;
 
   @ApiProperty({
@@ -89,6 +74,13 @@ export class OrderPlacementDto {
   })
   @IsNumber()
   stopLoss: number;
+  
+  @ApiProperty({
+    description: 'The stop-loss price',
+    example: 150.5,
+  })
+  @IsNumber()
+  entryPrice: number;
 
   @ApiProperty({
     description: 'The target price',

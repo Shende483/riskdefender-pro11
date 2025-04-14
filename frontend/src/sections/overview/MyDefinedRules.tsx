@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { useTheme } from '@mui/material/styles';
 import { Box, Tab, Card, List, Tabs, ListItem, Typography, ListItemText } from '@mui/material';
 
@@ -43,11 +41,12 @@ interface TradingRulesData {
 
 interface MyDefinedRulesProps {
   tradingRules?: TradingRulesData;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-export default function MyDefinedRules({ tradingRules }: MyDefinedRulesProps) {
+export default function MyDefinedRules({ tradingRules,activeTab, setActiveTab }: MyDefinedRulesProps) {
   const theme = useTheme();
-  const [activeTab, setActiveTab] = useState<string>('cash');
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue);
