@@ -1,26 +1,38 @@
+// dto/tradingRules.dto.ts
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsMongoId,
+  ValidateNested,
+  IsNotEmptyObject,
+} from 'class-validator';
+import { CreateRuleDto } from './rules.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsObject, IsString } from 'class-validator';
 
-export class TradingRulesDto {
-  @IsString()
-  @IsNotEmpty()
+class RulesGroupDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateRuleDto)
+  cash: CreateRuleDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateRuleDto)
+  option: CreateRuleDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateRuleDto)
+  future: CreateRuleDto[];
+}
+
+export class CreateTradingRulesDto {
+  @IsMongoId()
   @ApiProperty({})
   marketTypeId: string;
 
-  @IsObject()
-  @ApiProperty({
-    type: 'object',
-    properties: {
-      cash: { type: 'array', items: { type: 'string' } },
-      option: { type: 'array', items: { type: 'string' } },
-      future: { type: 'array', items: { type: 'string' } },
-    },
-  })
-  rules: {
-
-    cash: string[];
-    option: string[];
-    future: string[];
-  };
-  _id: any;
+  @ValidateNested()
+  @Type(() => RulesGroupDto)
+  @IsNotEmptyObject()
+  rules: RulesGroupDto;
 }

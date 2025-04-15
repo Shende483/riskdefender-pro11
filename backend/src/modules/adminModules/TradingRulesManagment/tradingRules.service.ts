@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { MarketType } from '../MarketType/marketType.schema';
-import { Model } from 'mongoose';
+import { Injectable, Res } from '@nestjs/common';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Response } from 'express';
-import { TradingRulesDto } from './dto/tradingRules.dto';
-import { TradingRules, TradingRulesDocument } from './tradingRules.schema'; // Added TradingRulesDocument
-import { Types } from 'mongoose';
+import { CreateTradingRulesDto } from './dto/tradingRules.dto';
+import { TradingRules, TradingRulesDocument } from './tradingRules.schema';
+import { CreateRuleDto } from './dto/rules.dto';
+import { MarketType } from '../MarketType/marketType.schema';
+import { isValidObjectId } from 'mongoose';
 
 const ObjectId = Types.ObjectId;
 
@@ -18,7 +19,7 @@ export class TradingRulesService {
   ) {}
 
   async createTradingRules(
-    tradingRulesDto: TradingRulesDto,
+    tradingRulesDto: CreateTradingRulesDto,
     res: Response,
   ): Promise<TradingRulesDocument | void> {
     const { marketTypeId, rules } = tradingRulesDto;
@@ -57,87 +58,68 @@ export class TradingRulesService {
     }
   }
 
-  async getRules(): Promise<TradingRulesDocument[]> {
+  async getTradingRules(@Res() res: Response) {
     try {
-      return this.tradingRulesModel.find().exec();
+      const tradingRules = await this.tradingRulesModel.find().exec();
+      res.status(200).json({
+        statusCode: 200,
+        message: '✅ Trading rules fetched successfully.',
+        success: true,
+        data: tradingRules,
+      });
     } catch (error) {
-      console.error('Error retrieving trading rules:', error);
-      throw error;
+      console.error('❌ Error retrieving trading rules:', error);
+      res.status(500).json({
+        statusCode: 500,
+        message: '❌ Something went wrong. Unable to fetch trading rules.',
+        success: false,
+      });
     }
   }
+
+  // async getRulesByMarketTypeId(
+  //   marketTypeId: string,
+  // ): Promise<TradingRulesDocument[]> {
+  //   try {
+  //     console.log('🔹NEwwwww Received marketTypeId:', marketTypeId);
+  //     return this.tradingRulesModel
+  //       .find({
+  //         marketTypeId: new ObjectId(marketTypeId)
+
+  //       })
+  //       .exec();
+  //   } catch (error) {
+  //     console.error('❌ Error retrieving trading rules:', error);
+  //     throw error;
+  //   }
+  // }
+
   async getRulesByMarketTypeId(
     marketTypeId: string,
   ): Promise<TradingRulesDocument[]> {
     try {
-      return this.tradingRulesModel
-        .find({ marketTypeId: new ObjectId(marketTypeId) })
+      console.log('🔹 Service - Received marketTypeId:', marketTypeId);
+
+      if (!marketTypeId) {
+        throw new Error('marketTypeId is required');
+      }
+
+      if (!Types.ObjectId.isValid(marketTypeId)) {
+        throw new Error('Invalid marketTypeId: Must be a valid ObjectId');
+      }
+
+      const result = await this.tradingRulesModel
+        .find({
+          marketTypeId: new Types.ObjectId(marketTypeId),
+        })
         .exec();
+
+      console.log('🔹 Service - Query result:', result);
+      return result;
     } catch (error) {
-      console.error('Error retrieving trading rules by market type ID:', error);
+      console.error('❌ Error retrieving trading rules:', error.message);
       throw error;
     }
   }
 
-  async updateTradingRules(tradingRulesDto: TradingRulesDto, res: Response) {
-    try {
-      const updatedRules = await this.tradingRulesModel.findByIdAndUpdate(
-        tradingRulesDto._id,
-        {
-          rules: tradingRulesDto.rules,
-          marketTypeId: tradingRulesDto.marketTypeId,
-        },
-        { new: true },
-      );
-
-      if (!updatedRules) {
-        return res.status(404).json({
-          statusCode: 404,
-          message: '❌ Trading rules not found.',
-          success: false,
-        });
-      }
-
-      res.status(200).json({
-        statusCode: 200,
-        message: '✅ Trading rules updated successfully.',
-        success: true,
-        data: updatedRules,
-      });
-    } catch (error) {
-      console.error('❌ Error updating trading rules:', error);
-      res.status(500).json({
-        statusCode: 500,
-        message: '❌ Something went wrong.',
-        success: false,
-      });
-    }
-  }
-
-  async deleteTradingRules(id: string, res: Response) {
-    try {
-      const deletedRules = await this.tradingRulesModel.findByIdAndDelete(id);
-
-      if (!deletedRules) {
-        return res.status(404).json({
-          statusCode: 404,  
-          message: '❌ Trading rules not found.',
-          success: false,
-        });
-      }
-
-      res.status(200).json({
-        statusCode: 200,
-        message: '✅ Trading rules deleted successfully.',
-        success: true,
-        data: deletedRules,
-      });
-    } catch (error) {
-      console.error('❌ Error deleting trading rules:', error);
-      res.status(500).json({
-        statusCode: 500,
-        message: '❌ Something went wrong.',
-        success: false,
-      });
-    }
-  }
 }
