@@ -7,13 +7,15 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { TradingRulesService } from './tradingRules.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { TradingRulesDto } from './dto/tradingRules.dto';
+import { CreateTradingRulesDto } from './dto/tradingRules.dto';
+import { CreateRuleDto } from './dto/rules.dto';
 import { TradingRulesDocument } from './tradingRules.schema';
 
 @Controller('trading-rules')
@@ -23,7 +25,7 @@ export class TradingRulesController {
   @Post('createRules')
   @UseGuards(JwtAuthGuard)
   async createRules(
-    @Body() createTradingRulesDto: TradingRulesDto,
+    @Body() createTradingRulesDto: CreateTradingRulesDto,
     @Res() res: Response,
   ) {
     return this.tradingRulesService.createTradingRules(
@@ -34,53 +36,26 @@ export class TradingRulesController {
 
   @Get('getRules')
   @UseGuards(JwtAuthGuard)
-  async getTradingRules(@Res() res: Response) {
-    try {
-      const rules = await this.tradingRulesService.getRules();
-      res.status(200).json({
-        statusCode: 200,
-        message: 'Trading rules retrieved successfully.',
-        data: rules,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({
-        statusCode: 500,
-        message: 'Error retrieving trading rules.',
-      });
-    }
+  async getRules(@Res() res: Response) {
+    return this.tradingRulesService.getTradingRules(res);
   }
 
+
+
+
   @Get('rulesByMarketTypeId')
+  @UseGuards(JwtAuthGuard)
   async getRulesByMarketTypeId(
     @Query('marketTypeId') marketTypeId: string,
   ): Promise<TradingRulesDocument[]> {
+    console.log('🔹 Received marketTypeId:', marketTypeId);
     return this.tradingRulesService.getRulesByMarketTypeId(marketTypeId);
   }
+  
 
-  @Put('updateRules')
-  async updateRules(
-    @Body() updateTradingRulesDto: TradingRulesDto,
-    @Res() res: Response,
-  ) {
-    console.log('🔹 Received UpdateTradingRulesDto:', updateTradingRulesDto);
-    if (!updateTradingRulesDto._id) {
-      {
-        return res.status(400).json({
-          statusCode: 400,
-          message: '❌ Trading rules ID is required.',
-          success: false,
-        });
-      }
-    }
-    return this.tradingRulesService.updateTradingRules(
-      updateTradingRulesDto,
-      res,
-    );
-  }
 
-  @Delete(':id/deleteRules')
-  async deleteRules(@Param('id') id: string, @Res() res: Response) {
-    return this.tradingRulesService.deleteTradingRules(id, res);
-  }
+  // @Delete(':id/deleteRules')
+  // async deleteRules(@Param('id') id: string, @Res() res: Response) {
+  //   return this.tradingRulesService.deleteTradingRules(id, res);
+  // }
 }

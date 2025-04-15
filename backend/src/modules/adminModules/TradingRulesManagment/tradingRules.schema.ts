@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Schema as MongooseSchema, HydratedDocument } from 'mongoose';
+import { Rule, RuleSchema } from './rules.schema';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 
-@Schema()
+@Schema({ timestamps: true })
 export class TradingRules {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -12,18 +13,17 @@ export class TradingRules {
 
   @Prop({
     type: {
-      cash: [{ type: String }],
-      option: [{ type: String }],
-      future: [{ type: String }],
+      cash: [RuleSchema],
+      option: [RuleSchema],
+      future: [RuleSchema],
     },
     required: true,
   })
   rules: {
-    cash: string[];
-    option: string[];
-    future: string[];
+    cash: Rule[];
+    option: Rule[];
+    future: Rule[];
   };
 }
-
 export type TradingRulesDocument = HydratedDocument<TradingRules>;
 export const TradingRulesSchema = SchemaFactory.createForClass(TradingRules);

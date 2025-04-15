@@ -10,7 +10,7 @@ import { TradingRulesController } from './tradingRules.controller';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: TradingRules.name, schema: TradingRulesSchema }, // No change needed
+      { name: TradingRules.name, schema: TradingRulesSchema }, 
       { name: MarketType.name, schema: MarketTypeSchema },
     ]),
     JwtModule.registerAsync(jwtConfing.asProvider()),
@@ -18,4 +18,4 @@ import { TradingRulesController } from './tradingRules.controller';
   controllers: [TradingRulesController],
   providers: [TradingRulesService],
 })
-export class TradingRulesModule {} // ✅ No modifications required
+export class TradingRulesModule {} 
