@@ -12,10 +12,6 @@ import {
 
 export class CreateRuleDto {
 
-  @ValidateIf((o) => o._id !== undefined)
-  @IsNotEmpty()
-  @IsString()
-  _id?: string;
 
   @IsString()
   @IsNotEmpty()

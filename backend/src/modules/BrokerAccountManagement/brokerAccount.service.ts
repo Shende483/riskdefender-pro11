@@ -36,7 +36,7 @@ export class BrokerAccountService {
     private readonly marketTypeModel: Model<MarketTypeSchema>,
     @InjectModel(Subscription.name)
     private readonly subscriptionModel: Model<SubscriptionDocument>,
-  ) { }
+  ) {}
 
   async createBrokerAccount(
     brokerAcoountdto: BrokerAccountDto,
@@ -190,10 +190,13 @@ export class BrokerAccountService {
     }
 
     try {
-      const brokerAccount = await this.brokerAccountModel.findOne({
-        _id: new Types.ObjectId(id),
-        userId: new Types.ObjectId(userId)
-      }).select('tradingRuleData brokerAccountName').lean();
+      const brokerAccount = await this.brokerAccountModel
+        .findOne({
+          _id: new Types.ObjectId(id),
+          userId: new Types.ObjectId(userId),
+        })
+        .select('tradingRuleData brokerAccountName')
+        .lean();
 
       if (!brokerAccount) {
         throw new Error('Broker account not found');
@@ -203,7 +206,7 @@ export class BrokerAccountService {
         brokerAccountName: brokerAccount.brokerAccountName,
         cash: brokerAccount.tradingRuleData?.cash || [],
         option: brokerAccount.tradingRuleData?.option || [],
-        future: brokerAccount.tradingRuleData?.future || []
+        future: brokerAccount.tradingRuleData?.future || [],
       };
     } catch (error) {
       console.error('Database error:', error);
