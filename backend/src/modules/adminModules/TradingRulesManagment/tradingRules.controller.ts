@@ -7,7 +7,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -15,9 +14,7 @@ import { TradingRulesService } from './tradingRules.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CreateTradingRulesDto } from './dto/tradingRules.dto';
-import { CreateRuleDto } from './dto/rules.dto';
 import { TradingRulesDocument } from './tradingRules.schema';
-
 @Controller('trading-rules')
 export class TradingRulesController {
   constructor(private readonly tradingRulesService: TradingRulesService) {}
@@ -32,16 +29,28 @@ export class TradingRulesController {
       createTradingRulesDto,
       res,
     );
+  }  
+
+  @Put('updateRules')
+  @UseGuards(JwtAuthGuard)
+  async updateRules(
+    @Param('id') id: string,
+    @Body() createTradingRulesDto: CreateTradingRulesDto,
+    @Res() res: Response,
+  ) {
+    return this.tradingRulesService.updateTradingRules(
+      id,
+      createTradingRulesDto,
+      res,
+    );
   }
+
 
   @Get('getRules')
   @UseGuards(JwtAuthGuard)
   async getRules(@Res() res: Response) {
     return this.tradingRulesService.getTradingRules(res);
   }
-
-
-
 
   @Get('rulesByMarketTypeId')
   @UseGuards(JwtAuthGuard)
@@ -51,11 +60,9 @@ export class TradingRulesController {
     console.log('🔹 Received marketTypeId:', marketTypeId);
     return this.tradingRulesService.getRulesByMarketTypeId(marketTypeId);
   }
-  
 
-
-  // @Delete(':id/deleteRules')
-  // async deleteRules(@Param('id') id: string, @Res() res: Response) {
-  //   return this.tradingRulesService.deleteTradingRules(id, res);
-  // }
+  @Delete('deleteRules/:id')
+  async deleteRules(@Param('id') id: string, @Res() res: Response) {
+    return this.tradingRulesService.deleteTradingRules(id, res);
+  }
 }

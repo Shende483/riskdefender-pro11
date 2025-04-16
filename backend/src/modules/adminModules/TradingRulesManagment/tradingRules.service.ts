@@ -4,11 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Response } from 'express';
 import { CreateTradingRulesDto } from './dto/tradingRules.dto';
 import { TradingRules, TradingRulesDocument } from './tradingRules.schema';
-import { CreateRuleDto } from './dto/rules.dto';
 import { MarketType } from '../MarketType/marketType.schema';
-import { isValidObjectId } from 'mongoose';
-
-const ObjectId = Types.ObjectId;
 
 @Injectable()
 export class TradingRulesService {
@@ -58,6 +54,53 @@ export class TradingRulesService {
     }
   }
 
+  async updateTradingRules(
+    tradingRulesId: string,
+    tradingRulesDto: CreateTradingRulesDto,
+    res: Response,
+  ): Promise<TradingRulesDocument | void> {
+    const { marketTypeId, rules } = tradingRulesDto;
+
+    const marketType = await this.marketTypeModel.findById(marketTypeId);
+    if (!marketType) {
+      res.status(400).json({
+        statusCode: 400,
+        message: '❌ Market type does not exist.',
+        success: false,
+      });
+      return;
+    }
+
+    try {
+      const updateRules = await this.tradingRulesModel.findOneAndUpdate(
+        {
+          tradingRulesId,
+        },
+        {
+          marketTypeId,
+          rules,
+        },
+        {
+          new: true,
+        },
+      );
+      console.log('✅ Trading rules updated successfully:', updateRules);
+      res.status(200).json({
+        statusCode: 200,
+        message: '✅ Trading rules updated successfully.',
+        success: true,
+        data: updateRules,
+      });
+    } catch (error) {
+      console.error('❌ Error saving broker:', error);
+      res.status(500).json({
+        statusCode: 500,
+        message: '❌ Something went wrong. Trading rules not saved.',
+        success: false,
+      });
+    }
+  }
+
   async getTradingRules(@Res() res: Response) {
     try {
       const tradingRules = await this.tradingRulesModel.find().exec();
@@ -76,23 +119,6 @@ export class TradingRulesService {
       });
     }
   }
-
-  // async getRulesByMarketTypeId(
-  //   marketTypeId: string,
-  // ): Promise<TradingRulesDocument[]> {
-  //   try {
-  //     console.log('🔹NEwwwww Received marketTypeId:', marketTypeId);
-  //     return this.tradingRulesModel
-  //       .find({
-  //         marketTypeId: new ObjectId(marketTypeId)
-
-  //       })
-  //       .exec();
-  //   } catch (error) {
-  //     console.error('❌ Error retrieving trading rules:', error);
-  //     throw error;
-  //   }
-  // }
 
   async getRulesByMarketTypeId(
     marketTypeId: string,
@@ -117,9 +143,44 @@ export class TradingRulesService {
       console.log('🔹 Service - Query result:', result);
       return result;
     } catch (error) {
-      console.error('❌ Error retrieving trading rules:', error.message);
+      console.error('❌ Error retrieving trading rules:', error);
       throw error;
     }
   }
 
+  async deleteTradingRules(id: string, res: Response) {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          statusCode: 400,
+          message: '❌ Invalid ID format.',
+          success: false,
+        });
+      }
+
+      const deletedTradingRules =
+        await this.tradingRulesModel.findByIdAndDelete(id);
+      if (!deletedTradingRules) {
+        return res.status(404).json({
+          statusCode: 404,
+          message: '❌ Trading rules not found.',
+          success: false,
+        });
+      }
+
+      return res.status(200).json({
+        statusCode: 200,
+        message: '✅ Trading rules deleted successfully.',
+        success: true,
+        data: deletedTradingRules,
+      });
+    } catch (error) {
+      console.error('❌ Error deleting trading rules:', error);
+      return res.status(500).json({
+        statusCode: 500,
+        message: '❌ Something went wrong.',
+        success: false,
+      });
+    }
+  }
 }
