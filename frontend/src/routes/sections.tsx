@@ -1,28 +1,31 @@
 import { lazy, Suspense } from 'react';
-import { Outlet, Navigate, useRoutes } from 'react-router-dom';
+import { Outlet, useRoutes } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 
 import { varAlpha } from '../theme/styles';
-import { DashboardLayout } from '../layouts/dashboard';
+import { DashboardLayout } from '../pages/layouts/dashboard';
 
-export const HomePage = lazy(() => import('../pages/home'));
-export const BlogPage = lazy(() => import('../pages/blog'));
-export const SubscriptionPage = lazy(() => import('../sections/broker/SubscriptionPage'));
-export const SignInPage = lazy(() => import('../pages/sign-in'));
-export const SignUpPage = lazy(() => import('../pages/sign-up'));
-export const ProfileUpdate = lazy(() => import('../pages/profile-update'));
-export const ForgetPassword = lazy(() => import('../pages/forget-password'));
-export const ProductsPage = lazy(() => import('../pages/products'));
-export const Page404 = lazy(() => import('../pages/page-not-found'));
-export const ConnectBrokerPage = lazy(() => import('../sections/broker/ConnectBrokerPage'));
-export const MarketTypeDetails = lazy(
-  () => import('../Admin/component/marketType/MarketTypeDetails')
-);
-export const BrokerDetails = lazy(
-  () => import('../Admin/component/brokermanagement/BrokerManagementDetails')
-);
+export const AddBrokerPage = lazy(() => import('../pages/layouts/dashboard/sections/my-account/add-broker/add-broker-page'));
+export const AddMyRulesPage = lazy(() => import('../pages/layouts/dashboard/sections/my-account/add-broker-rules/add-broker-rules'));
+export const UpdateMyRulesPage = lazy(() => import('../pages/layouts/dashboard/sections/my-account/update-broker-rules/update-broker-rules-page'));
+export const RenewBrokerPage = lazy(() => import('../pages/layouts/dashboard/sections/my-account/renew-broker/renew-broker-page'));
+export const DeleteBrokerPage = lazy(() => import('../pages/layouts/dashboard/sections/my-account/delete-brokers/delete-broker-page'));
+export const RenewTradingJournalPage = lazy(() => import('../pages/layouts/dashboard/sections/my-trading-journal/renew-trading-journal/renew-trading-journal-page'));
+export const DownloadTradingJournalPage = lazy(() => import('../pages/layouts/dashboard/sections/my-trading-journal/download-trading-journal/download-trading-journal-page'));
+export const RenewAlertsPage = lazy(() => import('../pages/layouts/dashboard/sections/my-market-alerts/renew-alerts/renew-alerts-page'));
+export const HomePage = lazy(() => import('../pages/layouts/dashboard/sections/trading-dashboard/view/home'));
+export const BlogPage = lazy(() => import('../pages/layouts/dashboard/sections/blog/view/blog'));
+export const SubscriptionPage = lazy(() => import('../pages/layouts/dashboard/sections/subcription/SubscriptionPage'));
+export const SignInPage = lazy(() => import('../pages/layouts/auth/sign-in'));
+export const SignUpPage = lazy(() => import('../pages/layouts/auth/sign-up'));
+export const ProfileUpdate = lazy(() => import('../pages/layouts/auth/profile-update'));
+export const ForgetPassword = lazy(() => import('../pages/layouts/auth/forget-password'));
+export const MyPenaltyHistoryPage = lazy(() => import('../pages/layouts/dashboard/sections/product/my-penalty-page'));
+export const ConnectBrokerPage = lazy(() => import('../pages/layouts/dashboard/sections/broker/ConnectBrokerPage'));
+export const MarketTypeDetails = lazy(() => import('../Admin/component/marketType/MarketTypeDetails'));
+export const BrokerDetails = lazy(() => import('../Admin/component/brokermanagement/BrokerManagementDetails'));
 export const PlanManage = lazy(() => import('../Admin/component/plan/PlanForm'));
 export const TradingRule = lazy(() => import('../Admin/component/tradingrule/TradingRule'));
 
@@ -51,8 +54,15 @@ export function Router() {
       ),
       children: [
         { element: <HomePage />, index: true },
-        { path: 'subscription', element: <SubscriptionPage /> },
-        { path: 'products', element: <ProductsPage /> },
+        { path: 'add-broker/subscription', element: <AddBrokerPage/> },
+        { path: 'add-broker-rules', element:<AddMyRulesPage/> },
+        { path: 'renew-broker/subcription', element: <RenewBrokerPage/> },
+        { path: 'delete-broker', element: <DeleteBrokerPage/> },
+        { path: 'update-broker-rules', element:<UpdateMyRulesPage/> },
+        { path: 'download-trading-journal', element: <DownloadTradingJournalPage/> },
+        { path: 'renew-trading-journal/subscription', element: <RenewTradingJournalPage/> },
+        { path: 'renew-alerts/subscription', element: <RenewAlertsPage/> },
+        { path: 'penalty-history', element: <MyPenaltyHistoryPage/> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'broker', element: <ConnectBrokerPage /> },
         { path: 'admin/marketdetails', element: <MarketTypeDetails /> },
@@ -77,13 +87,6 @@ export function Router() {
       path: '/forget-password',
       element: <ForgetPassword />,
     },
-    {
-      path: '404',
-      element: <Page404 />,
-    },
-    {
-      path: '*',
-      element: <Navigate to="/404" replace />,
-    },
+
   ]);
 }

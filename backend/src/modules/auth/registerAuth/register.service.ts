@@ -1,17 +1,21 @@
-// 🔶 Register Page
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User } from './register.schema';
 import { CreateUserDto } from './dto/register.dto';
 import { OtpService } from '../../../common/otp.service';
 import { bcryptService } from 'src/common/bcrypt.service';
 import { Response } from 'express';
+import { AlertManagement, AlertManagementDocument } from 'src/modules/sidebar-management/alert-management/alert-management.schema';
+import { TradingJournalManagement, TradingJournalManagementDocument } from 'src/modules/sidebar-management/trading-journal-management/trading-journal-management.schema';
+
 
 @Injectable()
 export class RegisterService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(AlertManagement.name) private alertPaymentModel: Model<AlertManagementDocument>,
+    @InjectModel(TradingJournalManagement.name) private tradingJournalPaymentModel: Model<TradingJournalManagementDocument>,
     private otpService: OtpService,
   ) {}
 
@@ -21,8 +25,7 @@ export class RegisterService {
   
     const user = await this.findUserByEmail(email);
     if (user) {
-      // User already exists, return an error response
-      return res.status(400).json({
+      return res.status(200).json({
         statusCode: 400,
         message: 'User already registered.',
         success: false,
@@ -43,11 +46,9 @@ export class RegisterService {
   
     const user = await this.findUserByMobile(mobile);
     if (user) {
-      // User already exists, return an error response
-      return res.status(400).json({
+      return res.status(200).json({
         statusCode: 400,
         message: 'User already registered.',
-
         data: "fghjfdghjhgjkgfjkgjkfhgjhfhghfhg",
         success: false,
       });
@@ -60,8 +61,9 @@ export class RegisterService {
       success: response.success,
     });
   }
+
   // 🔹 Verify OTP for Email
-  async verifyOtpEmail(email: string, otp: string,res:Response) {
+  async verifyOtpEmail(email: string, otp: string, res: Response) {
     console.log(`🔍 Verifying OTP for email: ${email}`);
     const response = await this.otpService.verifyOtpEmail(email, otp);
     res.status(200).json({
@@ -72,11 +74,10 @@ export class RegisterService {
 
     console.log(`✅ Email verified: ${email}`);
     await this.otpService.setVerifiedEmail(email);
-   
   }
 
   // 🔹 Verify OTP for Mobile
-  async verifyOtpMobile(mobile: string, otp: string , res:Response) {
+  async verifyOtpMobile(mobile: string, otp: string, res: Response) {
     console.log(`🔍 Verifying OTP for mobile: ${mobile}`);
     const response = await this.otpService.verifyOtpMobile(mobile, otp);
     res.status(200).json({
@@ -89,7 +90,6 @@ export class RegisterService {
     await this.otpService.setVerifiedMobile(mobile);
   }
 
-
   async createUser(createUserDto: CreateUserDto, res: Response): Promise<User | void> {
     const { email, mobile, password } = createUserDto;
   
@@ -97,19 +97,21 @@ export class RegisterService {
     const mobileVerified = await this.otpService.isMobileVerified(mobile);
   
     if (!emailVerified) {
-       res.status(400).json({
+      res.status(200).json({
         statusCode: 400,
         message: '❌ Email is not verified. Please verify OTP.',
         success: false,
       });
+      return;
     }
   
     if (!mobileVerified) {
-       res.status(400).json({
+      res.status(200).json({
         statusCode: 400,
         message: '❌ Mobile number is not verified. Please verify OTP.',
         success: false,
       });
+      return;
     }
   
     createUserDto.password = await bcryptService.hashData(password);
@@ -118,23 +120,36 @@ export class RegisterService {
       const newUser = new this.userModel(createUserDto);
       const savedUser = await newUser.save();
       console.log('✅ User registered successfully:', savedUser);
-  
-       res.status(201).json({
+
+      // Create AlertPayment document
+      await this.alertPaymentModel.create({
+        userId: savedUser._id,
+        myAlertLimit: 0,
+       
+      });
+
+      // Create TradingJournalPayment document
+      await this.tradingJournalPaymentModel.create({
+        userId: savedUser._id,
+        myTradingJournalLimit: 0,
+       
+      });
+
+      res.status(201).json({
         statusCode: 201,
         message: '✅ User registered successfully',
         success: true,
         data: savedUser,
       });
     } catch (error) {
-      console.error('❌ Error saving user:', error);
-       res.status(500).json({
+      console.error('❌ Error saving user or payment data:', error);
+      res.status(200).json({
         statusCode: 500,
         message: '❌ Something went wrong. User not saved.',
         success: false,
       });
     }
   }
-  
 
   // 🔹 Check if Email is Verified
   async isEmailVerified(email: string): Promise<boolean> {
@@ -169,30 +184,16 @@ export class RegisterService {
     return this.userModel.findOne({ email }).exec();
   }
 
-
   // 🔹 Find User by Mobile
   async findUserByMobile(mobile: string): Promise<User | null> {
     return this.userModel.findOne({ mobile }).exec();
   }
 
-
- 
-
   async updateUserPassword(userId: string, newPassword: string): Promise<User | null> {
     return this.userModel.findByIdAndUpdate(
-        userId, 
-        { password: newPassword }, 
-        { new: true, runValidators: true }
+      userId, 
+      { password: newPassword }, 
+      { new: true, runValidators: true }
     ).exec();
+  }
 }
-
-
-
-
-
-
-
-
-  
-}
-
