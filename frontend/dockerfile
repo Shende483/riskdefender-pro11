@@ -1,0 +1,36 @@
+# Stage 1: Build the application
+FROM node:20-alpine as builder
+
+WORKDIR /app
+
+# Copy package files first for better caching
+COPY package.json yarn.lock ./
+
+# Install all dependencies (including devDependencies)
+RUN yarn install --frozen-lockfile
+
+# Copy the rest of the application
+COPY . .
+
+# Build the application
+RUN yarn build
+
+# Stage 2: Production image using nginx for serving static files
+FROM nginx:alpine as production
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy built assets from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Environment variables for runtime (via nginx)
+ENV VITE_PORT=80
+ENV VITE_HOST=0.0.0.0
+ENV VITE_BACKEND_PORT=3040
+ENV VITE_BACKEND_IP=localhost
+
+# Expose port 80 (nginx default)
+EXPOSE 80
+
+# Nginx runs automatically when container starts
