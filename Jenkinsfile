@@ -3,8 +3,8 @@ pipeline {
     
     environment {
         // Docker image names (replace with your DockerHub username)
-        FRONTEND_IMAGE = 'rahulshende/riskdefender_pro11:frontend-01'
-        BACKEND_IMAGE = 'rahulshende/riskdefender_pro11:backend-02'
+        FRONTEND_IMAGE = 'rahulshende/riskdefender_pro11:myapp.frontend.v1'
+        BACKEND_IMAGE = 'rahulshende/riskdefender_pro11:myapp.backend.v2'
         
         // DockerHub credentials (configure in Jenkins)
         DOCKERHUB_CREDS = credentials('dockerhub-creds') // Username & Password
