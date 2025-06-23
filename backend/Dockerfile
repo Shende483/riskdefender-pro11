@@ -1,4 +1,3 @@
-# Stage 1: Build the backend
 FROM node:20-alpine as backend-builder
 
 WORKDIR /app
