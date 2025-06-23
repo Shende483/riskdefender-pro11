@@ -1,85 +1,75 @@
 pipeline {
     agent any
+    
     environment {
-        VERCEL_TOKEN = credentials('vercel-token')
-        DOCKER_IMAGE = "risk-defender-backend"
-        DOCKER_TAG = "${env.BUILD_NUMBER}"
-        // Environment variables for backend
-        JWT_SECRET = credentials('jwt-secret')
-        KAFKA_BROKERS = credentials('kafka-brokers')
-        RAZORPAY_KEY_ID = credentials('razorpay-key-id')
-        RAZORPAY_KEY_SECRET = credentials('razorpay-key-secret')
-        REDIS_URL = credentials('redis-url')
+        // Docker image names (replace with your DockerHub username)
+        FRONTEND_IMAGE = 'rahulshende/riskdefender_pro11:frontend'
+        BACKEND_IMAGE = 'rahulshende/riskdefender_pro11:backend'
+        
+        // DockerHub credentials (configure in Jenkins)
+        DOCKERHUB_CREDS = credentials('dockerhub-creds') // Username & Password
     }
+    
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/yourusername/your-repo.git', branch: 'main'
+                checkout scm  // Pulls code from SCM (Git)
             }
         }
-        stage('Build and Test Backend') {
+        
+        stage('Build Frontend Docker Image') {
             steps {
-                dir('backend') {
-                    sh 'node -v' // Ensure Node.js is available
-                    sh 'npm install'
-                    sh 'npm run build'
-                    sh 'npm run test || true' // Continue if tests fail, adjust as needed
+                script {
+                    docker.build("${FRONTEND_IMAGE}:${env.BUILD_NUMBER}", "-f Dockerfile.frontend .")
                 }
             }
         }
-        stage('Build and Test Frontend') {
-            steps {
-                dir('frontend') {
-                    sh 'node -v'
-                    sh 'npm install'
-                    sh 'npm run build'
-                    sh 'npm run test || true' // Continue if tests fail, adjust as needed
-                }
-            }
-        }
+        
         stage('Build Backend Docker Image') {
             steps {
                 dir('backend') {
-                    sh 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG .'
-                    sh 'docker tag $DOCKER_IMAGE:$DOCKER_TAG $DOCKER_IMAGE:latest'
+                    script {
+                        docker.build("${BACKEND_IMAGE}:${env.BUILD_NUMBER}", "-f Dockerfile.backend .")
+                    }
                 }
             }
         }
-        stage('Deploy Backend to Localhost') {
+        
+        stage('Login to DockerHub') {
             steps {
-                sh '''
-                    docker stop risk-defender-backend || true
-                    docker rm risk-defender-backend || true
-                    docker run -d --name risk-defender-backend -p 3000:3000 \
-                        -e NODE_ENV=production \
-                        -e JWT_SECRET=$JWT_SECRET \
-                        -e KAFKA_BROKERS=$KAFKA_BROKERS \
-                        -e RAZORPAY_KEY_ID=$RAZORPAY_KEY_ID \
-                        -e RAZORPAY_KEY_SECRET=$RAZORPAY_KEY_SECRET \
-                        -e REDIS_URL=$REDIS_URL \
-                        $DOCKER_IMAGE:latest
-                '''
+                script {
+                    sh "echo ${DOCKERHUB_CREDS_PSW} | docker login -u ${DOCKERHUB_CREDS_USR} --password-stdin"
+                }
             }
         }
-        stage('Deploy Frontend to Vercel') {
+        
+        stage('Push Images to DockerHub') {
             steps {
-                dir('frontend') {
-                    sh 'npm install -g vercel'
-                    sh 'vercel --prod --token $VERCEL_TOKEN'
+                script {
+                    // Push versioned images (with build number)
+                    sh "docker push ${FRONTEND_IMAGE}:${env.BUILD_NUMBER}"
+                    sh "docker push ${BACKEND_IMAGE}:${env.BUILD_NUMBER}"
+                    
+                    // Tag and push as 'latest'
+                    sh "docker tag ${FRONTEND_IMAGE}:${env.BUILD_NUMBER} ${FRONTEND_IMAGE}:latest"
+                    sh "docker tag ${BACKEND_IMAGE}:${env.BUILD_NUMBER} ${BACKEND_IMAGE}:latest"
+                    
+                    sh "docker push ${FRONTEND_IMAGE}:latest"
+                    sh "docker push ${BACKEND_IMAGE}:latest"
                 }
+            }
+        }
+        
+        stage('Cleanup') {
+            steps {
+                sh "docker logout"  // Logout from DockerHub
             }
         }
     }
+    
     post {
         always {
-            echo 'Cleaning up workspace'
-            cleanWs()
-        }
-        success {
-            echo 'Deployment completed successfully!'
-        }
-        failure {
-            echo 'Deployment failed. Check logs for details.'
+            cleanWs()  // Clean workspace after build
         }
     }
 }
